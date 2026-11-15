@@ -52,6 +52,13 @@ Numa missão longa, a tripulação nem sempre pode esperar pelo solo. Com o SISP
 </tr>
 </table>
 
+### Demo guiada e onboarding
+
+- **▶ Demo** (botão no topo ou `/#demo`): tour guiado de ~70 s com um clique, que conduz o app sozinho (ISS → febre relativa → tendência de isolamento → trânsito para Marte → escalonamento ciente do atraso → manuais de emergência → dados da NASA). Teclas: `←`/`→` passo, `espaço` pausa, `Esc` sai. Ao sair, a visão anterior é restaurada.
+- **Briefing da missão** (primeira abertura, botão `❔` ou `/#intro`): onboarding de 3 cartões / 30 s explicando o problema, como o SISP funciona e por que importa.
+- **5 hazards no corpo**: escolha um dos cinco hazards do NASA HRP e o corpo 3D acende todos os órgãos afetados (anéis de sonar), com *o que faz / o que o SISP mede / contramedida* e a fonte.
+- Relógio **MET** (tempo decorrido de missão) e tema visual de espaço profundo (CSS puro, funciona offline).
+
 ### Tripulação simulada
 
 Quatro tripulantes anônimos, com 30 dias de dados gerados por seed fixa. Cada um ilustra um cenário:

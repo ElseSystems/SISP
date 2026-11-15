@@ -52,6 +52,13 @@ On a long mission, the crew cannot always wait for the ground. SISP lets each as
 </tr>
 </table>
 
+### Guided demo & onboarding
+
+- **▶ Demo** (header button or `/#demo`): a ~70 s, one-click guided tour that drives the app by itself (ISS → relative fever → isolation trend → Mars transit → delay-aware escalation → emergency manuals → NASA data). Keys: `←`/`→` step, `space` pause, `Esc` exit. Your previous view is restored on exit.
+- **Mission briefing** (first launch, `❔` button or `/#intro`): a 3-card, 30-second onboarding explaining the problem, how SISP works, and why it matters.
+- **5 hazards on the body**: pick one of NASA HRP's five hazards and the 3D body lights up every organ it affects (sonar rings), with *what it does / what SISP watches / countermeasure* and its source.
+- **Mission Elapsed Time** clock and deep-space visual theme (pure CSS, works offline).
+
 ### Simulated crew
 
 Four anonymous crew members (30 days of seeded data), each illustrating a scenario:
