@@ -1,3 +1,7 @@
 # libsisp
 *.wasm binary
 core/tests/fixtures/*.txt linguist-generated=true
+
+# Language stats
+core/**/*.h linguist-language=C
+core/**/*.c linguist-language=C
