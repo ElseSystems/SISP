@@ -41,7 +41,6 @@ __pycache__/
 .venv/
 
 # ── Deploy tooling ───────────────────────────
-.vercel/
 .netlify/
 
 # ── 3D sources ───────────────────────────────

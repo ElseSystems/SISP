@@ -119,7 +119,6 @@ npm run dev        # http://localhost:5173
 
 Vite is configured with `base: './'`, so `dist/` works on any static host:
 
-- **Vercel**: `vercel.json` included.
 - **GitHub Pages**: workflow in `.github/workflows/pages.yml` (runs on push to `main`).
 
 ## Portable C core (libsisp)

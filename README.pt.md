@@ -119,7 +119,6 @@ npm run dev        # http://localhost:5173
 
 O Vite usa `base: './'`, então o `dist/` funciona em qualquer hospedagem estática:
 
-- **Vercel**: `vercel.json` incluído.
 - **GitHub Pages**: workflow em `.github/workflows/pages.yml` (roda a cada push na `main`).
 
 ## Núcleo portátil em C (libsisp)
