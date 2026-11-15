@@ -28,17 +28,25 @@ jobs:
           cmake -S core -B core/build -DCMAKE_C_COMPILER=${{ matrix.cc }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build }} -DSISP_WERROR=ON
           ${{ matrix.sanitize && '-DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"' || '' }}
-      - name: Build (static + shared + CLI)
+      - name: Build (static + shared + CLI + sisp_store)
         run: cmake --build core/build --parallel
-      - name: Test (unit + parity with the TypeScript reference)
+      - name: Test (unit + parity with the TypeScript reference + SQLite store)
         run: ctest --test-dir core/build --output-on-failure
-      - name: Header compiles as C++
-        run: printf '#include "sisp.h"\n#include "sisp_flat.h"\nint main() { return 0; }\n' | ${{ matrix.cc == 'gcc' && 'g++' || 'clang++' }} -std=c++17 -Wall -Wextra -Werror -Icore/include -x c++ -fsyntax-only -
+      - name: Headers compile as C++
+        run: printf '#include "sisp.h"\n#include "sisp_flat.h"\n#include "sisp_store.h"\nint main() { return 0; }\n' | ${{ matrix.cc == 'gcc' && 'g++' || 'clang++' }} -std=c++17 -Wall -Wextra -Werror -Icore/include -Icore/store/include -x c++ -fsyntax-only -
       - name: CLI smoke test
         run: |
           core/build/sisp-cli version
           core/build/sisp-cli assess < core/examples/checkins.csv || test $? -eq 3
           core/build/sisp-cli radiation mars-transit 180 120
+      - name: sisp-store smoke test (data survives the process)
+        run: |
+          db="$RUNNER_TEMP/history.sqlite3"
+          core/build/store/sisp-store "$db" import t1 2026-01-01 < core/examples/checkins.csv
+          core/build/store/sisp-store "$db" stats | tee "$RUNNER_TEMP/stats.json"
+          grep -q '"checkins": 8' "$RUNNER_TEMP/stats.json"
+          core/build/store/sisp-store "$db" check
+          core/build/store/sisp-store "$db" export t1 | grep -q '"format":"sisp-history"'
 
   wasm:
     name: WebAssembly + web parity
@@ -64,3 +72,22 @@ jobs:
       - name: Parity — rebuilt sisp.wasm vs TS reference
         run: npm run test:core
         env: { CI: 'true' }
+
+  store-web:
+    name: SQLite store — web (sqlite-wasm) ⇄ C
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - name: Build sisp-store (C)
+        run: |
+          cmake -S core -B core/build -DCMAKE_BUILD_TYPE=Release -DSISP_BUILD_SHARED=OFF -DSISP_WERROR=ON
+          cmake --build core/build --parallel --target sisp-store
+      - name: Web store tests + cross-read (C writes → web reads, web writes → C checks)
+        run: |
+          core/build/store/sisp-store "$RUNNER_TEMP/c.sqlite3" import t1 < core/examples/checkins.csv
+          node scripts/storage-test.ts --in "$RUNNER_TEMP/c.sqlite3" --out "$RUNNER_TEMP/web.sqlite3"
+          core/build/store/sisp-store "$RUNNER_TEMP/web.sqlite3" check
+          core/build/store/sisp-store "$RUNNER_TEMP/web.sqlite3" stats
