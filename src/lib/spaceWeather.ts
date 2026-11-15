@@ -5,6 +5,7 @@
  * ⚠️ Event dose numbers below are illustrative prototype values, not a NASA dosimetry model.
  */
 import type { EnvironmentId } from './knowledge'
+import { core, ENV_NUMBERS, SHELTER_FACTOR as CORE_SHELTER_FACTOR } from '../core'
 import { l } from './i18n'
 import type { L } from './i18n'
 
@@ -42,11 +43,12 @@ export interface SolarLogEntry { id: string; at: number; env: EnvironmentId; dos
  * Extra dose of a large SEP for an unsheltered crew, per environment (prototype values).
  * Order of magnitude only: magnetosphere protects the ISS; the Moon and deep space are exposed;
  * the Martian atmosphere attenuates (Curiosity RAD saw ~2× background in the Sept 2017 SEP).
+ * Numbers live in the SISP core (src/core/constants.ts ⇄ core/src/sisp.c).
  */
-export const SEP_DOSE_UNSHELTERED: Record<EnvironmentId, number> = { iss: 1, moonBase: 40, marsTransit: 50, marsBase: 1.5 }
+export const SEP_DOSE_UNSHELTERED = Object.fromEntries(Object.entries(ENV_NUMBERS).map(([k, v]) => [k, v.sepDoseUnsheltered])) as Record<EnvironmentId, number>
 /** dose-rate multiplier inside the storm shelter (mass/water around the crew) — prototype value */
-export const SHELTER_FACTOR = 0.25
-export const DEEP_SPACE: Record<EnvironmentId, boolean> = { iss: false, moonBase: true, marsTransit: true, marsBase: false }
+export const SHELTER_FACTOR = CORE_SHELTER_FACTOR
+export const DEEP_SPACE = Object.fromEntries(Object.entries(ENV_NUMBERS).map(([k, v]) => [k, v.deepSpace])) as Record<EnvironmentId, boolean>
 
 const BASE = import.meta.env.BASE_URL
 const API = 'https://ccmc.gsfc.nasa.gov/DONKI-API/get'
@@ -107,18 +109,9 @@ function nearestFlareBefore(time: string, flares: Flr[]) {
 
 export const fmtUtc = (iso: string) => iso.replace('T', ' ').replace(/:\d\dZ$|Z$/, '').slice(0, 16) + ' UTC'
 
-/** Live accrued event dose (mSv) at time `now`. */
+/** Live accrued event dose (mSv) at time `now` — libsisp sisp_sep_event_dose. */
 export function eventDose(s: ActiveSolar, env: EnvironmentId, now = Date.now()) {
-  const full = SEP_DOSE_UNSHELTERED[env]
-  const dur = s.durationSec * 1000
-  const end = Math.min(now, s.startedAt + dur)
-  const shelterAt = s.shelteredAt ? Math.min(s.shelteredAt, end) : end
-  const unsheltered = Math.max(0, shelterAt - s.startedAt)
-  const sheltered = Math.max(0, end - shelterAt)
-  const dose = full * (unsheltered / dur) + full * SHELTER_FACTOR * (sheltered / dur)
-  const progress = Math.min(1, (now - s.startedAt) / dur)
-  // what the crew avoided by sheltering (vs staying out for the whole event)
-  const avoided = full * (sheltered / dur) * (1 - SHELTER_FACTOR)
-  const projectedUnsheltered = full
-  return { dose, progress, avoided, projectedUnsheltered, done: progress >= 1 }
+  const d = core().sepDose(SEP_DOSE_UNSHELTERED[env], s.startedAt, s.shelteredAt ?? 0, s.durationSec, now, SHELTER_FACTOR)
+  // avoided = what the crew avoided by sheltering (vs staying out for the whole event)
+  return { dose: d.dose, progress: d.progress, avoided: d.avoided, projectedUnsheltered: d.projectedUnsheltered, done: d.done }
 }

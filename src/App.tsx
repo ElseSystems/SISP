@@ -19,6 +19,7 @@ import SelfTests from './components/SelfTests'
 import SolarAlert from './components/SolarAlert'
 import { ReminderToaster } from './components/Reminders'
 import { useSolarContext } from './lib/useSolar'
+import { useCoreBackend } from './lib/useCore'
 import { screen } from './lib/motion'
 import Onboarding from './components/Onboarding'
 import DemoDirector from './components/DemoDirector'
@@ -76,9 +77,10 @@ export default function App() {
 
   const c = crew.find((x) => x.id === selectedId) ?? crew[0]
   const solarCtx = useSolarContext()
+  const coreBackend = useCoreBackend()
   const solarKey = `${solarCtx.active}-${solarCtx.sheltered}-${solarCtx.liveDoseMSv.toFixed(2)}-${solarCtx.loggedDoseMSv.toFixed(2)}`
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env, solarCtx)])), [crew, env, solarKey])
+  const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env, solarCtx)])), [crew, env, solarKey, coreBackend])
   const a = assessments[c.id]
   const pending = lastCheckin !== today
   const fleetWorst = Math.max(...crew.map((m) => assessments[m.id]?.overall ?? 0)) as 0 | 1 | 2 | 3
@@ -165,6 +167,9 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
         <Disclaimer />
+        <p className="mt-2 text-center text-meta text-slate-500" title={t('Mesmo resultado nos dois motores (npm run test:core)', 'Same results on both engines (npm run test:core)')}>
+          ⚙️ {t('Motor de avaliação', 'Assessment engine')}: <span className="mono text-slate-400">{coreBackend === 'wasm' ? 'libsisp (C11 → WebAssembly)' : t('referência TypeScript (fallback)', 'TypeScript reference (fallback)')}</span>
+        </p>
       </main>
       <AnimatePresence>{showIntro && !demo && <Onboarding key="intro" />}</AnimatePresence>
       {demo && <DemoDirector />}

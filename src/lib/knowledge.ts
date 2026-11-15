@@ -9,13 +9,13 @@
 import { l } from './i18n'
 import type { L } from './i18n'
 
-export type Severity = 0 | 1 | 2 | 3
+import { BANDS, BONE_LOSS_PER_MONTH_PCT, CAREER_LIMIT_MSV, ENV_NUMBERS, BASELINE_DAYS, TEMP_DELTA_ALERT, TEMP_DELTA_ATTENTION, Z_ALERT, Z_ATTENTION } from '../core/constants'
+import type { Severity, IndicatorId, BodyRegionId, EnvironmentId } from '../core/constants'
+export type { Severity, IndicatorId, BodyRegionId, EnvironmentId }
 export const SEVERITY_LABEL: readonly L[] = [l('Nominal', 'Nominal'), l('Atenção', 'Caution'), l('Alerta', 'Warning'), l('Crítico', 'Critical')]
 export const SEVERITY_COLOR = ['#34D399', '#FACC15', '#FB923C', '#FF6B6B'] as const
 
-export type IndicatorId = 'bp' | 'hr' | 'glucose' | 'temp' | 'sleep' | 'mood'
 export type HazardId = 'radiation' | 'isolation' | 'distance' | 'gravity' | 'environment'
-export type BodyRegionId = 'brain' | 'heart' | 'lungs' | 'metabolism' | 'musculoskeletal' | 'immune'
 
 export interface Source { label: string; url: string }
 
@@ -78,11 +78,11 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('Em órbita a PA média de 24 h cai (~8/9 mmHg em Norsk 2015) pelo deslocamento de fluidos. O maior risco é hipotensão ortostática ao voltar à gravidade.', 'In orbit, 24-h mean BP drops (~8/9 mmHg in Norsk 2015) due to fluid shift. The main risk is orthostatic hypotension on return to gravity.'),
     hazards: ['gravity', 'radiation', 'isolation'], regions: ['heart'],
     bands: [
-      { from: 0, to: 90, severity: 1, label: l('Baixa (<90 NHLBI)', 'Low (<90 NHLBI)') },
-      { from: 90, to: 120, severity: 0, label: l('Normal (<120 AHA)', 'Normal (<120 AHA)') },
-      { from: 120, to: 140, severity: 1, label: l('Elevada / Estágio 1', 'Elevated / Stage 1') },
-      { from: 140, to: 180, severity: 2, label: l('Estágio 2', 'Stage 2') },
-      { from: 180, to: 240, severity: 3, label: l('Crise (>180)', 'Crisis (>180)') },
+      { ...BANDS.bp[0], label: l('Baixa (<90 NHLBI)', 'Low (<90 NHLBI)') },
+      { ...BANDS.bp[1], label: l('Normal (<120 AHA)', 'Normal (<120 AHA)') },
+      { ...BANDS.bp[2], label: l('Elevada / Estágio 1', 'Elevated / Stage 1') },
+      { ...BANDS.bp[3], label: l('Estágio 2', 'Stage 2') },
+      { ...BANDS.bp[4], label: l('Crise (>180)', 'Crisis (>180)') },
     ],
     actions: {
       0: l('Mantenha hidratação e exercício aeróbico/resistido conforme o plano.', 'Keep hydration and aerobic/resistive exercise per plan.'),
@@ -99,9 +99,9 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('Em repouso fica perto do basal em voo; taquicardia aparece no retorno (descondicionamento) e com estresse/privação de sono.', 'Resting HR stays near baseline in flight; tachycardia appears on return (deconditioning) and with stress/sleep loss.'),
     hazards: ['gravity', 'isolation', 'environment'], regions: ['heart'],
     bands: [
-      { from: 30, to: 60, severity: 1, label: l('<60 (bradicardia)', '<60 (bradycardia)') },
-      { from: 60, to: 100, severity: 0, label: l('60–100 AHA', '60–100 AHA') },
-      { from: 100, to: 180, severity: 1, label: l('>100 (taquicardia)', '>100 (tachycardia)') },
+      { ...BANDS.hr[0], label: l('<60 (bradicardia)', '<60 (bradycardia)') },
+      { ...BANDS.hr[1], label: l('60–100 AHA', '60–100 AHA') },
+      { ...BANDS.hr[2], label: l('>100 (taquicardia)', '>100 (tachycardia)') },
     ],
     actions: {
       0: l('Sem ação. Continue o check-in diário.', 'No action. Keep the daily check-in.'),
@@ -118,11 +118,11 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('O NASA Twins Study associou voo longo a sinais de resistência à insulina; dieta e inatividade relativa também influenciam.', 'The NASA Twins Study linked long-duration flight to signs of insulin resistance; diet and relative inactivity also play a role.'),
     hazards: ['gravity', 'environment', 'distance'], regions: ['metabolism'],
     bands: [
-      { from: 20, to: 54, severity: 3, label: l('Hipo grave <54', 'Severe hypo <54') },
-      { from: 54, to: 70, severity: 2, label: l('Hipo <70', 'Hypo <70') },
-      { from: 70, to: 100, severity: 0, label: l('Normal <100 (ADA)', 'Normal <100 (ADA)') },
-      { from: 100, to: 126, severity: 1, label: l('Alterada 100–125', 'Impaired 100–125') },
-      { from: 126, to: 300, severity: 2, label: l('≥126', '≥126') },
+      { ...BANDS.glucose[0], label: l('Hipo grave <54', 'Severe hypo <54') },
+      { ...BANDS.glucose[1], label: l('Hipo <70', 'Hypo <70') },
+      { ...BANDS.glucose[2], label: l('Normal <100 (ADA)', 'Normal <100 (ADA)') },
+      { ...BANDS.glucose[3], label: l('Alterada 100–125', 'Impaired 100–125') },
+      { ...BANDS.glucose[4], label: l('≥126', '≥126') },
     ],
     actions: {
       0: l('Mantenha o plano alimentar da missão.', 'Stick to the mission meal plan.'),
@@ -139,9 +139,9 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('"Febre espacial": a temperatura central de repouso sobe ~1 °C em missões longas (Stahn 2017). Por isso o SISP avalia febre RELATIVA à sua linha de base de voo, não só o corte de 38 °C.', '"Space fever": resting core temperature rises ~1 °C on long missions (Stahn 2017). So SISP judges fever RELATIVE to your in-flight baseline, not only the 38 °C cutoff.'),
     hazards: ['environment', 'gravity', 'radiation'], regions: ['immune', 'brain'],
     bands: [
-      { from: 34, to: 36, severity: 1, label: l('<36', '<36') },
-      { from: 36, to: 38, severity: 0, label: l('Faixa usual', 'Usual range') },
-      { from: 38, to: 42, severity: 2, label: l('Febre ≥38 (CDC)', 'Fever ≥38 (CDC)') },
+      { ...BANDS.temp[0], label: l('<36', '<36') },
+      { ...BANDS.temp[1], label: l('Faixa usual', 'Usual range') },
+      { ...BANDS.temp[2], label: l('Febre ≥38 (CDC)', 'Fever ≥38 (CDC)') },
     ],
     actions: {
       0: l('Sem ação.', 'No action.'),
@@ -158,9 +158,9 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('Na ISS os astronautas dormem em média ~6,09 h por noite e uso de hipnóticos é comum (Barger 2014). Luz artificial, ruído e ciclos de 90 min dia/noite atrapalham.', 'On the ISS astronauts average ~6.09 h of sleep per night and hypnotic use is common (Barger 2014). Artificial light, noise and 90-min day/night cycles interfere.'),
     hazards: ['isolation', 'environment', 'distance'], regions: ['brain'],
     bands: [
-      { from: 0, to: 5, severity: 2, label: l('<5 h', '<5 h') },
-      { from: 5, to: 7, severity: 1, label: l('5–7 h', '5–7 h') },
-      { from: 7, to: 12, severity: 0, label: l('≥7 h (AASM)', '≥7 h (AASM)') },
+      { ...BANDS.sleep[0], label: l('<5 h', '<5 h') },
+      { ...BANDS.sleep[1], label: l('5–7 h', '5–7 h') },
+      { ...BANDS.sleep[2], label: l('≥7 h (AASM)', '≥7 h (AASM)') },
     ],
     actions: {
       0: l('Ótimo. Mantenha horário regular e higiene de sono.', 'Great. Keep a regular schedule and sleep hygiene.'),
@@ -177,8 +177,8 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
     spaceEffect: l('Isolamento, monotonia, distância da família e carga de trabalho são riscos comportamentais mapeados pelo HRP.', 'Isolation, monotony, distance from family and workload are behavioral risks mapped by the HRP.'),
     hazards: ['isolation', 'distance'], regions: ['brain'],
     bands: [
-      { from: 1, to: 2.5, severity: 1, label: l('Humor baixo', 'Low mood') },
-      { from: 2.5, to: 5, severity: 0, label: l('Usual', 'Usual') },
+      { ...BANDS.mood[0], label: l('Humor baixo', 'Low mood') },
+      { ...BANDS.mood[1], label: l('Usual', 'Usual') },
     ],
     actions: {
       0: l('Mantenha contato com família e lazer programado.', 'Keep in touch with family and scheduled leisure.'),
@@ -190,11 +190,11 @@ export const INDICATORS: Record<IndicatorId, IndicatorInfo> = {
   },
 }
 
-export const RADIATION = { careerLimitMSv: 600, source: SOURCES.std3001 }
+export const RADIATION = { careerLimitMSv: CAREER_LIMIT_MSV, source: SOURCES.std3001 }
 
 export const BONE = {
   /** BMD loss per month without countermeasures (NASA) */
-  lossPerMonthPct: [1, 1.5] as const,
+  lossPerMonthPct: BONE_LOSS_PER_MONTH_PCT,
   source: SOURCES.bone,
   note: l('Estimativa sem DEXA a bordo: projeta a perda pelo tempo em micro/baixa gravidade, reduzida pela adesão ao exercício resistido (heurística do protótipo).', 'Estimate without onboard DEXA: projects loss from time in micro/low gravity, reduced by resistive-exercise adherence (prototype heuristic).'),
 }
@@ -209,7 +209,6 @@ export const BODY_REGIONS: Record<BodyRegionId, { name: L; short: L; fn: L; indi
 }
 
 // ------------------------------------------------------------------ Mission environments
-export type EnvironmentId = 'iss' | 'moonBase' | 'marsTransit' | 'marsBase'
 
 export interface EnvironmentInfo {
   id: EnvironmentId
@@ -227,17 +226,17 @@ export interface EnvironmentInfo {
 }
 
 export const ENVIRONMENTS: Record<EnvironmentId, EnvironmentInfo> = {
-  iss: { id: 'iss', name: l('Estação Espacial (ISS)', 'Space Station (ISS)'), emoji: '🛰️', gravityG: 0, delaySecOneWay: 0.5, delayLabel: l('quase tempo real', 'near real time'), evacuation: l('Retorno à Terra em horas', 'Return to Earth within hours'), evacuationPossible: true, radiationNote: l('Protegida pela magnetosfera; ~0,2–0,5 mSv/dia.', 'Shielded by the magnetosphere; ~0.2–0.5 mSv/day.'), doseMSvPerDay: 0.35 },
-  moonBase: { id: 'moonBase', name: l('Base lunar', 'Lunar base'), emoji: '🌕', gravityG: 0.166, delaySecOneWay: 1.3, delayLabel: l('~1,3 s (ida)', '~1.3 s (one-way)'), evacuation: l('Retorno em ~3 dias', 'Return in ~3 days'), evacuationPossible: true, radiationNote: l("Sem magnetosfera; superfície ~1,37 mSv/dia (Chang'e-4). Abrigo em eventos solares.", "No magnetosphere; surface ~1.37 mSv/day (Chang'e-4). Shelter during solar events."), doseMSvPerDay: 1.369 },
-  marsTransit: { id: 'marsTransit', name: l('Trânsito para Marte', 'Mars transit'), emoji: '🚀', gravityG: 0, delaySecOneWay: 20 * 60, delayLabel: l('até ~20 min (ida)', 'up to ~20 min (one-way)'), evacuation: l('Sem retorno possível por meses', 'No return possible for months'), evacuationPossible: false, radiationNote: l('Espaço profundo: ~1,84 mSv/dia (MSL RAD no cruzeiro).', 'Deep space: ~1.84 mSv/day (MSL RAD during cruise).'), doseMSvPerDay: 1.84 },
-  marsBase: { id: 'marsBase', name: l('Base em Marte', 'Mars base'), emoji: '🔴', gravityG: 0.38, delaySecOneWay: 20 * 60, delayLabel: l('até ~20 min (ida)', 'up to ~20 min (one-way)'), evacuation: l('Sem retorno por ~18 meses', 'No return for ~18 months'), evacuationPossible: false, radiationNote: l('Superfície ~0,64 mSv/dia (Curiosity RAD).', 'Surface ~0.64 mSv/day (Curiosity RAD).'), doseMSvPerDay: 0.64 },
+  iss: { id: 'iss', name: l('Estação Espacial (ISS)', 'Space Station (ISS)'), emoji: '🛰️', gravityG: 0, delaySecOneWay: 0.5, delayLabel: l('quase tempo real', 'near real time'), evacuation: l('Retorno à Terra em horas', 'Return to Earth within hours'), evacuationPossible: true, radiationNote: l('Protegida pela magnetosfera; ~0,2–0,5 mSv/dia.', 'Shielded by the magnetosphere; ~0.2–0.5 mSv/day.'), doseMSvPerDay: ENV_NUMBERS.iss.doseMSvPerDay },
+  moonBase: { id: 'moonBase', name: l('Base lunar', 'Lunar base'), emoji: '🌕', gravityG: 0.166, delaySecOneWay: 1.3, delayLabel: l('~1,3 s (ida)', '~1.3 s (one-way)'), evacuation: l('Retorno em ~3 dias', 'Return in ~3 days'), evacuationPossible: true, radiationNote: l("Sem magnetosfera; superfície ~1,37 mSv/dia (Chang'e-4). Abrigo em eventos solares.", "No magnetosphere; surface ~1.37 mSv/day (Chang'e-4). Shelter during solar events."), doseMSvPerDay: ENV_NUMBERS.moonBase.doseMSvPerDay },
+  marsTransit: { id: 'marsTransit', name: l('Trânsito para Marte', 'Mars transit'), emoji: '🚀', gravityG: 0, delaySecOneWay: 20 * 60, delayLabel: l('até ~20 min (ida)', 'up to ~20 min (one-way)'), evacuation: l('Sem retorno possível por meses', 'No return possible for months'), evacuationPossible: false, radiationNote: l('Espaço profundo: ~1,84 mSv/dia (MSL RAD no cruzeiro).', 'Deep space: ~1.84 mSv/day (MSL RAD during cruise).'), doseMSvPerDay: ENV_NUMBERS.marsTransit.doseMSvPerDay },
+  marsBase: { id: 'marsBase', name: l('Base em Marte', 'Mars base'), emoji: '🔴', gravityG: 0.38, delaySecOneWay: 20 * 60, delayLabel: l('até ~20 min (ida)', 'up to ~20 min (one-way)'), evacuation: l('Sem retorno por ~18 meses', 'No return for ~18 months'), evacuationPossible: false, radiationNote: l('Superfície ~0,64 mSv/dia (Curiosity RAD).', 'Surface ~0.64 mSv/day (Curiosity RAD).'), doseMSvPerDay: ENV_NUMBERS.marsBase.doseMSvPerDay },
 }
 
 /** Prototype design parameters (NOT published clinical numbers). */
 export const PROTOTYPE_HEURISTICS = {
-  zAttention: 2,
-  zAlert: 3,
-  tempDeltaAttention: 0.8,
-  tempDeltaAlert: 1.2,
-  baselineDays: 14,
+  zAttention: Z_ATTENTION,
+  zAlert: Z_ALERT,
+  tempDeltaAttention: TEMP_DELTA_ATTENTION,
+  tempDeltaAlert: TEMP_DELTA_ALERT,
+  baselineDays: BASELINE_DAYS,
 }

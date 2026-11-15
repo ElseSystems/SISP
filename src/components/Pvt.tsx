@@ -4,12 +4,13 @@ import { Card, SourceLinks, Badge } from './ui'
 import { useStore } from '../lib/store'
 import { isoDay } from '../lib/crew'
 import { fatigueStatus } from '../lib/assessment'
+import { core, PVT_LAPSE_MS } from '../core'
 import { SOURCES } from '../lib/knowledge'
 import type { PvtResult } from '../lib/types'
 import { t } from '../lib/i18n'
 
 type Phase = 'idle' | 'countdown' | 'wait' | 'stimulus' | 'feedback' | 'done'
-const LAPSE_MS = 355 // PVT-B lapse threshold (Basner et al. 2011)
+const LAPSE_MS = PVT_LAPSE_MS // PVT-B lapse threshold (Basner et al. 2011)
 const ISI: [number, number] = [1000, 4000] // PVT-B inter-stimulus interval
 const TIMEOUT_MS = 3000
 const DURATIONS = [30, 60, 120, 180] as const
@@ -41,12 +42,8 @@ export default function Pvt() {
 
   const finish = useCallback(() => {
     clear()
-    const v = [...rts.current].sort((a, b) => a - b)
-    const valid = v.filter((x) => x >= 100)
-    const median = valid.length ? valid[Math.floor(valid.length / 2)] : 0
-    const mean = valid.length ? valid.reduce((a, x) => a + x, 0) / valid.length : 0
-    const speed = valid.length ? valid.reduce((a, x) => a + 1000 / x, 0) / valid.length : 0
-    const r: PvtResult = { date: isoDay(new Date()), at: Date.now(), durationSec: dur, n: valid.length, meanMs: Math.round(mean), medianMs: Math.round(median), lapses: valid.filter((x) => x >= LAPSE_MS).length, falseStarts: falseStarts.current, speed: Math.round(speed * 10) / 10, source: 'manual' }
+    const sc = core().pvtScore(rts.current, falseStarts.current) // libsisp sisp_pvt_score_session
+    const r: PvtResult = { date: isoDay(new Date()), at: Date.now(), durationSec: dur, n: sc.n, meanMs: sc.meanMs, medianMs: sc.medianMs, lapses: sc.lapses, falseStarts: sc.falseStarts, speed: sc.speed, source: 'manual' }
     setRes(r); go('done')
   }, [dur])
 

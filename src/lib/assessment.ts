@@ -1,11 +1,14 @@
 /**
- * Avaliação: combina LIMITE ABSOLUTO (diretrizes publicadas) com DESVIO DA LINHA DE BASE PESSOAL.
- * ⚠️ Heurística de protótipo – não é dispositivo médico.
+ * Assessment: absolute limits (published guidelines) + deviation from the PERSONAL baseline.
+ * The numbers come from the SISP core — libsisp (C11 → WebAssembly) with the TypeScript
+ * reference as fallback (src/core). This module only turns reason flags into bilingual text.
+ * ⚠️ Prototype heuristics — not a medical device.
  */
-import { BONE, ENVIRONMENTS, PROTOTYPE_HEURISTICS as H, RADIATION, BODY_REGIONS } from './knowledge'
+import { core, ENV_NUMBERS, FAT, INDICATOR_ORDER, R, REGION_ORDER, SOLAR } from '../core'
+import type { CoreFinding, CoreReading } from '../core'
+import { baselineOf as refBaselineOf } from '../core/reference'
 import type { BodyRegionId, EnvironmentId, IndicatorId, Severity } from './knowledge'
-import type { CrewMember, PvtResult, Reading } from './types'
-import { DEEP_SPACE } from './spaceWeather'
+import type { CrewMember, Reading } from './types'
 import { l } from './i18n'
 import type { L } from './i18n'
 
@@ -15,99 +18,80 @@ const signed = (d: number) => { const n = Math.round(d); return n > 0 ? `+${n}` 
 export interface Finding { indicator: IndicatorId | 'radiation' | 'bone'; severity: Severity; reasons: L[]; value: string; delta?: L }
 export interface Baseline { mean: number; sd: number; n: number }
 
-const SD_FLOOR: Record<string, number> = { sys: 4, dia: 3, hr: 3, glucose: 4, temp: 0.15, sleep: 0.4, mood: 0.5 }
-const max = (a: Severity, b: Severity) => (a > b ? a : b) as Severity
+const toCore = (r: Reading): CoreReading => ({ sys: r.sys, dia: r.dia, hr: r.hr, glucose: r.glucose, temp: r.temp, sleep: r.sleep, mood: r.mood, exerciseMin: r.exerciseMin, phq2: r.phq2, selfHarm: r.selfHarm })
 
+type BaselineKey = 'sys' | 'dia' | 'hr' | 'glucose' | 'temp' | 'sleep' | 'mood'
 export function baselineOf(readings: Reading[], key: keyof Reading, upto: number): Baseline {
-  const win = readings.slice(Math.max(0, upto - H.baselineDays), upto).map((r) => Number(r[key])).filter((v) => !Number.isNaN(v))
-  if (!win.length) return { mean: NaN, sd: SD_FLOOR[key as string] ?? 1, n: 0 }
-  const mean = win.reduce((s, v) => s + v, 0) / win.length
-  const sd = Math.sqrt(win.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(1, win.length - 1))
-  return { mean, sd: Math.max(sd, SD_FLOOR[key as string] ?? 0.1), n: win.length }
+  return refBaselineOf(readings.map(toCore), upto, key as BaselineKey)
 }
 
-function zSeverity(value: number, b: Baseline, label: L, reasons: L[]): Severity {
-  if (b.n < 5) return 0
-  const z = (value - b.mean) / b.sd
-  if (Math.abs(z) >= H.zAlert) { reasons.push(l(`${label.pt}: desvio forte da sua base (z=${z.toFixed(1)})`, `${label.en}: strong deviation from your baseline (z=${z.toFixed(1)})`)); return 2 }
-  if (Math.abs(z) >= H.zAttention) { reasons.push(l(`${label.pt}: fora do seu padrão (z=${z.toFixed(1)})`, `${label.en}: outside your usual pattern (z=${z.toFixed(1)})`)); return 1 }
-  return 0
+function zReason(f: CoreFinding, label: L): L[] {
+  const z = f.z.toFixed(1)
+  if (f.reasons & R.Z_STRONG) return [l(`${label.pt}: desvio forte da sua base (z=${z})`, `${label.en}: strong deviation from your baseline (z=${z})`)]
+  if (f.reasons & R.Z_OUTSIDE) return [l(`${label.pt}: fora do seu padrão (z=${z})`, `${label.en}: outside your usual pattern (z=${z})`)]
+  return []
 }
+
+const vsBase = (f: CoreFinding) => (f.baselineN ? l(`${signed(f.delta)} vs base`, `${signed(f.delta)} vs baseline`) : undefined)
 
 export function assessReading(readings: Reading[], idx: number): Finding[] {
   const r = readings[idx]
+  const a = core().assess(readings.map(toCore), idx)
   const out: Finding[] = []
-
-  // Pressão arterial (AHA / NHLBI)
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    if (r.sys > 180 || r.dia > 120) { s = 3; reasons.push(l('Crise hipertensiva (>180/120, AHA)', 'Hypertensive crisis (>180/120, AHA)')) }
-    else if (r.sys >= 140 || r.dia >= 90) { s = 2; reasons.push(l('Hipertensão estágio 2 (≥140/90, AHA)', 'Stage 2 hypertension (≥140/90, AHA)')) }
-    else if (r.sys >= 120) { s = 1; reasons.push(r.sys >= 130 || r.dia >= 80 ? l('Hipertensão estágio 1 (130–139/80–89, AHA)', 'Stage 1 hypertension (130–139/80–89, AHA)') : l('PA elevada (120–129, AHA)', 'Elevated BP (120–129, AHA)')) }
-    else if (r.dia >= 80) { s = 1; reasons.push(l('Diastólica ≥80 (estágio 1, AHA)', 'Diastolic ≥80 (stage 1, AHA)')) }
-    if (r.sys < 90 || r.dia < 60) { s = max(s, 1); reasons.push(l('PA baixa (<90/60, NHLBI)', 'Low BP (<90/60, NHLBI)')) }
-    const b = baselineOf(readings, 'sys', idx)
-    s = max(s, zSeverity(r.sys, b, l('Sistólica', 'Systolic'), reasons))
-    out.push({ indicator: 'bp', severity: s, reasons, value: `${r.sys}/${r.dia} mmHg`, delta: b.n ? l(`${signed(r.sys - b.mean)} vs base`, `${signed(r.sys - b.mean)} vs baseline`) : undefined })
+  const has = (f: CoreFinding, flag: number) => (f.reasons & flag) !== 0
+  { // blood pressure (AHA / NHLBI)
+    const f = a.bp, reasons: L[] = []
+    if (has(f, R.BP_CRISIS)) reasons.push(l('Crise hipertensiva (>180/120, AHA)', 'Hypertensive crisis (>180/120, AHA)'))
+    if (has(f, R.BP_STAGE2)) reasons.push(l('Hipertensão estágio 2 (≥140/90, AHA)', 'Stage 2 hypertension (≥140/90, AHA)'))
+    if (has(f, R.BP_STAGE1)) reasons.push(l('Hipertensão estágio 1 (130–139/80–89, AHA)', 'Stage 1 hypertension (130–139/80–89, AHA)'))
+    if (has(f, R.BP_ELEVATED)) reasons.push(l('PA elevada (120–129, AHA)', 'Elevated BP (120–129, AHA)'))
+    if (has(f, R.BP_DIA80)) reasons.push(l('Diastólica ≥80 (estágio 1, AHA)', 'Diastolic ≥80 (stage 1, AHA)'))
+    if (has(f, R.BP_LOW)) reasons.push(l('PA baixa (<90/60, NHLBI)', 'Low BP (<90/60, NHLBI)'))
+    reasons.push(...zReason(f, l('Sistólica', 'Systolic')))
+    out.push({ indicator: 'bp', severity: f.severity, reasons, value: `${r.sys}/${r.dia} mmHg`, delta: vsBase(f) })
   }
-  // FC (AHA 60–100)
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    if (r.hr > 100) { s = 1; reasons.push(l('Taquicardia em repouso (>100 bpm)', 'Resting tachycardia (>100 bpm)')) }
-    if (r.hr < 60) { s = 1; reasons.push(l('<60 bpm (pode ser normal em atletas; compare com sua base)', '<60 bpm (may be normal in athletes; compare with your baseline)')) }
-    const b = baselineOf(readings, 'hr', idx)
-    s = max(s, zSeverity(r.hr, b, l('FC', 'HR'), reasons))
-    out.push({ indicator: 'hr', severity: s, reasons, value: `${r.hr} bpm`, delta: b.n ? l(`${signed(r.hr - b.mean)} vs base`, `${signed(r.hr - b.mean)} vs baseline`) : undefined })
+  { // heart rate (AHA 60–100)
+    const f = a.hr, reasons: L[] = []
+    if (has(f, R.HR_TACHY)) reasons.push(l('Taquicardia em repouso (>100 bpm)', 'Resting tachycardia (>100 bpm)'))
+    if (has(f, R.HR_BRADY)) reasons.push(l('<60 bpm (pode ser normal em atletas; compare com sua base)', '<60 bpm (may be normal in athletes; compare with your baseline)'))
+    reasons.push(...zReason(f, l('FC', 'HR')))
+    out.push({ indicator: 'hr', severity: f.severity, reasons, value: `${r.hr} bpm`, delta: vsBase(f) })
   }
-  // Glicemia (ADA)
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    if (r.glucose < 54) { s = 3; reasons.push(l('Hipoglicemia grave (<54 mg/dL, ADA)', 'Severe hypoglycemia (<54 mg/dL, ADA)')) }
-    else if (r.glucose < 70) { s = 2; reasons.push(l('Hipoglicemia (<70 mg/dL, ADA)', 'Hypoglycemia (<70 mg/dL, ADA)')) }
-    else if (r.glucose >= 126) { s = 2; reasons.push(l('Jejum ≥126 mg/dL (faixa de diabetes se repetido, ADA)', 'Fasting ≥126 mg/dL (diabetes range if repeated, ADA)')) }
-    else if (r.glucose >= 100) { s = 1; reasons.push(l('Glicemia de jejum alterada (100–125, ADA)', 'Impaired fasting glucose (100–125, ADA)')) }
-    const b = baselineOf(readings, 'glucose', idx)
-    s = max(s, zSeverity(r.glucose, b, l('Glicemia', 'Glucose'), reasons))
-    out.push({ indicator: 'glucose', severity: s, reasons, value: `${r.glucose} mg/dL`, delta: b.n ? l(`${signed(r.glucose - b.mean)} vs base`, `${signed(r.glucose - b.mean)} vs baseline`) : undefined })
+  { // glucose (ADA)
+    const f = a.glucose, reasons: L[] = []
+    if (has(f, R.GLU_SEVERE_HYPO)) reasons.push(l('Hipoglicemia grave (<54 mg/dL, ADA)', 'Severe hypoglycemia (<54 mg/dL, ADA)'))
+    if (has(f, R.GLU_HYPO)) reasons.push(l('Hipoglicemia (<70 mg/dL, ADA)', 'Hypoglycemia (<70 mg/dL, ADA)'))
+    if (has(f, R.GLU_DIABETES)) reasons.push(l('Jejum ≥126 mg/dL (faixa de diabetes se repetido, ADA)', 'Fasting ≥126 mg/dL (diabetes range if repeated, ADA)'))
+    if (has(f, R.GLU_IMPAIRED)) reasons.push(l('Glicemia de jejum alterada (100–125, ADA)', 'Impaired fasting glucose (100–125, ADA)'))
+    reasons.push(...zReason(f, l('Glicemia', 'Glucose')))
+    out.push({ indicator: 'glucose', severity: f.severity, reasons, value: `${r.glucose} mg/dL`, delta: vsBase(f) })
   }
-  // Temperatura: absoluto (CDC ≥38) + RELATIVO à base de voo (febre espacial, Stahn 2017)
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    const b = baselineOf(readings, 'temp', idx)
-    const delta = b.n ? r.temp - b.mean : 0
-    if (r.temp >= 38) { s = 2; reasons.push(l('Febre (≥38 °C, CDC)', 'Fever (≥38 °C, CDC)')) }
-    if (b.n >= 5 && delta >= H.tempDeltaAlert) { s = max(s, 2); reasons.push(l(`+${delta.toFixed(1)} °C acima da SUA base de voo (${b.mean.toFixed(1)} °C)`, `+${delta.toFixed(1)} °C above YOUR in-flight baseline (${b.mean.toFixed(1)} °C)`)) }
-    else if (b.n >= 5 && delta >= H.tempDeltaAttention) { s = max(s, 1); reasons.push(l(`+${delta.toFixed(1)} °C acima da base de voo – possível febre mesmo abaixo de 38 °C`, `+${delta.toFixed(1)} °C above in-flight baseline – possible fever even below 38 °C`)) }
-    if (r.temp < 36) { s = max(s, 1); reasons.push(l('Temperatura baixa (<36 °C)', 'Low temperature (<36 °C)')) }
-    out.push({ indicator: 'temp', severity: s, reasons, value: `${r.temp.toFixed(1)} °C`, delta: b.n ? l(`${delta >= 0 ? '+' : ''}${delta.toFixed(1)} °C vs base de voo`, `${delta >= 0 ? '+' : ''}${delta.toFixed(1)} °C vs in-flight baseline`) : undefined })
+  { // temperature: absolute (CDC ≥38) + RELATIVE to the in-flight baseline (space fever, Stahn 2017)
+    const f = a.temp, reasons: L[] = []
+    const d = f.delta.toFixed(1), m = f.baselineMean.toFixed(1)
+    if (has(f, R.TEMP_FEVER)) reasons.push(l('Febre (≥38 °C, CDC)', 'Fever (≥38 °C, CDC)'))
+    if (has(f, R.TEMP_DELTA_ALERT)) reasons.push(l(`+${d} °C acima da SUA base de voo (${m} °C)`, `+${d} °C above YOUR in-flight baseline (${m} °C)`))
+    if (has(f, R.TEMP_DELTA_ATTN)) reasons.push(l(`+${d} °C acima da base de voo – possível febre mesmo abaixo de 38 °C`, `+${d} °C above in-flight baseline – possible fever even below 38 °C`))
+    if (has(f, R.TEMP_LOW)) reasons.push(l('Temperatura baixa (<36 °C)', 'Low temperature (<36 °C)'))
+    const sign = f.delta >= 0 ? '+' : ''
+    out.push({ indicator: 'temp', severity: f.severity, reasons, value: `${r.temp.toFixed(1)} °C`, delta: f.baselineN ? l(`${sign}${d} °C vs base de voo`, `${sign}${d} °C vs in-flight baseline`) : undefined })
   }
-  // Sono (AASM ≥7h) + média de 3 noites
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    const last3 = readings.slice(Math.max(0, idx - 2), idx + 1).map((x) => x.sleep)
-    const avg3 = last3.reduce((a, v) => a + v, 0) / last3.length
-    if (r.sleep < 5) { s = 2; reasons.push(l('Menos de 5 h de sono', 'Less than 5 h of sleep')) }
-    else if (r.sleep < 7) { s = 1; reasons.push(l('Abaixo de 7 h (meta AASM)', 'Below 7 h (AASM target)')) }
-    if (last3.length === 3 && avg3 < 5.5) { s = max(s, 2); reasons.push(l(`Média de 3 noites ${avg3.toFixed(1)} h – débito de sono acumulado`, `3-night average ${avg3.toFixed(1)} h – accumulated sleep debt`)) }
-    const b = baselineOf(readings, 'sleep', idx)
-    s = max(s, zSeverity(r.sleep, b, l('Sono', 'Sleep'), reasons))
-    out.push({ indicator: 'sleep', severity: s, reasons, value: `${r.sleep.toFixed(1)} h`, delta: l(`média 3 noites ${avg3.toFixed(1)} h`, `3-night avg ${avg3.toFixed(1)} h`) })
+  { // sleep (AASM ≥7 h) + 3-night average
+    const f = a.sleep, reasons: L[] = []
+    const avg3 = f.avg3.toFixed(1)
+    if (has(f, R.SLEEP_LT5)) reasons.push(l('Menos de 5 h de sono', 'Less than 5 h of sleep'))
+    if (has(f, R.SLEEP_LT7)) reasons.push(l('Abaixo de 7 h (meta AASM)', 'Below 7 h (AASM target)'))
+    if (has(f, R.SLEEP_DEBT3)) reasons.push(l(`Média de 3 noites ${avg3} h – débito de sono acumulado`, `3-night average ${avg3} h – accumulated sleep debt`))
+    reasons.push(...zReason(f, l('Sono', 'Sleep')))
+    out.push({ indicator: 'sleep', severity: f.severity, reasons, value: `${r.sleep.toFixed(1)} h`, delta: l(`média 3 noites ${avg3} h`, `3-night avg ${avg3} h`) })
   }
-  // Humor (escala 1–5 + PHQ-2)
-  {
-    const reasons: L[] = []
-    let s: Severity = 0
-    if (r.mood <= 2) { s = 1; reasons.push(l('Humor baixo hoje', 'Low mood today')) }
-    const lowStreak = readings.slice(Math.max(0, idx - 2), idx + 1).filter((x) => x.mood <= 2).length
-    if (lowStreak >= 3) { s = max(s, 2); reasons.push(l('Humor baixo por 3 dias seguidos', 'Low mood 3 days in a row')) }
-    if (r.phq2 !== undefined && r.phq2 >= 3) { s = max(s, 2); reasons.push(l(`PHQ-2 = ${r.phq2} (≥3 = rastreio positivo, Kroenke 2003)`, `PHQ-2 = ${r.phq2} (≥3 = positive screen, Kroenke 2003)`)) }
-    if (r.selfHarm) { s = 3; reasons.push(l('Relatou pensamentos de se machucar – contato imediato', 'Reported thoughts of self-harm – immediate contact')) }
-    out.push({ indicator: 'mood', severity: s, reasons, value: `${r.mood}/5${r.phq2 !== undefined ? ` · PHQ-2 ${r.phq2}` : ''}` })
+  { // mood (1–5 scale + PHQ-2)
+    const f = a.mood, reasons: L[] = []
+    if (has(f, R.MOOD_LOW)) reasons.push(l('Humor baixo hoje', 'Low mood today'))
+    if (has(f, R.MOOD_LOW3)) reasons.push(l('Humor baixo por 3 dias seguidos', 'Low mood 3 days in a row'))
+    if (has(f, R.MOOD_PHQ2)) reasons.push(l(`PHQ-2 = ${r.phq2} (≥3 = rastreio positivo, Kroenke 2003)`, `PHQ-2 = ${r.phq2} (≥3 = positive screen, Kroenke 2003)`))
+    if (has(f, R.MOOD_SELF_HARM)) reasons.push(l('Relatou pensamentos de se machucar – contato imediato', 'Reported thoughts of self-harm – immediate contact'))
+    out.push({ indicator: 'mood', severity: f.severity, reasons, value: `${r.mood}/5${r.phq2 !== undefined ? ` · PHQ-2 ${r.phq2}` : ''}` })
   }
   return out
 }
@@ -118,24 +102,12 @@ export interface SolarContext { active: boolean; sheltered: boolean; liveDoseMSv
 
 export function radiationStatus(c: CrewMember, env: EnvironmentId, today: string, solar?: SolarContext) {
   const days = Math.max(0, daysBetween(c.missionStart, today))
-  const rate = ENVIRONMENTS[env].doseMSvPerDay
-  const eventDose = (solar?.loggedDoseMSv ?? 0) + (solar?.liveDoseMSv ?? 0)
-  const mission = days * rate + eventDose
-  const total = c.priorCareerDoseMSv + mission
-  const pct = (total / RADIATION.careerLimitMSv) * 100
-  // limiares de % do limite = heurística do protótipo
-  let severity: Severity = pct >= 100 ? 3 : pct >= 80 ? 2 : pct >= 50 ? 1 : 0
+  const e = ENV_NUMBERS[env]
+  const o = core().radiation({ missionDays: days, doseRate: e.doseMSvPerDay, priorCareerMSv: c.priorCareerDoseMSv, loggedEventMSv: solar?.loggedDoseMSv ?? 0, liveEventMSv: solar?.liveDoseMSv ?? 0, solarActive: !!solar?.active, sheltered: !!solar?.sheltered, deepSpace: e.deepSpace })
   const reasons: L[] = []
-  if (solar?.active) {
-    const deep = DEEP_SPACE[env]
-    const ev: Severity = solar.sheltered ? (deep ? 2 : 1) : (deep ? 3 : 2)
-    severity = max(severity, ev)
-    reasons.push(solar.sheltered
-      ? l('Evento de partículas solares em curso — tripulação no abrigo', 'Solar particle event in progress — crew in shelter')
-      : l('Evento de partículas solares em curso — VÁ PARA O ABRIGO', 'Solar particle event in progress — GO TO SHELTER'))
-  }
-  const daysLeft = Math.max(0, (RADIATION.careerLimitMSv - total) / rate)
-  return { days, rate, mission, total, pct, severity, daysLeft, eventDose, reasons, solarActive: !!solar?.active }
+  if (o.solarReason === SOLAR.IN_SHELTER) reasons.push(l('Evento de partículas solares em curso — tripulação no abrigo', 'Solar particle event in progress — crew in shelter'))
+  if (o.solarReason === SOLAR.GO_TO_SHELTER) reasons.push(l('Evento de partículas solares em curso — VÁ PARA O ABRIGO', 'Solar particle event in progress — GO TO SHELTER'))
+  return { days, rate: e.doseMSvPerDay, mission: o.missionMSv, total: o.totalMSv, pct: o.pct, severity: o.severity, daysLeft: o.daysLeft, eventDose: o.eventMSv, reasons, solarActive: !!solar?.active }
 }
 
 /**
@@ -144,35 +116,21 @@ export function radiationStatus(c: CrewMember, env: EnvironmentId, today: string
  */
 export function fatigueStatus(c: CrewMember) {
   const hist = c.pvt ?? []
-  const latest: PvtResult | undefined = hist.at(-1)
-  const prior = hist.slice(0, -1).slice(-6)
-  const baselineMs = prior.length >= 3 ? prior.reduce((a, p) => a + p.medianMs, 0) / prior.length : NaN
-  const slowingPct = latest && !Number.isNaN(baselineMs) ? ((latest.medianMs - baselineMs) / baselineMs) * 100 : 0
-  const last3 = c.readings.slice(-3).map((r) => r.sleep)
-  const sleepAvg3 = last3.length ? last3.reduce((a, v) => a + v, 0) / last3.length : NaN
+  const latest = hist.at(-1)
+  const o = core().fatigue(hist.map((p) => ({ medianMs: p.medianMs, lapses: p.lapses })), c.readings.map((r) => r.sleep))
   const reasons: L[] = []
-  let severity: Severity = 0
-  if (latest) {
-    if (latest.lapses >= 5) { severity = 2; reasons.push(l(`${latest.lapses} lapsos (≥355 ms) no PVT`, `${latest.lapses} lapses (≥355 ms) on the PVT`)) }
-    else if (latest.lapses >= 3) { severity = 1; reasons.push(l(`${latest.lapses} lapsos (≥355 ms) no PVT`, `${latest.lapses} lapses (≥355 ms) on the PVT`)) }
-    if (slowingPct >= 20) { severity = max(severity, 2); reasons.push(l(`Reação ${slowingPct.toFixed(0)}% mais lenta que sua base`, `Reaction ${slowingPct.toFixed(0)}% slower than your baseline`)) }
-    else if (slowingPct >= 10) { severity = max(severity, 1); reasons.push(l(`Reação ${slowingPct.toFixed(0)}% mais lenta que sua base`, `Reaction ${slowingPct.toFixed(0)}% slower than your baseline`)) }
-    if (severity >= 1 && sleepAvg3 < 6) { severity = max(severity, 2); reasons.push(l(`Coincide com sono curto (média 3 noites ${sleepAvg3.toFixed(1)} h) — provável fadiga`, `Coincides with short sleep (3-night avg ${sleepAvg3.toFixed(1)} h) — likely fatigue`)) }
-  }
-  return { latest, baselineMs, slowingPct, sleepAvg3, severity, reasons }
+  const pct = o.slowingPct.toFixed(0), s3 = o.sleepAvg3.toFixed(1), lapses = o.latestLapses
+  if (o.reasons & (FAT.LAPSES5 | FAT.LAPSES3)) reasons.push(l(`${lapses} lapsos (≥355 ms) no PVT`, `${lapses} lapses (≥355 ms) on the PVT`))
+  if (o.reasons & (FAT.SLOW20 | FAT.SLOW10)) reasons.push(l(`Reação ${pct}% mais lenta que sua base`, `Reaction ${pct}% slower than your baseline`))
+  if (o.reasons & FAT.SHORT_SLEEP) reasons.push(l(`Coincide com sono curto (média 3 noites ${s3} h) — provável fadiga`, `Coincides with short sleep (3-night avg ${s3} h) — likely fatigue`))
+  return { latest, baselineMs: o.baselineMs, slowingPct: o.slowingPct, sleepAvg3: o.sleepAvg3, severity: o.severity, reasons }
 }
 
 export function boneStatus(c: CrewMember, today: string) {
   const days = Math.max(0, daysBetween(c.missionStart, today))
-  const months = days / 30.44
-  const ex = c.readings.slice(-14).map((r) => r.exerciseMin ?? 0)
-  const adherence = Math.min(1, (ex.reduce((a, v) => a + v, 0) / Math.max(1, ex.length)) / 120)
-  // sem contramedida: 1–1,5%/mês (NASA HRP). Exercício resistido reduz (fator = heurística do protótipo).
-  const factor = 1 - 0.6 * adherence
-  const low = months * BONE.lossPerMonthPct[0] * factor
-  const high = months * BONE.lossPerMonthPct[1] * factor
-  const severity: Severity = high >= 5 ? 2 : high >= 3 ? 1 : 0
-  return { days, months, adherence, low, high, severity }
+  // no countermeasure: 1–1.5 %/month (NASA HRP); resistive exercise reduces it (factor = prototype heuristic)
+  const o = core().bone(days, c.readings.map((r) => r.exerciseMin ?? 0))
+  return { days, months: o.months, adherence: o.adherence, low: o.low, high: o.high, severity: o.severity }
 }
 
 export interface CrewAssessment {
@@ -192,16 +150,8 @@ export function assessCrew(c: CrewMember, env: EnvironmentId, solar?: SolarConte
   const radiation = radiationStatus(c, env, today, solar)
   const bone = boneStatus(c, today)
   const fatigue = fatigueStatus(c)
-  const sev = (id: string) => findings.find((f) => f.indicator === id)?.severity ?? 0
-  const regions = {} as Record<BodyRegionId, Severity>
-  for (const [rid, info] of Object.entries(BODY_REGIONS) as [BodyRegionId, (typeof BODY_REGIONS)[BodyRegionId]][]) {
-    let s: Severity = 0
-    for (const ind of info.indicators) s = max(s, sev(ind))
-    if (rid === 'musculoskeletal') s = max(s, bone.severity)
-    if (rid === 'immune' || rid === 'brain') s = max(s, Math.min(radiation.severity, 2) as Severity)
-    if (rid === 'brain') s = max(s, fatigue.severity)
-    regions[rid] = s
-  }
-  const overall = [...findings.map((f) => f.severity), radiation.severity, bone.severity, fatigue.severity].reduce(max, 0 as Severity)
-  return { findings, overall, regions, radiation, bone, fatigue }
+  const sev = INDICATOR_ORDER.map((id) => findings.find((f) => f.indicator === id)?.severity ?? 0)
+  const agg = core().aggregate(sev, radiation.severity, bone.severity, fatigue.severity)
+  const regions = Object.fromEntries(REGION_ORDER.map((rid, i) => [rid, agg.regions[i]])) as Record<BodyRegionId, Severity>
+  return { findings, overall: agg.overall, regions, radiation, bone, fatigue }
 }

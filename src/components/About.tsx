@@ -4,9 +4,11 @@ import type { HazardId } from '../lib/knowledge'
 import { EM_SOURCES } from '../lib/emergency'
 import { useStore } from '../lib/store'
 import { t, tr } from '../lib/i18n'
+import { useCoreBackend } from '../lib/useCore'
 
 export default function About() {
   const reset = useStore((s) => s.reset)
+  const backend = useCoreBackend()
   const sources = [...Object.values(SOURCES), ...Object.values(EM_SOURCES)]
   return (
     <div className="grid gap-4 lg:grid-cols-2">
@@ -21,6 +23,10 @@ export default function About() {
             `in space resting temperature rises ~1 °C (Stahn 2017). A rise ≥ +${H.tempDeltaAttention} °C over the in-flight baseline = Caution, ≥ +${H.tempDeltaAlert} °C = Warning, even below 38 °C.`)}</li>
           <li><b>{t('Escalonamento com atraso:', 'Delay-aware escalation:')}</b> {t('na ISS chama-se o solo; em Marte (até ~20 min de ida) a tripulação age primeiro e envia relatório.', 'on the ISS you call the ground; at Mars (up to ~20 min one-way) the crew acts first and sends a report.')}</li>
           <li><b>{t('Manuais de emergência:', 'Emergency manuals:')}</b> {t('parada cardíaca (RCP/ACLS em microgravidade), lesões musculares e fraturas, com fonte em cada passo.', 'cardiac arrest (CPR/ACLS in microgravity), muscle injuries and fractures, with a source for every step.')}</li>
+          <li><b>{t('Núcleo portátil em C:', 'Portable C core:')}</b> {t(
+            'toda a avaliação (faixas, N0–N3, febre relativa, PHQ-2, dose de radiação com abrigo, PVT e pulso PPG) roda na libsisp — biblioteca C11 sem dependências e sem alocação dinâmica, integrável em sistemas de bordo; aqui compilada para WebAssembly, com fallback TypeScript idêntico.',
+            'the whole assessment (ranges, N0–N3, relative fever, PHQ-2, radiation dose with shelter, PVT and PPG pulse) runs in libsisp — a dependency-free C11 library with no dynamic allocation that can be embedded in onboard systems; compiled to WebAssembly here, with an identical TypeScript fallback.')}{' '}
+            <span className="mono text-meta text-sky-300">[{backend === 'wasm' ? 'libsisp · WebAssembly' : t('referência TypeScript', 'TypeScript reference')}]</span></li>
           <li><b>Offline-first:</b> {t('tudo roda no navegador e fica salvo no dispositivo (localStorage) — distância da Terra é um dos 5 hazards.', 'everything runs in the browser and is stored on the device (localStorage) — distance from Earth is one of the 5 hazards.')}</li>
           <li><b>{t('Dados reais NASA:', 'Real NASA data:')}</b> {t('glicemia Inspiration4 (OSDR OSD-575), clima espacial (DONKI) e taxas de dose do Curiosity RAD.', 'Inspiration4 glucose (OSDR OSD-575), space weather (DONKI) and Curiosity RAD dose rates.')}</li>
         </ul>
