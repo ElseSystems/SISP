@@ -50,7 +50,7 @@ export const HAZARD_STORY: Record<HazardId, HazardStory> = {
   },
 }
 
-export interface DemoStep { tab: Tab; env?: EnvironmentId; crew?: string; region?: BodyRegionId | null; hazard?: HazardId | null; title: L; caption: L; ms: number }
+export interface DemoStep { tab: Tab; env?: EnvironmentId; crew?: string; region?: BodyRegionId | null; hazard?: HazardId | null; solar?: 'start' | 'shelter' | 'clear'; title: L; caption: L; ms: number }
 
 /** ~70 s guided tour — one click, no typing, perfect for the pitch video. */
 export const DEMO_STEPS: DemoStep[] = [
@@ -72,7 +72,16 @@ export const DEMO_STEPS: DemoStep[] = [
   { tab: 'dashboard', env: 'marsTransit', crew: 't2', region: null, hazard: 'distance', ms: 8000,
     title: l('Agora: a caminho de Marte', 'Now: en route to Mars'),
     caption: l('Mesma tripulação, 20 min de atraso e 1,84 mSv/dia. A margem de radiação encolhe e o solo não responde a tempo.', 'Same crew, 20-min delay and 1.84 mSv/day. Radiation margin shrinks and the ground can’t answer in time.') },
-  { tab: 'ground', ms: 8000,
+  { tab: 'dashboard', solar: 'start', region: 'brain', hazard: 'radiation', ms: 8000,
+    title: l('☢️ Tempestade solar real (NASA DONKI)', '☢️ Real solar storm (NASA DONKI)'),
+    caption: l('Um SEP real registrado pelo DONKI é injetado: alerta vermelho, “vá para o abrigo” e a dose sobe ao vivo.', 'A real SEP recorded by DONKI is injected: red alert, “go to shelter”, and the dose rises live.') },
+  { tab: 'today', solar: 'shelter', ms: 7000,
+    title: l('No abrigo: a dose para de subir', 'In the shelter: the dose stops climbing'),
+    caption: l('A timeline do dia pausa as tarefas, e o SISP mostra quanta dose foi evitada.', 'The mission-day timeline pauses tasks, and SISP shows how much dose was avoided.') },
+  { tab: 'tests', crew: 't2', ms: 7000,
+    title: l('Autotestes sem hardware: pulso + PVT', 'Hardware-free self-tests: pulse + PVT'),
+    caption: l('Pulso pela câmera (PPG) e teste de vigilância de 3 min comparado à base pessoal — fadiga ligada ao sono.', 'Camera pulse (PPG) and a 3-min vigilance test against the personal baseline — fatigue linked to sleep.') },
+  { tab: 'ground', solar: 'clear', ms: 8000,
     title: l('Escalonamento ciente do atraso', 'Delay-aware escalation'),
     caption: l('O SISP muda o protocolo: com 40 min de ida e volta, a tripulação age primeiro e envia um relatório compacto ao cirurgião de voo.', 'SISP switches protocol: with a 40-min round trip, the crew acts first and sends a compact report to the flight surgeon.') },
   { tab: 'emergency', ms: 7000,

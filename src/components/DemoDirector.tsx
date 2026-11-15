@@ -5,6 +5,7 @@ import { useStore } from '../lib/store'
 import type { Tab } from '../lib/store'
 import type { EnvironmentId } from '../lib/knowledge'
 import { t, tr } from '../lib/i18n'
+import { loadDonki, pickScenario } from '../lib/spaceWeather'
 
 /**
  * One-click scripted demo: drives tab / environment / crew / body focus from DEMO_STEPS and
@@ -13,13 +14,18 @@ import { t, tr } from '../lib/i18n'
 export default function DemoDirector() {
   const [i, setI] = useState(0)
   const [paused, setPaused] = useState(false)
-  const saved = useRef<{ tab: Tab; env: EnvironmentId; selectedId: string } | null>(null)
+  const saved = useRef<{ tab: Tab; env: EnvironmentId; selectedId: string; solarLogLen: number } | null>(null)
   const step = DEMO_STEPS[i]
 
   useEffect(() => {
     const s = useStore.getState()
-    saved.current = { tab: s.tab, env: s.env, selectedId: s.selectedId }
-    return () => { if (saved.current) useStore.setState({ ...saved.current, hazard: null }) }
+    saved.current = { tab: s.tab, env: s.env, selectedId: s.selectedId, solarLogLen: s.solarLog.length }
+    return () => {
+      const sv = saved.current
+      if (!sv) return
+      // the demo leaves no trace: drop the drill's solar event and its dose log entry
+      useStore.setState((st) => ({ tab: sv.tab, env: sv.env, selectedId: sv.selectedId, hazard: null, solar: null, solarLog: st.solarLog.slice(0, sv.solarLogLen) }))
+    }
   }, [])
 
   useEffect(() => {
@@ -29,6 +35,10 @@ export default function DemoDirector() {
     if (step.region !== undefined) patch.region = step.region
     if (step.hazard !== undefined) patch.hazard = step.hazard
     useStore.setState(patch)
+    const st = useStore.getState()
+    if (step.solar === 'start' && !st.solar) loadDonki().then((d) => { const sc = pickScenario(d); if (sc) useStore.getState().triggerSolar(sc, 40) }).catch(() => {})
+    if (step.solar === 'shelter' && st.solar && !st.solar.shelteredAt) useStore.setState({ solar: { ...st.solar, shelteredAt: Date.now() } })
+    if (step.solar === 'clear' && st.solar) useStore.setState({ solar: null })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [step])
 
@@ -62,7 +72,7 @@ export default function DemoDirector() {
           ))}
         </div>
         <div className="flex items-center gap-3 p-3">
-          <span className="rounded-md bg-red-500 px-1.5 py-0.5 text-[10px] font-black tracking-widest text-white">● DEMO</span>
+          <span className="rounded-md bg-red-500 px-1.5 py-0.5 text-meta font-black tracking-widest text-white">● DEMO</span>
           <motion.div key={i} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mr-auto min-w-0">
             <p className="text-sm font-bold text-slate-50">{tr(step.title)}</p>
             <p className="text-xs leading-snug text-slate-300">{tr(step.caption)}</p>

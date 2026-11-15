@@ -3,20 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CartesianGrid, Legend, Line, LineChart, ReferenceArea, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Card, SourceLinks } from './ui'
 import { SOURCES } from '../lib/knowledge'
+import { useStore } from '../lib/store'
+import { useDonki } from '../lib/useDonki'
+import { flareRank as rank, pickScenario } from '../lib/spaceWeather'
+import type { Donki } from '../lib/spaceWeather'
 import { t } from '../lib/i18n'
 
 interface GlucosePoint { subject: string; timepoint: string; day: number; value: number; rangeMin: number; rangeMax: number }
 interface Glucose { source: string; url: string; mission: string; notes: string; fetchedAt: string; points: GlucosePoint[] }
-interface Flr { id: string; begin: string; peak: string; classType: string; source: string; link: string }
-interface Sep { id: string; time: string; link: string }
-interface Donki {
-  fetchedAt: string
-  SEP: { window: [string, string]; events: Sep[] }
-  FLR: { window: [string, string]; events: Flr[] }
-  CME: { window: [string, string]; total: number }
-  summary: { sepCount: number; flrCount: number; xClassCount: number; mClassCount: number; cmeCount: number; strongestFlare: Flr | null }
-  historicalExample?: { window: [string, string]; label: string; SEP: Sep[]; FLR_X: Flr[] }
-}
 interface RadEnv { mSvPerDay: number; range?: number[]; source: string; url: string }
 interface Rad { careerLimitMSv: number; careerLimitSource: string; careerLimitUrl: string; rawDataNote: string; environments: Record<string, RadEnv> }
 
@@ -28,14 +22,18 @@ const envLabel = (k: string) => ({ iss: t('🛰️ ISS (órbita baixa)', '🛰�
 
 export default function NasaData() {
   const [g, setG] = useState<Glucose | null>(null)
-  const [d, setD] = useState<Donki | null>(null)
+  const { d, err: dErr, refresh } = useDonki()
   const [rad, setRad] = useState<Rad | null>(null)
   const [err, setErr] = useState<string | null>(null)
-  const [storm, setStorm] = useState(false)
+  const solar = useStore((x) => x.solar)
+  const trigger = useStore((x) => x.triggerSolar)
+  const allClear = useStore((x) => x.allClear)
+  const setTab = useStore((x) => x.setTab)
+  const storm = !!solar
 
   useEffect(() => {
-    Promise.all([load<Glucose>('inspiration4_glucose.json'), load<Donki>('donki_space_weather.json'), load<Rad>('radiation_reference.json')])
-      .then(([a, b, c]) => { setG(a); setD(b); setRad(c) })
+    Promise.all([load<Glucose>('inspiration4_glucose.json'), load<Rad>('radiation_reference.json')])
+      .then(([a, c]) => { setG(a); setRad(c) })
       .catch((e) => setErr(String(e)))
   }, [])
 
@@ -50,7 +48,7 @@ export default function NasaData() {
   const subjects = useMemo(() => [...new Set(g?.points.map((p) => p.subject) ?? [])], [g])
   const outOfRange = g?.points.filter((p) => p.value < p.rangeMin || p.value > p.rangeMax) ?? []
 
-  if (err) return <Card title={t('Dados NASA', 'NASA data')}><p className="text-sm text-red-300">{t('Não foi possível carregar public/data', 'Could not load public/data')} ({err}). <code>python3 scripts/fetch_nasa_data.py</code></p></Card>
+  if (err || dErr) return <Card title={t('Dados NASA', 'NASA data')}><p className="text-sm text-red-300">{t('Não foi possível carregar public/data', 'Could not load public/data')} ({err ?? dErr}). <code>python3 scripts/fetch_nasa_data.py</code></p></Card>
   if (!g || !d || !rad) return <Card title={t('Dados NASA', 'NASA data')}><p className="text-sm text-slate-400">{t('Carregando dados reais…', 'Loading real data…')}</p></Card>
 
   const recentSep = d.summary.sepCount > 0
@@ -88,7 +86,7 @@ export default function NasaData() {
         <motion.div animate={recentSep || storm ? { boxShadow: ['0 0 0 #0000', '0 0 24px #ef4444aa', '0 0 0 #0000'] } : {}} transition={{ repeat: Infinity, duration: 1.5 }}
           className={`rounded-xl border p-3 ${recentSep || storm ? 'border-red-500 bg-red-500/10' : 'border-emerald-500/50 bg-emerald-500/10'}`}>
           <div className="text-lg font-bold">{recentSep ? t('⚠️ Evento de partículas solares (SEP) recente', '⚠️ Recent solar energetic particle (SEP) event') : t('✅ Nenhum SEP nos últimos 60 dias', '✅ No SEP in the last 60 days')}</div>
-          <div className="text-xs text-slate-300">{t('Janela', 'Window')} {d.SEP.window[0]} → {d.SEP.window[1]} · {t('atualizado', 'updated')} {d.fetchedAt.slice(0, 10)}</div>
+          <div className="text-xs text-slate-300">{t('Janela', 'Window')} {d.SEP.window[0]} → {d.SEP.window[1]} · {t('atualizado', 'updated')} {d.fetchedAt.slice(0, 10)} · {d.live ? <span className="text-nominal">● {t('API ao vivo', 'live API')}</span> : <span>{t('snapshot offline', 'offline snapshot')} <button onClick={refresh} className="underline">{t('atualizar', 'refresh')}</button></span>}</div>
         </motion.div>
         <div className="mt-3 grid grid-cols-4 gap-2 text-center">
           <Stat n={d.summary.sepCount} l="SEP" />
@@ -112,7 +110,8 @@ export default function NasaData() {
         {d.historicalExample ? (
           <>
             <p className="text-xs text-slate-300">{t('Tempestade solar de maio/2024: o DONKI registrou', 'May 2024 solar storm: DONKI recorded')} <b>{d.historicalExample.SEP.length} {t('eventos SEP', 'SEP events')}</b> {t('e', 'and')} <b>{d.historicalExample.FLR_X.length} {t('erupções classe X', 'X-class flares')}</b> ({d.historicalExample.window[0]} → {d.historicalExample.window[1]}).</p>
-            <button onClick={() => setStorm((s) => !s)} className="mt-3 w-full rounded-xl bg-red-500/80 py-2 font-bold hover:bg-red-500">{storm ? t('Encerrar simulação', 'End drill') : t('▶ Simular alerta com dados de maio/2024', '▶ Run drill with May 2024 data')}</button>
+            <button onClick={() => { if (storm) allClear(); else { const sc = pickScenario({ ...d, SEP: { ...d.SEP, events: [] } } as Donki); if (sc) { trigger(sc); setTab('dashboard') } } }} className="mt-3 w-full rounded-xl bg-critical py-2 font-bold text-[#01030B] hover:brightness-110">{storm ? t('Encerrar simulação', 'End drill') : t('▶ Disparar alerta na tripulação com dados de maio/2024', '▶ Fire crew alert with May 2024 data')}</button>
+            <p className="mt-1 text-meta text-fg-3">{t('O alerta aparece no Painel e na timeline; a dose de radiação sobe ao vivo até a tripulação se abrigar.', 'The alert shows on the Dashboard and timeline; radiation dose rises live until the crew shelters.')}</p>
             <AnimatePresence>
               {storm && (
                 <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-3 overflow-hidden rounded-xl border border-red-500/60 bg-red-950/40 p-3 text-sm">
@@ -123,7 +122,7 @@ export default function NasaData() {
                     <li>{t('Na ISS, a magnetosfera protege boa parte; em espaço profundo o risco é bem maior.', 'On the ISS the magnetosphere shields much of it; in deep space the risk is far higher.')}</li>
                     <li>{t('Aguarde liberação do solo/heliofísica antes de sair do abrigo.', 'Wait for ground/heliophysics clearance before leaving the shelter.')}</li>
                   </ol>
-                  <ul className="mt-2 max-h-28 overflow-auto text-[11px] text-slate-400">
+                  <ul className="mt-2 max-h-28 overflow-auto text-meta text-slate-400">
                     {d.historicalExample.FLR_X.slice(0, 8).map((f) => <li key={f.id}>☀️ <a className="underline" href={f.link} target="_blank" rel="noreferrer">{f.classType}</a> {f.peak}</li>)}
                   </ul>
                 </motion.div>
@@ -147,17 +146,12 @@ export default function NasaData() {
             ))}
           </tbody>
         </table>
-        <p className="mt-2 text-[11px] text-slate-400">* {t('partindo de zero, só para comparação. Limite:', 'starting from zero, for comparison only. Limit:')} <a className="underline" href={rad.careerLimitUrl} target="_blank" rel="noreferrer">{rad.careerLimitSource}</a>. {rad.rawDataNote}</p>
+        <p className="mt-2 text-meta text-slate-400">* {t('partindo de zero, só para comparação. Limite:', 'starting from zero, for comparison only. Limit:')} <a className="underline" href={rad.careerLimitUrl} target="_blank" rel="noreferrer">{rad.careerLimitSource}</a>. {rad.rawDataNote}</p>
       </Card>
     </div>
   )
 }
 
 function Stat({ n, l }: { n: number; l: string }) {
-  return <div className="rounded-lg bg-slate-800/60 p-2"><div className="text-xl font-bold">{n}</div><div className="text-[10px] text-slate-400">{l}</div></div>
-}
-function rank(c?: string) {
-  if (!c) return 0
-  const b = ({ A: 1, B: 10, C: 100, M: 1000, X: 10000 } as Record<string, number>)[c[0]] ?? 0
-  return b * (parseFloat(c.slice(1)) || 1)
+  return <div className="rounded-lg bg-slate-800/60 p-2"><div className="text-xl font-bold">{n}</div><div className="text-meta text-slate-400">{l}</div></div>
 }
