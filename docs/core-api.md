@@ -33,6 +33,7 @@ core/
 ├── wasm/sisp_wasm.c      # WebAssembly entry points (static I/O buffers)
 ├── examples/sisp_cli.c   # sisp-cli: assess a CSV of check-ins, radiation, PVT
 ├── tests/                # unit tests, parity replay, CLI test
+├── store/                # sisp_store — optional SQLite history store (see below)
 └── CMakeLists.txt        # static + shared library, CLI, ctest, install/export
 src/core/                 # TS facade: WASM loader + identical TypeScript reference
 public/core/sisp.wasm     # committed build (~12 kB, no imports)
@@ -52,8 +53,8 @@ npm run test:core                                    # TS reference + WASM vs fi
 ```
 
 CMake options: `SISP_BUILD_SHARED` (ON), `SISP_BUILD_TESTS` (ON), `SISP_BUILD_EXAMPLES` (ON),
-`SISP_WERROR` (OFF). `cmake --install` installs the headers, both libraries and a
-`sisp::` CMake package (`find_package(sisp)` → `sisp::sisp_static`, `sisp::sisp_shared`).
+`SISP_BUILD_STORE` (ON), `SISP_WERROR` (OFF). `cmake --install` installs the headers, the libraries and a
+`sisp::` CMake package (`find_package(sisp)` → `sisp::sisp_static`, `sisp::sisp_shared`, `sisp::sisp_store`).
 
 ## CLI
 
@@ -226,3 +227,120 @@ URL to force the fallback. Both engines produce **byte-identical** assessments f
 3. `npm run core:native` (ctest replays them in C), `npm run build:core && npm run test:core` (WASM + TS).
 4. CI (`.github/workflows/core.yml`) builds and tests with **gcc and clang**, with and without
    ASan/UBSan, checks the header as C++, rebuilds the WASM with Emscripten 7.0.0 and re-runs parity.
+
+## SQLite history store (`sisp_store`)
+
+`core/store/` is an **optional** second library for keeping the history: check-ins, PVT, camera pulse,
+radiation doses, solar events and reports. libsisp itself stays dependency-free and allocation-free. Only
+`sisp_store` links SQLite: the 3.54.1 amalgamation in `core/store/vendor/sqlite/` (public domain, see its README).
+Turn it off with `-DSISP_BUILD_STORE=OFF`.
+
+```
+core/store/
+├── schema.sql            # tables + versioned migrations — also run by the web app
+├── export.sql            # history → one JSON document — also run by the web app
+├── include/sisp_store.h  # API
+├── src/sisp_store.c      # implementation (SQL embedded at configure time)
+├── examples/sisp_store_cli.c  # sisp-store: import / stats / check / export
+├── tests/test_store.c    # ctest "store"
+└── vendor/sqlite/        # sqlite3.c, sqlite3.h (unmodified) + license note
+```
+
+### Schema and migrations
+
+`schema.sql` is split on lines that start with `-- @migration N`. On open, every block with
+`N > PRAGMA user_version` runs in its own `BEGIN IMMEDIATE` transaction together with
+`PRAGMA user_version = N`, so a crash never leaves a half-migrated file. Re-opening is a no-op.
+A file from a **newer** schema is refused (`SISP_STORE_ESCHEMA`) rather than modified. Released
+migrations are never edited; changes are appended as a new block.
+
+| Table (STRICT) | Key columns | Notes |
+|---|---|---|
+| `crew` | `id` PK, `name`, `role`, `agency`, `mission_start`, `prior_career_dose_msv`, `meta` (JSON) | upsert |
+| `checkins` | `crew_id` → crew, `ts`, `day`, the 6 indicators (+ `phq2`, `self_harm`, `exercise_min`), `status` 0–3, `source` | `UNIQUE(crew_id, day)`: one per day, upsert |
+| `pvt_results` | `crew_id`, `ts`, `day`, `duration_sec`, `n`, `mean_ms`, `median_ms`, `lapses`, `false_starts`, `speed` | |
+| `ppg_results` | `crew_id`, `ts`, `day`, `bpm`, `quality` 0–1, `source` | |
+| `radiation_doses` | `crew_id`, `ts`, `env`, `msv` ≥ 0, `source`, `event_id` | |
+| `solar_events` | `event_id` (DONKI), `ts`, `env`, `dose_msv`, `sheltered`, `replay`, `flare` | |
+| `reports` | `crew_id`, `ts`, `format` text/json, `body`, `delay_sec` | |
+| `meta` (v2) | `key`, `value` | e.g. the web's one-time localStorage import flag |
+
+Times are epoch milliseconds (UTC). Every child table has a `(crew_id, ts)` index (migration 2) and
+`ON DELETE CASCADE` to `crew`.
+
+### Durability
+
+`PRAGMA journal_mode = WAL`, `synchronous = FULL`, `foreign_keys = ON`, `trusted_schema = OFF`, and a
+5 s busy timeout. Every statement is a cached prepared statement with bound parameters. Use
+`sisp_store_begin/commit/rollback` to batch writes. `sisp_store_integrity_check` runs
+`PRAGMA integrity_check` plus `foreign_key_check`. `sisp_store_backup` makes an online copy
+(`sqlite3_backup`). Use one `sisp_store` per thread.
+
+### API (`sisp_store.h`)
+
+| Function | |
+|---|---|
+| `sisp_store_open(path, &s)` / `sisp_store_close(s)` | open or create + migrate; `":memory:"` works |
+| `sisp_store_errmsg`, `sisp_store_schema_version`, `sisp_store_journal_mode`, `sisp_store_sqlite_version` | |
+| `sisp_store_begin` / `commit` / `rollback` | explicit transactions |
+| `sisp_store_upsert_crew` | crew member |
+| `sisp_store_insert_checkin` | upsert on `(crew_id, day)`; takes a `sisp_reading` + `sisp_severity` |
+| `sisp_store_insert_pvt` / `_ppg` / `_dose` / `_solar_event` / `_report` | `row_id` out-param optional |
+| `sisp_store_query_checkins` / `_pvt` / `_ppg` / `_doses` / `_reports(s, crew_id or NULL, from_ms, to_ms, cb, user)` | oldest first, inclusive range; return non-zero from `cb` to stop |
+| `sisp_store_query_solar_events(s, from_ms, to_ms, cb, user)` | |
+| `sisp_store_dose_total(s, crew_id, from_ms, to_ms, &msv)` | sum of recorded doses |
+| `sisp_store_count(s, table)` | rows in one of the 7 tables |
+| `sisp_store_export_json(s, crew_id or NULL, from_ms, to_ms, write, user)` | `export.sql`, same JSON as the web |
+| `sisp_store_integrity_check`, `sisp_store_backup(s, dest)` | |
+
+All functions return `SISP_STORE_OK` (0) or a negative `sisp_store_status`. Strings in query rows are
+valid only during the callback.
+
+```c
+#include "sisp.h"
+#include "sisp_store.h"
+
+static int print_row(void *user, const sisp_store_checkin *c) {
+  (void)user;
+  printf("%s %s temp %.1f status N%d\n", c->crew_id, c->day, c->reading.temp, (int)c->status);
+  return 0;
+}
+
+int log_today(const sisp_reading *days, size_t n, int64_t now_ms, const char *today) {
+  sisp_store *db;
+  if (sisp_store_open("history.sqlite3", &db) != SISP_STORE_OK) return -1;
+  sisp_store_crew me = { "t1", "Crew Member 1", "Commander", "NASA", "2026-01-01", 120.0, NULL };
+  sisp_store_upsert_crew(db, &me);
+
+  sisp_finding f[SISP_IND_COUNT];
+  sisp_assess(days, n, n - 1, f);                       /* libsisp: today's findings */
+  sisp_severity worst = SISP_N0_NOMINAL;
+  for (int i = 0; i < SISP_IND_COUNT; i++) if (f[i].severity > worst) worst = f[i].severity;
+
+  sisp_store_checkin c = { 0, "t1", now_ms, today, days[n - 1], worst, "manual" };
+  if (sisp_store_insert_checkin(db, &c, NULL) != SISP_STORE_OK) fprintf(stderr, "%s\n", sisp_store_errmsg(db));
+  sisp_store_query_checkins(db, "t1", now_ms - 14 * 86400000LL, now_ms, print_row, NULL);
+  sisp_store_close(db);                                 /* checkpoints the WAL */
+  return 0;
+}
+```
+
+```cmake
+find_package(sisp 1 REQUIRED)
+target_link_libraries(my_app PRIVATE sisp::sisp_store)   # brings sisp::sisp_static along
+```
+
+`sisp-store DB stats | check | export [CREW] | import CREW [START] < checkins.csv` is the CLI version
+(the CSV format is the same as `sisp-cli assess`).
+
+### The same database on the web
+
+`src/storage/` runs the same `schema.sql` and `export.sql` with the official `@sqlite.org/sqlite-wasm`
+in a Web Worker on the `opfs-sahpool` VFS. That VFS uses OPFS sync access handles, needs no
+`SharedArrayBuffer`, and works on GitHub Pages without COOP/COEP headers. WAL is enabled with
+`PRAGMA locking_mode = EXCLUSIVE`, which must be the first statement on the connection: it puts the WAL
+index on the heap because the VFS has no shared memory. On first run the app migrates its old
+`localStorage` state once (recorded in `meta`). Without OPFS it keeps using `localStorage`. **About →
+Download database** exports a `.sqlite3` that `sisp-store` reads, and CI (`store-web` job) checks both
+directions: C writes → web reads, web writes → C `integrity_check`.
+

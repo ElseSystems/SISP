@@ -53,7 +53,7 @@ Numa missão longa, a tripulação nem sempre pode esperar pelo solo. Com o SISP
 | 🌐 **PT / EN** | Interface completa em português e inglês. O idioma é detectado pelo navegador e pode ser trocado a qualquer momento. |
 | 🎮 **Gamificação leve** | XP, níveis, sequências e medalhas por check-in, PVT, pulso pela câmera, abrigo e relatórios. |
 | ⚙️ **Núcleo portátil em C** | Toda a avaliação roda na **libsisp**, biblioteca C11 sem dependências e sem alocação dinâmica, compilada para WebAssembly no app (fallback TypeScript idêntico). Integrável em outros sistemas — veja [Núcleo portátil em C](#núcleo-portátil-em-c-libsisp). |
-| 📴 **Offline-first** | Roda inteiro no navegador e salva em `localStorage`. Sem backend e sem rastreamento. |
+| 📴 **Offline-first** | Roda inteiro no navegador. O histórico fica em **SQLite no próprio dispositivo** (OPFS, num Web Worker), com `localStorage` como fallback. Sem backend e sem rastreamento. |
 
 <table>
 <tr>
@@ -106,11 +106,12 @@ npm run dev        # http://localhost:5173
 | `npm run build` | Checagem de tipos (`tsc -b`) + build estático em `dist/` |
 | `npm run preview` | Serve o build de produção |
 | `npm run lint` | Lint com oxlint |
-| `npm run check` | Lint + paridade do núcleo C + build (portão de CI) |
+| `npm run check` | Lint + paridade do núcleo C + testes do armazenamento SQLite + build (portão de CI) |
 | `npm run build:core` | Compila `core/` para `public/core/sisp.wasm` (precisa do Emscripten) |
 | `npm run test:core` | Confere a referência TS e o `sisp.wasm` contra as fixtures compartilhadas |
 | `npm run fixtures:core` | Regenera `core/tests/fixtures/parity.txt` a partir da referência TS |
-| `npm run core:native` | Build CMake + ctest da biblioteca C nativa (precisa de CMake e compilador C) |
+| `npm run core:native` | Build CMake + ctest da biblioteca C nativa e do `sisp_store` (precisa de CMake e compilador C) |
+| `npm run test:storage` | Armazenamento SQLite web (`src/storage`) no `@sqlite.org/sqlite-wasm` em Node: migrações, ida e volta, exportação |
 | `npm run data` | Baixa de novo os dados da NASA para `public/data/` (só biblioteca padrão do Python) |
 
 **Deep links para demo:** `#dashboard`, `#checkin`, `#trends`, `#ground`, `#emergency`, `#nasa`, `#about`.
@@ -152,15 +153,54 @@ core/build/sisp-cli assess < core/examples/checkins.csv
 
 API completa, ABI plana para FFI (exemplos em Python/JS) e guia de integração: **[docs/core-api.pt.md](docs/core-api.pt.md)**.
 
+## Dados históricos (SQLite)
+
+Check-ins, sessões de PVT, pulso pela câmera, doses de radiação, eventos solares e relatórios ao flight surgeon
+ficam em **SQLite**, com **um só esquema para C e web**: [`core/store/schema.sql`](core/store/schema.sql)
+(tabelas STRICT, migrações versionadas via `PRAGMA user_version`) e [`core/store/export.sql`](core/store/export.sql)
+(a exportação JSON).
+
+- **C — `sisp_store`** ([`core/store/`](core/store/)): alvo CMake opcional ao lado da libsisp, que continua sem
+  dependências. Usa o amalgamation do SQLite 3.54.1 incluído no repositório (domínio público). Journal WAL,
+  `synchronous=FULL`, chaves estrangeiras, prepared statements e transações. A API tem abrir/fechar, inserção de cada
+  tipo de registro, consultas por tripulante e intervalo de tempo, soma de dose, exportação JSON, backup online e
+  `integrity_check`. O ctest confere que os dados sobrevivem a reabrir o arquivo e que ele passa no `integrity_check`.
+- **Web — `src/storage/`**: o `@sqlite.org/sqlite-wasm` oficial rodando num **Web Worker** com o VFS
+  **`opfs-sahpool`**. Ele não precisa de `SharedArrayBuffer`, então funciona no GitHub Pages **sem cabeçalhos COOP/COEP**.
+  O WAL também é usado: com locking exclusivo, o índice do WAL fica na memória. Na primeira execução, os dados que já
+  estavam no `localStorage` são migrados para o SQLite uma única vez. Sem OPFS (ou com `?storage=local`), o app continua
+  no `localStorage`. O rodapé e a aba **Sobre** mostram qual motor está ativo. A aba Sobre também exporta o histórico
+  em JSON ou baixa o arquivo `.sqlite3`, que o `sisp-store` lê.
+- **Mesmos arquivos dos dois lados:** a CI grava um banco em C e o lê na web, e depois faz o inverso (job `store-web`).
+
+```c
+#include "sisp_store.h"
+
+sisp_store *db;
+sisp_store_open("history.sqlite3", &db);                 /* cria + migra; WAL, synchronous=FULL */
+sisp_store_checkin c = { .crew_id = "t1", .ts = now_ms, .day = "2026-11-15", .reading = today, .status = worst };
+sisp_store_insert_checkin(db, &c, NULL);                 /* upsert: um check-in por tripulante por dia */
+sisp_store_query_checkins(db, "t1", from_ms, to_ms, on_row, ctx);
+sisp_store_close(db);
+```
+
+```bash
+core/build/store/sisp-store history.sqlite3 import t1 < core/examples/checkins.csv
+core/build/store/sisp-store history.sqlite3 stats     # contagens, versão do esquema, modo de journal
+core/build/store/sisp-store history.sqlite3 export t1 # o mesmo JSON da exportação web
+```
+
 ## Arquitetura
 
 ```
 core/                   # libsisp — núcleo de avaliação portátil em C11 (veja docs/core-api.pt.md)
 ├── include/            # sisp.h (API tipada), sisp_flat.h (ABI plana para FFI/WASM)
 ├── src/ wasm/          # implementação, pontos de entrada WebAssembly
-└── tests/ examples/    # testes unitários + paridade (ctest), sisp-cli
+├── tests/ examples/    # testes unitários + paridade (ctest), sisp-cli
+└── store/              # sisp_store — histórico SQLite opcional (schema.sql compartilhado com a web)
 src/
 ├── core/               # carregador WASM + referência TypeScript idêntica da libsisp
+├── storage/            # SQLite (sqlite-wasm, OPFS) num Web Worker + fallback localStorage
 ├── lib/
 │   ├── knowledge.ts    # faixas clínicas, fontes, hazards, regiões do corpo, ambientes
 │   ├── assessment.ts   # resultados do núcleo → achados bilíngues (diretriz + base, radiação, osso, PVT)
@@ -172,7 +212,7 @@ src/
 │   ├── report.ts       # relatório compacto ao flight surgeon (JSON + texto)
 │   ├── motion.ts       # variants compartilhadas do Framer Motion
 │   ├── crew.ts         # tripulação simulada (seed fixa, sinais vitais + histórico de PVT)
-│   ├── store.ts        # estado Zustand persistido, XP / medalhas, idioma
+│   ├── store.ts        # estado Zustand (preferências no localStorage, histórico gravado no SQLite), XP / medalhas
 │   └── i18n.ts         # helper PT/EN mínimo, sem dependência
 ├── components/         # Dashboard, Body3D, BodyMap, Checkin, Trends, Ground, CommLink,
 │                       # FlightSurgeonReport, SolarAlert, MissionTimeline, Reminders,
@@ -184,7 +224,8 @@ public/
 scripts/
 ├── fetch_nasa_data.py  # OSDR OSD-575 + DONKI + referência de radiação → public/data
 ├── build-core-wasm.sh  # emcc → public/core/sisp.wasm
-└── core-parity.ts      # gerador de fixtures + checagem de paridade TS/WASM
+├── core-parity.ts      # gerador de fixtures + checagem de paridade TS/WASM
+└── storage-test.ts     # testes do armazenamento SQLite web (+ troca de bancos C ⇄ web)
 ```
 
 Todo número exibido no app tem origem rastreável. As faixas e ações estão em `knowledge.ts` e os passos de emergência em `emergency.ts`, cada um com link para a fonte na aba **Sobre**.
@@ -234,7 +275,7 @@ O checklist de 2001 usa valores de RCP desatualizados (80–100/min, 15:2, golpe
 
 ## Privacidade
 
-Todos os dados ficam no dispositivo (`localStorage`). Não há servidores, analytics nem chaves de API. O `npm run data` acessa apenas endpoints públicos da NASA.
+Todos os dados ficam no dispositivo (SQLite no sistema de arquivos privado do navegador, ou `localStorage`). Não há servidores, analytics nem chaves de API. O `npm run data` acessa apenas endpoints públicos da NASA.
 
 ## Licença
 
