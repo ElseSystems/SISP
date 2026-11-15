@@ -168,7 +168,8 @@ kept in **SQLite**, with **one schema for C and the web**: [`core/store/schema.s
 - **Web — `src/storage/`**: the official `@sqlite.org/sqlite-wasm` running in a **Web Worker** on the
   **`opfs-sahpool`** VFS. It needs no `SharedArrayBuffer`, so it works on GitHub Pages **without COOP/COEP headers**.
   WAL is used too: exclusive locking keeps the WAL index on the heap. On first run, the existing `localStorage` data
-  is migrated into SQLite once. If OPFS isn't available (or with `?storage=local`), the app keeps using `localStorage`.
+  is migrated into SQLite once. If OPFS isn't available (or with `?storage=local`), the app keeps using `localStorage`. Only one tab can hold
+  the database at a time; a second SISP tab uses `localStorage` and says so in the footer.
   The footer and **About** show which engine is active. About also exports the history as JSON or downloads the
   `.sqlite3` file, which `sisp-store` reads.
 - **Same files on both sides:** CI writes a database in C and reads it on the web, then does the reverse

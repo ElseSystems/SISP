@@ -169,7 +169,7 @@ ficam em **SQLite**, com **um só esquema para C e web**: [`core/store/schema.sq
   **`opfs-sahpool`**. Ele não precisa de `SharedArrayBuffer`, então funciona no GitHub Pages **sem cabeçalhos COOP/COEP**.
   O WAL também é usado: com locking exclusivo, o índice do WAL fica na memória. Na primeira execução, os dados que já
   estavam no `localStorage` são migrados para o SQLite uma única vez. Sem OPFS (ou com `?storage=local`), o app continua
-  no `localStorage`. O rodapé e a aba **Sobre** mostram qual motor está ativo. A aba Sobre também exporta o histórico
+  no `localStorage`. Só uma aba pode abrir o banco por vez; uma segunda aba do SISP usa o `localStorage` e avisa no rodapé. O rodapé e a aba **Sobre** mostram qual motor está ativo. A aba Sobre também exporta o histórico
   em JSON ou baixa o arquivo `.sqlite3`, que o `sisp-store` lê.
 - **Mesmos arquivos dos dois lados:** a CI grava um banco em C e o lê na web, e depois faz o inverso (job `store-web`).
 

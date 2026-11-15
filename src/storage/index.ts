@@ -84,7 +84,10 @@ export async function initStorage(snapshot: () => Snapshot, timeoutMs = 6000): P
     worker?.terminate()
     worker = null
     pending.clear()
-    setEngine({ kind: 'localStorage', reason: err instanceof Error ? err.message : String(err) })
+    const msg = err instanceof Error ? err.message : String(err)
+    // OPFS access handles are exclusive: a second tab can't open the pool while the first holds it
+    const busy = /Access Handles? cannot be created|NoModificationAllowed/i.test(msg)
+    setEngine({ kind: 'localStorage', reason: busy ? 'other-tab' : msg })
     return { engine }
   }
 }
