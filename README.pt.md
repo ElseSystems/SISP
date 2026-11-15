@@ -2,7 +2,7 @@
 
 # 🛡️ SISP — Sistema de Saúde e Prevenção
 
-**Autoavaliação de saúde e guia de emergência para astronautas, offline-first**
+**Camada de integração de saúde e prevenção para missões espaciais, offline-first**
 
 NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts on Space Missions*
 
@@ -30,7 +30,27 @@ Português · [English](README.md)
 
 ## Visão geral
 
+**O SISP (Sistema de Saúde e Prevenção) é uma camada de integração de saúde e prevenção para missões espaciais.** O núcleo é escrito em C portátil e sem dependências, para se conectar aos sensores que já estão na nave e que a tripulação já usa (monitores cardíacos, medidores de pressão, glicosímetros, termômetros e dosímetros de radiação) sem substituir nenhum hardware. O app web é a interface visual e roda o mesmo núcleo via WebAssembly; o SQLite guarda o histórico de bordo.
+
 Numa missão longa, a tripulação nem sempre pode esperar pelo solo. Com o SISP, cada astronauta registra seis indicadores vitais em menos de um minuto, vê num corpo 3D **qual sistema está saindo do normal** e recebe uma resposta clara para duas perguntas: **o que eu faço agora?** e **quando chamo o solo?** A resposta muda conforme o local da tripulação: ISS (contato quase em tempo real), Lua ou Marte (atraso de até ~20 min por trecho).
+
+## Conceito de integração
+
+O SISP **não adiciona hardware novo**. As leituras vêm dos instrumentos que a tripulação já usa; o SISP as transforma em um status, uma próxima ação e uma resposta para "quando chamar o solo".
+
+```mermaid
+flowchart LR
+  S["Sensores de bordo<br/>monitor cardíaco · medidor de pressão · glicosímetro<br/>termômetro · dosímetro de radiação"] --> C["libsisp (C11)<br/>núcleo de avaliação"]
+  C --> D["sisp_store (SQLite)<br/>histórico de bordo"]
+  D --> U["Painel e alertas<br/>app web via WebAssembly"]
+```
+
+- **libsisp (C11):** sem dependências, sem alocação dinâmica, sem E/S e thread-safe, para ser ligado a um computador de bordo, a um gateway de sensores ou a ferramentas de solo. Uma ABI plana (`sisp_flat.h`) atende FFI e WebAssembly.
+- **sisp_store (SQLite):** o histórico de bordo, com o mesmo esquema usado pelo app web (SQLite WASM no OPFS).
+- **App web:** a interface visual. Chama o mesmo núcleo compilado para WebAssembly, então a tela e uma integração embarcada dão resultados idênticos.
+- **API de integração:** veja [docs/core-api.pt.md](docs/core-api.pt.md) (EN: [docs/core-api.md](docs/core-api.md)).
+
+> Neste protótipo, as leituras são digitadas no check-in ou simuladas. Os adaptadores que leem cada aparelho de bordo específico são a etapa de integração e não estão incluídos.
 
 ## Funcionalidades
 

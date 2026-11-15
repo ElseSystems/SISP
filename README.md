@@ -2,7 +2,7 @@
 
 # 🛡️ SISP — Health & Prevention System
 
-**Offline-first health self-assessment and emergency guidance for astronauts**
+**Offline-first health integration and prevention layer for space missions**
 
 NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts on Space Missions*
 
@@ -30,7 +30,27 @@ NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts o
 
 ## Overview
 
+**SISP (Health & Prevention System) is a health integration and prevention layer for space missions.** Its core is written in portable, dependency-free C, so it can connect to the sensors already on the spacecraft and already used by the crew (heart monitors, blood pressure cuffs, glucometers, thermometers and radiation dosimeters) without replacing any hardware. The web app is the visual front end and runs the same core through WebAssembly; SQLite holds the onboard history.
+
 On a long mission, the crew cannot always wait for the ground. SISP lets each astronaut log six vital indicators in under a minute, see on a 3D body **which system is drifting**, and get a clear answer to two questions: **what do I do now?** and **when do I call the ground?** The answer adapts to where the crew is: the ISS (near real-time link), the Moon, or Mars (up to ~20 min one-way delay).
+
+## Integration concept
+
+SISP adds **no new hardware**. The readings come from the instruments the crew already uses; SISP turns them into a status, a next action and a "when to call the ground" answer.
+
+```mermaid
+flowchart LR
+  S["Onboard sensors<br/>heart monitor · BP cuff · glucometer<br/>thermometer · radiation dosimeter"] --> C["libsisp (C11)<br/>assessment core"]
+  C --> D["sisp_store (SQLite)<br/>onboard history"]
+  D --> U["Dashboard and alerts<br/>web app via WebAssembly"]
+```
+
+- **libsisp (C11):** dependency-free, no dynamic allocation, no I/O, thread-safe, so it can be linked into an onboard computer, a sensor gateway or ground tools. A flat ABI (`sisp_flat.h`) covers FFI and WebAssembly.
+- **sisp_store (SQLite):** the onboard history, with the same schema used by the web app (SQLite WASM on OPFS).
+- **Web app:** the visual front end. It calls the same core compiled to WebAssembly, so the screen and an embedded integration give identical results.
+- **Integration API:** see [docs/core-api.md](docs/core-api.md) (PT: [docs/core-api.pt.md](docs/core-api.pt.md)).
+
+> In this prototype, the readings are typed in during the check-in or simulated. The adapters that read each specific onboard device are the integration step and are not included.
 
 ## Features
 
