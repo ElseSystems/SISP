@@ -5,7 +5,9 @@ on:
   pull_request:
   workflow_dispatch:
 permissions: { contents: read }
-concurrency: { group: core-${{ github.ref }}, cancel-in-progress: true }
+concurrency:
+  group: core-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   native:
