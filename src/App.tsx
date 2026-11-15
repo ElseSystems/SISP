@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore, level, BADGES } from './lib/store'
 import type { Tab } from './lib/store'
@@ -14,6 +14,8 @@ import Ground from './components/Ground'
 import Emergency from './components/Emergency'
 import NasaData from './components/NasaData'
 import About from './components/About'
+import Onboarding from './components/Onboarding'
+import DemoDirector from './components/DemoDirector'
 import { Badge, Disclaimer } from './components/ui'
 
 const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'emergency', 'nasa', 'about']
@@ -30,7 +32,7 @@ const tabLabel = (id: Tab) => ({
 const INITIAL_HASH = window.location.hash.slice(1)
 
 export default function App() {
-  const { lang, env, crew, selectedId, tab, xp, streak, badges, lastCheckin, setLang, setEnv, select, setTab } = useStore()
+  const { lang, env, crew, selectedId, tab, xp, streak, badges, lastCheckin, setLang, setEnv, select, setTab, onboarded, demo, showIntro, setDemo, setIntro } = useStore()
   setCurrentLang(lang)
   const today = isoDay(new Date())
 
@@ -42,9 +44,11 @@ export default function App() {
     if (stale) useStore.setState({ crew: generateCrew() })
   }, [crew, today])
 
-  // Hash deep-links (#nasa, #emergency…) for demos.
+  // Hash deep-links (#nasa, #emergency…, #demo starts the guided tour, #intro the briefing).
   useEffect(() => {
     if (TAB_IDS.includes(INITIAL_HASH as Tab)) setTab(INITIAL_HASH as Tab)
+    if (INITIAL_HASH === 'demo') setDemo(true)
+    else if (INITIAL_HASH === 'intro' || (!onboarded && !TAB_IDS.includes(INITIAL_HASH as Tab))) setIntro(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => { history.replaceState(null, '', `#${tab}`) }, [tab])
@@ -53,15 +57,28 @@ export default function App() {
   const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env)])), [crew, env])
   const a = assessments[c.id]
   const pending = lastCheckin !== today
+  const fleetWorst = Math.max(...crew.map((m) => assessments[m.id]?.overall ?? 0)) as 0 | 1 | 2 | 3
+  const met = useMissionClock(c.missionStart)
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,#0c1a3a,#020617_60%)] text-slate-100">
-      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+    <div className={`space-bg min-h-screen text-slate-100 ${demo ? 'pb-28' : ''}`}>
+      <header className="sticky top-0 z-20 border-b border-sky-500/10 bg-slate-950/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <div className="mr-auto">
-            <h1 className="text-lg font-black tracking-tight">🛡️ SISP <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
+            <h1 className="text-lg font-black tracking-tight"><span className="text-glow">🛡️ SISP</span> <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
             <p className="text-[11px] text-slate-400">{t('Autoavaliação e prevenção de saúde para tripulações espaciais · NASA Space Apps', 'Health self-assessment and prevention for space crews · NASA Space Apps')}</p>
           </div>
+          <div className="hidden items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-950/60 px-3 py-1 md:flex" title={t('Tempo decorrido de missão (MET) do tripulante selecionado', 'Mission Elapsed Time (MET) of the selected crew member')}>
+            <span className="h-2 w-2 animate-pulse rounded-full" style={{ background: SEVERITY_COLOR[fleetWorst] }} />
+            <span className="text-[10px] uppercase tracking-widest text-slate-400">MET</span>
+            <span className="mono text-xs text-sky-200">{met}</span>
+          </div>
+          <button onClick={() => setDemo(!demo)}
+            className={`rounded-lg px-3 py-1 text-xs font-bold transition ${demo ? 'bg-red-500 text-white' : 'bg-sky-400 text-slate-950 shadow-[0_0_16px_rgba(56,189,248,0.55)] hover:bg-sky-300'}`}>
+            {demo ? `■ ${t('Parar demo', 'Stop demo')}` : `▶ ${t('Demo', 'Demo')}`}
+          </button>
+          <button onClick={() => setIntro(true)} aria-label={t('Briefing', 'Briefing')} title={t('Briefing da missão', 'Mission briefing')}
+            className="rounded-lg border border-slate-600 px-2 py-1 text-xs text-slate-300 hover:border-slate-400">❔</button>
           <div className="flex overflow-hidden rounded-lg border border-slate-600 text-xs" role="group" aria-label="language">
             {(['pt', 'en'] as const).map((lg) => (
               <button key={lg} onClick={() => setLang(lg)} className={`px-2 py-1 ${lang === lg ? 'bg-sky-500 font-bold text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{lg.toUpperCase()}</button>
@@ -127,6 +144,18 @@ export default function App() {
         </AnimatePresence>
         <Disclaimer />
       </main>
+      <AnimatePresence>{showIntro && !demo && <Onboarding key="intro" />}</AnimatePresence>
+      {demo && <DemoDirector />}
     </div>
   )
+}
+
+/** Mission Elapsed Time, ticking every second: "D075 · 14:02:31". */
+function useMissionClock(missionStart: string) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id) }, [])
+  const ms = Math.max(0, now - new Date(missionStart + 'T00:00:00').getTime())
+  const d = Math.floor(ms / 86400000)
+  const hms = new Date(ms % 86400000).toISOString().slice(11, 19)
+  return `D${String(d).padStart(3, '0')} · ${hms}`
 }
