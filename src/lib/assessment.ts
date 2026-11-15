@@ -4,7 +4,8 @@
  */
 import { BONE, ENVIRONMENTS, PROTOTYPE_HEURISTICS as H, RADIATION, BODY_REGIONS } from './knowledge'
 import type { BodyRegionId, EnvironmentId, IndicatorId, Severity } from './knowledge'
-import type { CrewMember, Reading } from './types'
+import type { CrewMember, PvtResult, Reading } from './types'
+import { DEEP_SPACE } from './spaceWeather'
 import { l } from './i18n'
 import type { L } from './i18n'
 
@@ -113,16 +114,52 @@ export function assessReading(readings: Reading[], idx: number): Finding[] {
 
 export const daysBetween = (a: string, b: string) => Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000)
 
-export function radiationStatus(c: CrewMember, env: EnvironmentId, today: string) {
+export interface SolarContext { active: boolean; sheltered: boolean; liveDoseMSv: number; loggedDoseMSv: number }
+
+export function radiationStatus(c: CrewMember, env: EnvironmentId, today: string, solar?: SolarContext) {
   const days = Math.max(0, daysBetween(c.missionStart, today))
   const rate = ENVIRONMENTS[env].doseMSvPerDay
-  const mission = days * rate
+  const eventDose = (solar?.loggedDoseMSv ?? 0) + (solar?.liveDoseMSv ?? 0)
+  const mission = days * rate + eventDose
   const total = c.priorCareerDoseMSv + mission
   const pct = (total / RADIATION.careerLimitMSv) * 100
   // limiares de % do limite = heurística do protótipo
-  const severity: Severity = pct >= 100 ? 3 : pct >= 80 ? 2 : pct >= 50 ? 1 : 0
+  let severity: Severity = pct >= 100 ? 3 : pct >= 80 ? 2 : pct >= 50 ? 1 : 0
+  const reasons: L[] = []
+  if (solar?.active) {
+    const deep = DEEP_SPACE[env]
+    const ev: Severity = solar.sheltered ? (deep ? 2 : 1) : (deep ? 3 : 2)
+    severity = max(severity, ev)
+    reasons.push(solar.sheltered
+      ? l('Evento de partículas solares em curso — tripulação no abrigo', 'Solar particle event in progress — crew in shelter')
+      : l('Evento de partículas solares em curso — VÁ PARA O ABRIGO', 'Solar particle event in progress — GO TO SHELTER'))
+  }
   const daysLeft = Math.max(0, (RADIATION.careerLimitMSv - total) / rate)
-  return { days, rate, mission, total, pct, severity, daysLeft }
+  return { days, rate, mission, total, pct, severity, daysLeft, eventDose, reasons, solarActive: !!solar?.active }
+}
+
+/**
+ * Fatigue from the PVT: latest session vs the person's own PVT baseline, cross-checked with sleep.
+ * PVT-B lapse threshold 355 ms (Basner 2011). Slowing/lapse cut-offs = prototype heuristics.
+ */
+export function fatigueStatus(c: CrewMember) {
+  const hist = c.pvt ?? []
+  const latest: PvtResult | undefined = hist.at(-1)
+  const prior = hist.slice(0, -1).slice(-6)
+  const baselineMs = prior.length >= 3 ? prior.reduce((a, p) => a + p.medianMs, 0) / prior.length : NaN
+  const slowingPct = latest && !Number.isNaN(baselineMs) ? ((latest.medianMs - baselineMs) / baselineMs) * 100 : 0
+  const last3 = c.readings.slice(-3).map((r) => r.sleep)
+  const sleepAvg3 = last3.length ? last3.reduce((a, v) => a + v, 0) / last3.length : NaN
+  const reasons: L[] = []
+  let severity: Severity = 0
+  if (latest) {
+    if (latest.lapses >= 5) { severity = 2; reasons.push(l(`${latest.lapses} lapsos (≥355 ms) no PVT`, `${latest.lapses} lapses (≥355 ms) on the PVT`)) }
+    else if (latest.lapses >= 3) { severity = 1; reasons.push(l(`${latest.lapses} lapsos (≥355 ms) no PVT`, `${latest.lapses} lapses (≥355 ms) on the PVT`)) }
+    if (slowingPct >= 20) { severity = max(severity, 2); reasons.push(l(`Reação ${slowingPct.toFixed(0)}% mais lenta que sua base`, `Reaction ${slowingPct.toFixed(0)}% slower than your baseline`)) }
+    else if (slowingPct >= 10) { severity = max(severity, 1); reasons.push(l(`Reação ${slowingPct.toFixed(0)}% mais lenta que sua base`, `Reaction ${slowingPct.toFixed(0)}% slower than your baseline`)) }
+    if (severity >= 1 && sleepAvg3 < 6) { severity = max(severity, 2); reasons.push(l(`Coincide com sono curto (média 3 noites ${sleepAvg3.toFixed(1)} h) — provável fadiga`, `Coincides with short sleep (3-night avg ${sleepAvg3.toFixed(1)} h) — likely fatigue`)) }
+  }
+  return { latest, baselineMs, slowingPct, sleepAvg3, severity, reasons }
 }
 
 export function boneStatus(c: CrewMember, today: string) {
@@ -144,15 +181,17 @@ export interface CrewAssessment {
   regions: Record<BodyRegionId, Severity>
   radiation: ReturnType<typeof radiationStatus>
   bone: ReturnType<typeof boneStatus>
+  fatigue: ReturnType<typeof fatigueStatus>
 }
 
-export function assessCrew(c: CrewMember, env: EnvironmentId): CrewAssessment | null {
+export function assessCrew(c: CrewMember, env: EnvironmentId, solar?: SolarContext): CrewAssessment | null {
   if (!c.readings.length) return null
   const idx = c.readings.length - 1
   const today = c.readings[idx].date
   const findings = assessReading(c.readings, idx)
-  const radiation = radiationStatus(c, env, today)
+  const radiation = radiationStatus(c, env, today, solar)
   const bone = boneStatus(c, today)
+  const fatigue = fatigueStatus(c)
   const sev = (id: string) => findings.find((f) => f.indicator === id)?.severity ?? 0
   const regions = {} as Record<BodyRegionId, Severity>
   for (const [rid, info] of Object.entries(BODY_REGIONS) as [BodyRegionId, (typeof BODY_REGIONS)[BodyRegionId]][]) {
@@ -160,8 +199,9 @@ export function assessCrew(c: CrewMember, env: EnvironmentId): CrewAssessment | 
     for (const ind of info.indicators) s = max(s, sev(ind))
     if (rid === 'musculoskeletal') s = max(s, bone.severity)
     if (rid === 'immune' || rid === 'brain') s = max(s, Math.min(radiation.severity, 2) as Severity)
+    if (rid === 'brain') s = max(s, fatigue.severity)
     regions[rid] = s
   }
-  const overall = [...findings.map((f) => f.severity), radiation.severity, bone.severity].reduce(max, 0 as Severity)
-  return { findings, overall, regions, radiation, bone }
+  const overall = [...findings.map((f) => f.severity), radiation.severity, bone.severity, fatigue.severity].reduce(max, 0 as Severity)
+  return { findings, overall, regions, radiation, bone, fatigue }
 }

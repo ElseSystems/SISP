@@ -26,4 +26,35 @@ export interface CrewMember {
   priorCareerDoseMSv: number
   scenario: L
   readings: Reading[]
+  /** Psychomotor Vigilance Test sessions (oldest → newest) */
+  pvt?: PvtResult[]
+  /** camera PPG pulse estimates (oldest → newest) */
+  pulse?: PulseEstimate[]
+}
+
+/** PVT-B style session summary (Basner et al. 2011). */
+export interface PvtResult {
+  date: string // YYYY-MM-DD
+  at: number // epoch ms
+  durationSec: number
+  n: number
+  meanMs: number
+  medianMs: number
+  /** RT ≥ 355 ms (PVT-B lapse threshold) */
+  lapses: number
+  /** responses before the stimulus or < 100 ms */
+  falseStarts: number
+  /** mean response speed, 1000/RT (1/s) */
+  speed: number
+  source: 'sim' | 'manual'
+}
+
+/** Heart-rate estimate from fingertip photoplethysmography on the camera. */
+export interface PulseEstimate {
+  at: number
+  date: string
+  bpm: number
+  /** 0–1 periodicity score of the signal */
+  quality: number
+  source: 'camera' | 'demo'
 }

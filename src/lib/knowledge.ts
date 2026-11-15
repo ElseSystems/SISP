@@ -41,6 +41,11 @@ export const SOURCES = {
   gravity: { label: 'NASA HRP – Hazard: Gravity Fields', url: 'https://www.nasa.gov/hrp/hazard-gravity-fields/' },
   distance: { label: 'NASA HRP – Hazard: Distance from Earth (up to 20 min one-way delay)', url: 'https://www.nasa.gov/hrp/hazard-distance-from-earth/' },
   donki: { label: 'NASA CCMC DONKI – Space Weather Database', url: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' },
+  srag: { label: 'NASA JSC Space Radiation Analysis Group (SRAG) – crew radiation monitoring & shelter calls', url: 'https://srag.jsc.nasa.gov/' },
+  radiationHazard: { label: 'NASA HRP – Hazard: Space Radiation', url: 'https://www.nasa.gov/hrp/hazard-space-radiation/' },
+  pvtb: { label: 'Basner et al. 2011 – Brief PVT (PVT-B), 3 min, lapse ≥355 ms (Acta Astronautica)', url: 'https://pubmed.ncbi.nlm.nih.gov/22025811/' },
+  cognition: { label: 'Basner et al. 2015 – Cognition test battery for spaceflight, incl. PVT (Aerosp Med Hum Perform)', url: 'https://pubmed.ncbi.nlm.nih.gov/26564759/' },
+  ppg: { label: 'Coppetti et al. 2017 – Accuracy of smartphone camera apps for heart rate (Eur J Prev Cardiol)', url: 'https://pubmed.ncbi.nlm.nih.gov/28464700/' },
 } satisfies Record<string, Source>
 
 export const HAZARDS: Record<HazardId, { name: L; icon: string; summary: L }> = {
