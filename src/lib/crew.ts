@@ -28,15 +28,15 @@ const r0 = (x: number) => Math.round(x)
 interface Base { sys: number; dia: number; hr: number; glucose: number; temp: number; sleep: number; mood: number }
 type Drift = (dayIdx: number, days: number) => Partial<Base> & { phq2?: number; pvt?: number; lapses?: number }
 
-const PROFILES: { id: string; name: L; role: L; avatar: string; agency: string; seed: number; base: Base; pvtMs: number; prior: number; startOffset: number; scenario: L; drift: Drift }[] = [
+const PROFILES: { id: string; name: L; role: L; avatar: string; sex: 'male' | 'female'; agency: string; seed: number; base: Base; pvtMs: number; prior: number; startOffset: number; scenario: L; drift: Drift }[] = [
   {
-    id: 't1', name: l('Tripulante 1', 'Crew Member 1'), role: l('Comandante', 'Commander'), avatar: '🧑‍🚀', agency: 'AEB/NASA', seed: 11, prior: 62, startOffset: 75,
+    id: 't1', sex: 'male', name: l('Tripulante 1', 'Crew Member 1'), role: l('Comandante', 'Commander'), avatar: '🧑‍🚀', agency: 'AEB/NASA', seed: 11, prior: 62, startOffset: 75,
     pvtMs: 248, base: { sys: 112, dia: 72, hr: 62, glucose: 86, temp: 37.3, sleep: 7.4, mood: 4.2 },
     scenario: l('Estável – referência de tripulante saudável.', 'Stable – healthy crew member reference.'),
     drift: () => ({}),
   },
   {
-    id: 't2', name: l('Tripulante 2', 'Crew Member 2'), role: l('Engenheiro de voo', 'Flight Engineer'), avatar: '🧑‍🚀', agency: 'JAXA', seed: 22, prior: 40, startOffset: 60,
+    id: 't2', sex: 'female', name: l('Tripulante 2', 'Crew Member 2'), role: l('Engenheira de voo', 'Flight Engineer'), avatar: '🧑‍🚀', agency: 'JAXA', seed: 22, prior: 40, startOffset: 60,
     pvtMs: 262, base: { sys: 118, dia: 76, hr: 66, glucose: 90, temp: 37.2, sleep: 6.6, mood: 4.0 },
     scenario: l('Sono caindo nos últimos 10 dias e humor piorando (isolamento).', 'Sleep declining over the last 10 days and mood worsening (isolation).'),
     drift: (i, n) => {
@@ -45,7 +45,7 @@ const PROFILES: { id: string; name: L; role: L; avatar: string; agency: string; 
     },
   },
   {
-    id: 't3', name: l('Tripulante 3', 'Crew Member 3'), role: l('Especialista de missão (médica/CMO)', 'Mission Specialist (physician/CMO)'), avatar: '🧑‍🚀', agency: 'ESA', seed: 33, prior: 18, startOffset: 90,
+    id: 't3', sex: 'male', name: l('Tripulante 3', 'Crew Member 3'), role: l('Especialista de missão (médico/CMO)', 'Mission Specialist (physician/CMO)'), avatar: '🧑‍🚀', agency: 'ESA', seed: 33, prior: 18, startOffset: 90,
     pvtMs: 255, base: { sys: 108, dia: 68, hr: 64, glucose: 84, temp: 37.0, sleep: 7.2, mood: 4.3 },
     scenario: l('Temperatura ~+0,9 °C acima da base de voo nos últimos 2 dias, ainda abaixo de 38 °C (febre relativa).', 'Temperature ~+0.9 °C above in-flight baseline for 2 days, still below 38 °C (relative fever).'),
     drift: (i, n) => {
@@ -54,7 +54,7 @@ const PROFILES: { id: string; name: L; role: L; avatar: string; agency: string; 
     },
   },
   {
-    id: 't4', name: l('Tripulante 4', 'Crew Member 4'), role: l('Piloto', 'Pilot'), avatar: '🧑‍🚀', agency: 'NASA', seed: 44, prior: 120, startOffset: 120,
+    id: 't4', sex: 'female', name: l('Tripulante 4', 'Crew Member 4'), role: l('Piloto', 'Pilot'), avatar: '🧑‍🚀', agency: 'NASA', seed: 44, prior: 120, startOffset: 120,
     pvtMs: 266, base: { sys: 122, dia: 79, hr: 70, glucose: 96, temp: 37.2, sleep: 6.2, mood: 3.9 },
     scenario: l('PA e glicemia de jejum em tendência de alta (resistência à insulina?).', 'BP and fasting glucose trending up (insulin resistance?).'),
     drift: (i, n) => {
@@ -100,7 +100,7 @@ export function generateCrew(today = new Date(), days = 30): CrewMember[] {
       pvt.push({ date, at: new Date(date + 'T07:00:00Z').getTime(), durationSec: 180, n: 60, meanMs: r0(median * 1.08 + lapses * 12), medianMs: median, lapses, falseStarts: rnd() < 0.25 ? 1 : 0, speed: r1(1000 / (median * 1.05)), source: 'sim' })
     }
     return {
-      id: p.id, name: p.name, role: p.role, avatar: p.avatar, agency: p.agency,
+      id: p.id, name: p.name, role: p.role, avatar: p.avatar, sex: p.sex, agency: p.agency,
       missionStart: isoDay(addDays(today, -p.startOffset)),
       priorCareerDoseMSv: p.prior,
       scenario: p.scenario,

@@ -20,6 +20,8 @@ export interface CrewMember {
   name: L
   role: L
   avatar: string
+  /** Drives the bust avatar only (UI). Optional: rows persisted before it existed fall back by crew id. */
+  sex?: 'male' | 'female'
   agency: string
   /** dias de missão já cumpridos antes da série (para dose/osso) */
   missionStart: string
