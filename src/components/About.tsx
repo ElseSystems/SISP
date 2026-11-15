@@ -1,12 +1,13 @@
 import { Card, Disclaimer } from './ui'
 import { HAZARDS, INDICATORS, PROTOTYPE_HEURISTICS as H, SOURCES } from '../lib/knowledge'
 import type { HazardId } from '../lib/knowledge'
+import { EM_SOURCES } from '../lib/emergency'
 import { useStore } from '../lib/store'
 import { t, tr } from '../lib/i18n'
 
 export default function About() {
   const reset = useStore((s) => s.reset)
-  const sources = Object.values(SOURCES)
+  const sources = [...Object.values(SOURCES), ...Object.values(EM_SOURCES)]
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card title={t('Como funciona', 'How it works')}>
@@ -19,6 +20,7 @@ export default function About() {
             `no espaço a temperatura de repouso sobe ~1 °C (Stahn 2017). Aumento ≥ +${H.tempDeltaAttention} °C sobre a base de voo = Atenção, ≥ +${H.tempDeltaAlert} °C = Alerta, mesmo abaixo de 38 °C.`,
             `in space resting temperature rises ~1 °C (Stahn 2017). A rise ≥ +${H.tempDeltaAttention} °C over the in-flight baseline = Caution, ≥ +${H.tempDeltaAlert} °C = Warning, even below 38 °C.`)}</li>
           <li><b>{t('Escalonamento com atraso:', 'Delay-aware escalation:')}</b> {t('na ISS chama-se o solo; em Marte (até ~20 min de ida) a tripulação age primeiro e envia relatório.', 'on the ISS you call the ground; at Mars (up to ~20 min one-way) the crew acts first and sends a report.')}</li>
+          <li><b>{t('Manuais de emergência:', 'Emergency manuals:')}</b> {t('parada cardíaca (RCP/ACLS em microgravidade), lesões musculares e fraturas, com fonte em cada passo.', 'cardiac arrest (CPR/ACLS in microgravity), muscle injuries and fractures, with a source for every step.')}</li>
           <li><b>Offline-first:</b> {t('tudo roda no navegador e fica salvo no dispositivo (localStorage) — distância da Terra é um dos 5 hazards.', 'everything runs in the browser and is stored on the device (localStorage) — distance from Earth is one of the 5 hazards.')}</li>
           <li><b>{t('Dados reais NASA:', 'Real NASA data:')}</b> {t('glicemia Inspiration4 (OSDR OSD-575), clima espacial (DONKI) e taxas de dose do Curiosity RAD.', 'Inspiration4 glucose (OSDR OSD-575), space weather (DONKI) and Curiosity RAD dose rates.')}</li>
         </ul>

@@ -56,6 +56,7 @@ export function escalationPlan(sev: Severity, env: EnvironmentId): EscalationPla
     roundTrip, autonomous: true,
     steps: [
       t('Acione o comandante e o CMO imediatamente.', 'Alert the commander and the CMO immediately.'),
+      t('Abra o manual da aba Emergência correspondente.', 'Open the matching manual in the Emergency tab.'),
       far ? t(`Envie alerta prioritário ao solo AGORA, mas a primeira resposta chega em ≥ ${roundTrip}. A tripulação decide.`, `Send a priority alert to the ground NOW, but the first reply arrives in ≥ ${roundTrip}. The crew decides.`)
         : t(`Chame o solo agora (atraso ${roundTrip} ida e volta).`, `Call the ground now (${roundTrip} round trip).`),
       e.evacuationPossible ? t(`Evacuação: ${evac} — avaliar com o solo.`, `Evacuation: ${evac} — assess with the ground.`) : t(`Evacuação: ${evac} — estabilização a bordo.`, `Evacuation: ${evac} — stabilize on board.`),

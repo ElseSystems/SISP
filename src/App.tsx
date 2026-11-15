@@ -11,17 +11,18 @@ import Dashboard from './components/Dashboard'
 import Checkin from './components/Checkin'
 import Trends from './components/Trends'
 import Ground from './components/Ground'
+import Emergency from './components/Emergency'
 import NasaData from './components/NasaData'
 import About from './components/About'
 import { Badge, Disclaimer } from './components/ui'
 
-const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'nasa', 'about']
+const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'emergency', 'nasa', 'about']
 const tabLabel = (id: Tab) => ({
   dashboard: t('🧍 Painel', '🧍 Dashboard'),
   checkin: '✍️ Check-in',
   trends: t('📈 Tendências', '📈 Trends'),
   ground: t('📡 Agir / Solo', '📡 Act / Ground'),
-  emergency: '',
+  emergency: t('🚨 Emergência', '🚨 Emergency'),
   nasa: t('🛰️ Dados NASA', '🛰️ NASA data'),
   about: t('ℹ️ Sobre', 'ℹ️ About'),
 })[id]
@@ -119,6 +120,7 @@ export default function App() {
             {tab === 'checkin' && <Checkin key={c.id} />}
             {tab === 'trends' && <Trends c={c} />}
             {tab === 'ground' && a && <Ground c={c} a={a} />}
+            {tab === 'emergency' && <Emergency />}
             {tab === 'nasa' && <NasaData />}
             {tab === 'about' && <About />}
           </motion.div>
