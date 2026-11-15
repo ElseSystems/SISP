@@ -2,6 +2,8 @@ import { Component, lazy, Suspense, useState } from 'react'
 import type { ReactNode } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import BodyMap from './BodyMap'
+import HazardStrip from './HazardStrip'
+import { HAZARD_STORY } from '../lib/story'
 import type { ModelId } from './Body3D'
 import { Badge, Card, SourceLinks } from './ui'
 import { SOURCES, BODY_REGIONS, BONE, ENVIRONMENTS, HAZARDS, INDICATORS, RADIATION, SEVERITY_COLOR } from '../lib/knowledge'
@@ -27,13 +29,16 @@ class Fallback3D extends Component<{ fallback: ReactNode; children: ReactNode },
 }
 
 export default function Dashboard({ a }: { a: CrewAssessment }) {
-  const [region, setRegion] = useState<BodyRegionId | null>('heart')
+  const region = useStore((s) => s.region)
+  const setRegion = useStore((s) => s.setRegion)
+  const hazard = useStore((s) => s.hazard)
+  const highlight = hazard ? HAZARD_STORY[hazard].regions : null
   const [view, setView] = useState<'3d' | '2d'>(() => (hasWebGL() ? '3d' : '2d'))
   const [model, setModel] = useState<ModelId>('muscular')
   const env = useStore((s) => s.env)
   const setTab = useStore((s) => s.setTab)
   const info = region ? BODY_REGIONS[region] : null
-  const map2d = <BodyMap regions={a.regions} selected={region} onSelect={setRegion} />
+  const map2d = <BodyMap regions={a.regions} selected={region} onSelect={setRegion} highlight={highlight} />
 
   return (
     <div className="grid gap-4 lg:grid-cols-[minmax(300px,400px)_1fr]">
@@ -52,7 +57,7 @@ export default function Dashboard({ a }: { a: CrewAssessment }) {
             </div>
             <Fallback3D fallback={map2d}>
               <Suspense fallback={map2d}>
-                <Body3D regions={a.regions} selected={region} onSelect={setRegion} model={model} />
+                <Body3D regions={a.regions} selected={region} onSelect={setRegion} model={model} highlight={highlight} />
               </Suspense>
             </Fallback3D>
           </>
@@ -69,6 +74,7 @@ export default function Dashboard({ a }: { a: CrewAssessment }) {
       </Card>
 
       <div className="space-y-4">
+        <HazardStrip regions={a.regions} />
         <AnimatePresence mode="wait">
           {info && region && (
             <motion.div key={region} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>

@@ -36,14 +36,22 @@ function Model({ id }: { id: ModelId }) {
   return <primitive object={clone} />
 }
 
-function Hotspot({ id, sev, selected, onSelect, onHover }: { id: BodyRegionId; sev: Severity; selected: boolean; onSelect: (r: BodyRegionId) => void; onHover: (r: BodyRegionId | null) => void }) {
+function Hotspot({ id, sev, selected, dim, lit, onSelect, onHover }: { id: BodyRegionId; sev: Severity; selected: boolean; dim: boolean; lit: boolean; onSelect: (r: BodyRegionId) => void; onHover: (r: BodyRegionId | null) => void }) {
+  const halo = useRef<Mesh>(null)
   const ref = useRef<Mesh>(null)
   useFrame(({ clock }) => {
     if (!ref.current) return
     const speed = sev >= 2 ? 6 : 2.5
     const amp = sev >= 2 ? 0.35 : 0.12
-    const s = 1 + Math.sin(clock.elapsedTime * speed) * amp + (selected ? 0.3 : 0)
+    const s = (dim ? 0.6 : 1) + Math.sin(clock.elapsedTime * speed) * amp + (selected ? 0.3 : 0) + (lit ? 0.25 : 0)
     ref.current.scale.setScalar(s)
+    // hazard storytelling: an expanding sonar ring on every organ the hazard hits
+    if (halo.current) {
+      const ph = (clock.elapsedTime * 0.8) % 1
+      halo.current.scale.setScalar(lit ? 1.5 + ph * 3.5 : selected ? 2.4 : 1.8)
+      const m = halo.current.material as { opacity: number }
+      m.opacity = lit ? 0.45 * (1 - ph) : dim ? 0.04 : 0.18
+    }
   })
   const color = SEVERITY_COLOR[sev]
   return (
@@ -53,9 +61,9 @@ function Hotspot({ id, sev, selected, onSelect, onHover }: { id: BodyRegionId; s
         onPointerOver={(e) => { e.stopPropagation(); onHover(id); document.body.style.cursor = 'pointer' }}
         onPointerOut={() => { onHover(null); document.body.style.cursor = '' }}>
         <sphereGeometry args={[0.018, 24, 24]} />
-        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={selected ? 2.2 : 1.2} transparent opacity={0.9} depthTest={false} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={selected || lit ? 2.4 : dim ? 0.3 : 1.2} transparent opacity={dim ? 0.35 : 0.9} depthTest={false} />
       </mesh>
-      <mesh scale={selected ? 2.4 : 1.8}>
+      <mesh ref={halo} scale={selected ? 2.4 : 1.8}>
         <sphereGeometry args={[0.018, 16, 16]} />
         <meshBasicMaterial color={color} transparent opacity={0.18} depthTest={false} />
       </mesh>
@@ -63,9 +71,9 @@ function Hotspot({ id, sev, selected, onSelect, onHover }: { id: BodyRegionId; s
   )
 }
 
-interface Props { regions: Record<BodyRegionId, Severity>; selected: BodyRegionId | null; onSelect: (r: BodyRegionId) => void; model: ModelId }
+interface Props { regions: Record<BodyRegionId, Severity>; selected: BodyRegionId | null; onSelect: (r: BodyRegionId) => void; model: ModelId; highlight?: BodyRegionId[] | null }
 
-export default function Body3D({ regions, selected, onSelect, model }: Props) {
+export default function Body3D({ regions, selected, onSelect, model, highlight }: Props) {
   // label rendered as a plain DOM overlay (no drei <Html> portals → no stray React roots on unmount)
   const [hover, setHover] = useState<BodyRegionId | null>(null)
   const shown = hover ?? selected
@@ -81,11 +89,11 @@ export default function Body3D({ regions, selected, onSelect, model }: Props) {
             <Model id={model} />
           </Suspense>
           {(Object.keys(HOTSPOTS) as BodyRegionId[]).map((r) => (
-            <Hotspot key={r} id={r} sev={regions[r]} selected={selected === r} onSelect={onSelect} onHover={setHover} />
+            <Hotspot key={r} id={r} sev={regions[r]} selected={selected === r} lit={!!highlight?.includes(r)} dim={!!highlight && !highlight.includes(r)} onSelect={onSelect} onHover={setHover} />
           ))}
         </group>
         <ContactShadows position={[0, 0, 0]} opacity={0.5} scale={3} blur={2.5} far={1.5} />
-        <OrbitControls target={[0, 0.98, 0]} enablePan={false} minDistance={1} maxDistance={4.5} autoRotate={selected === null} autoRotateSpeed={0.8} />
+        <OrbitControls target={[0, 0.98, 0]} enablePan={false} minDistance={1} maxDistance={4.5} autoRotate={selected === null || !!highlight} autoRotateSpeed={0.8} />
       </Canvas>
       {shown && (
         <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 whitespace-nowrap rounded-md border px-3 py-1 text-xs font-semibold text-white shadow"

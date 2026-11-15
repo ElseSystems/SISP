@@ -1,9 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { EnvironmentId } from './knowledge'
+import type { BodyRegionId, EnvironmentId, HazardId } from './knowledge'
 import type { CrewMember, Reading } from './types'
 import { generateCrew, isoDay, addDays } from './crew'
-import { detectLang, l, setCurrentLang } from './i18n'
+import { l, setCurrentLang } from './i18n'
 import type { L, Lang } from './i18n'
 
 export type Tab = 'dashboard' | 'checkin' | 'trends' | 'ground' | 'emergency' | 'nasa' | 'about'
@@ -27,10 +27,22 @@ interface State {
   streak: number
   lastCheckin?: string
   badges: BadgeId[]
+  /** onboarding already seen (persisted) */
+  onboarded: boolean
+  /** body-map focus — shared so the demo director can drive it (not persisted) */
+  region: BodyRegionId | null
+  hazard: HazardId | null
+  /** scripted one-click demo running (not persisted) */
+  demo: boolean
+  showIntro: boolean
   setLang: (l: Lang) => void
   setEnv: (e: EnvironmentId) => void
   select: (id: string) => void
   setTab: (t: Tab) => void
+  setRegion: (r: BodyRegionId | null) => void
+  setHazard: (h: HazardId | null) => void
+  setDemo: (on: boolean) => void
+  setIntro: (on: boolean) => void
   addReading: (r: Reading) => { xpGained: number; newBadges: BadgeId[] }
   reset: () => void
 }
@@ -38,7 +50,7 @@ interface State {
 export const useStore = create<State>()(
   persist(
     (set, get) => ({
-      lang: detectLang(),
+      lang: 'en', // English first (NASA judging); PT is one click away
       env: 'iss',
       crew: generateCrew(),
       selectedId: 't1',
@@ -46,10 +58,19 @@ export const useStore = create<State>()(
       xp: 0,
       streak: 0,
       badges: [],
+      onboarded: false,
+      region: 'heart',
+      hazard: null,
+      demo: false,
+      showIntro: false,
       setLang: (lang) => { setCurrentLang(lang); set({ lang }) },
       setEnv: (env) => set({ env }),
       select: (selectedId) => set({ selectedId }),
       setTab: (tab) => set({ tab }),
+      setRegion: (region) => set({ region }),
+      setHazard: (hazard) => set({ hazard }),
+      setDemo: (demo) => set({ demo, showIntro: false, onboarded: true }),
+      setIntro: (showIntro) => set(showIntro ? { showIntro } : { showIntro, onboarded: true }),
       addReading: (r) => {
         const s = get()
         const crew = s.crew.map((c) => {
@@ -80,6 +101,7 @@ export const useStore = create<State>()(
     {
       name: 'sisp-v3',
       version: 3,
+      partialize: ({ region: _r, hazard: _h, demo: _d, showIntro: _s, ...rest }) => rest,
       onRehydrateStorage: () => (state) => { if (state) setCurrentLang(state.lang) },
     },
   ),

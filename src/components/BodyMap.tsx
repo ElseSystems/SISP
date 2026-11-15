@@ -2,9 +2,9 @@ import { motion } from 'framer-motion'
 import { SEVERITY_COLOR } from '../lib/knowledge'
 import type { BodyRegionId, Severity } from '../lib/knowledge'
 
-interface Props { regions: Record<BodyRegionId, Severity>; selected: BodyRegionId | null; onSelect: (r: BodyRegionId) => void }
+interface Props { regions: Record<BodyRegionId, Severity>; selected: BodyRegionId | null; onSelect: (r: BodyRegionId) => void; highlight?: BodyRegionId[] | null }
 
-export default function BodyMap({ regions, selected, onSelect }: Props) {
+export default function BodyMap({ regions, selected, onSelect, highlight }: Props) {
   const fill = (r: BodyRegionId) => SEVERITY_COLOR[regions[r]]
   const common = (r: BodyRegionId) => ({
     onClick: () => onSelect(r),
@@ -14,7 +14,7 @@ export default function BodyMap({ regions, selected, onSelect }: Props) {
     'aria-label': r,
     onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') onSelect(r) },
   })
-  const op = (r: BodyRegionId) => (selected === null || selected === r ? 0.85 : 0.35)
+  const op = (r: BodyRegionId) => (highlight ? (highlight.includes(r) ? (selected === r ? 0.95 : 0.8) : 0.12) : selected === null || selected === r ? 0.85 : 0.35)
   const pulse = (r: BodyRegionId) => (regions[r] >= 2 ? { scale: [1, 1.06, 1] } : { scale: 1 })
   const tr = { duration: 1.4, repeat: Infinity }
 
