@@ -16,7 +16,11 @@ import NasaData from './components/NasaData'
 import About from './components/About'
 import Onboarding from './components/Onboarding'
 import DemoDirector from './components/DemoDirector'
-import { Badge, Disclaimer } from './components/ui'
+import { Disclaimer } from './components/ui'
+import { StatusBadge } from './components/StatusBadge'
+import { STATUS } from './lib/status'
+import type { CrewMember } from './lib/types'
+import type { Severity } from './lib/knowledge'
 
 const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'emergency', 'nasa', 'about']
 const tabLabel = (id: Tab) => ({
@@ -61,7 +65,7 @@ export default function App() {
   const met = useMissionClock(c.missionStart)
 
   return (
-    <div className={`space-bg min-h-screen text-slate-100 ${demo ? 'pb-28' : ''}`}>
+    <div className={`space-bg min-h-screen text-slate-100 ${demo ? 'pb-28' : ''} ${tab === 'emergency' ? 'paused' : ''}`}>
       <header className="sticky top-0 z-20 border-b border-sky-500/10 bg-slate-950/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <div className="mr-auto">
@@ -122,14 +126,8 @@ export default function App() {
 
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4">
         {a && tab !== 'emergency' && (
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-slate-300">{c.avatar} <b>{tr(c.name)}</b> · {c.agency} · {t('dia', 'day')} {a.radiation.days} {t('de missão', 'of mission')} · {ENVIRONMENTS[env].emoji} {tr(ENVIRONMENTS[env].name)} ({t('atraso', 'delay')} {tr(ENVIRONMENTS[env].delayLabel)})</span>
-            <Badge s={a.overall} />
-            <span className="text-[11px] text-slate-500">{t('Cenário simulado', 'Simulated scenario')}: {tr(c.scenario)}</span>
-            {pending && tab !== 'checkin' && (
-              <button onClick={() => setTab('checkin')} className="ml-auto rounded-lg bg-amber-400/90 px-3 py-1 text-xs font-bold text-slate-950">{t('⏰ Check-in de hoje pendente (+20 XP)', '⏰ Today’s check-in due (+20 XP)')}</button>
-            )}
-          </div>
+          <StatusHero c={c} index={crew.indexOf(c)} s={a.overall} days={a.radiation.days} env={env}
+            pending={pending && tab !== 'checkin'} onCheckin={() => setTab('checkin')} onAct={tab === 'ground' ? undefined : () => setTab('ground')} />
         )}
         <AnimatePresence mode="wait">
           <motion.div key={tab + c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
@@ -158,4 +156,38 @@ function useMissionClock(missionStart: string) {
   const d = Math.floor(ms / 86400000)
   const hms = new Date(ms % 86400000).toISOString().slice(11, 19)
   return `D${String(d).padStart(3, '0')} · ${hms}`
+}
+
+/** Status hero bar: the crew member's overall status is the most important datum on screen. */
+function StatusHero({ c, index, s, days, env, pending, onCheckin, onAct }:
+  { c: CrewMember; index: number; s: Severity; days: number; env: EnvironmentId; pending: boolean; onCheckin: () => void; onAct?: () => void }) {
+  const color = STATUS[s].color
+  return (
+    <section className="glass flex flex-wrap items-center gap-4 rounded-2xl px-5 py-4" aria-label={t('Status do tripulante', 'Crew member status')}>
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-[3px] bg-surface-2 font-display text-title font-bold text-fg-1"
+        style={{ borderColor: color, boxShadow: `0 0 18px color-mix(in oklab, ${color} 35%, transparent)` }} aria-hidden>
+        {t('T', 'C')}{index + 1}
+      </span>
+      <div className="mr-auto min-w-0">
+        <h2 className="font-display text-display-sm font-bold text-fg-1">{tr(c.name)}</h2>
+        <p className="text-body-sm text-fg-2">
+          {tr(c.role)} · {c.agency} · {t('dia', 'day')} {days} {t('de missão', 'of mission')} · {ENVIRONMENTS[env].emoji} {tr(ENVIRONMENTS[env].name)} ({t('atraso', 'delay')} {tr(ENVIRONMENTS[env].delayLabel)})
+        </p>
+        <p className="text-meta text-fg-3">{t('Cenário simulado', 'Simulated scenario')}: {tr(c.scenario)}</p>
+      </div>
+      <motion.div key={s} initial={{ scale: 0.92, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 260, damping: 26 }}>
+        <StatusBadge s={s} size="lg" showLevel />
+      </motion.div>
+      <div className="flex flex-wrap gap-2">
+        {pending && (
+          <button onClick={onCheckin} className="rounded-lg border border-accent/60 px-3 py-2 text-body-sm font-semibold text-accent hover:bg-accent/10">
+            {t('⏰ Check-in de hoje pendente', '⏰ Today’s check-in due')} <span className="text-xp">+20 XP</span>
+          </button>
+        )}
+        {onAct && <button onClick={onAct} className="rounded-lg bg-accent px-4 py-2 text-body-sm font-bold text-accent-ink shadow-glow-accent hover:bg-accent-strong">
+          {t('Agir / Solo →', 'Act / Ground →')}
+        </button>}
+      </div>
+    </section>
+  )
 }

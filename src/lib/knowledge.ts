@@ -11,7 +11,7 @@ import type { L } from './i18n'
 
 export type Severity = 0 | 1 | 2 | 3
 export const SEVERITY_LABEL: readonly L[] = [l('Nominal', 'Nominal'), l('Atenção', 'Caution'), l('Alerta', 'Warning'), l('Crítico', 'Critical')]
-export const SEVERITY_COLOR = ['#22c55e', '#eab308', '#f97316', '#ef4444'] as const
+export const SEVERITY_COLOR = ['#34D399', '#FACC15', '#FB923C', '#FF6B6B'] as const
 
 export type IndicatorId = 'bp' | 'hr' | 'glucose' | 'temp' | 'sleep' | 'mood'
 export type HazardId = 'radiation' | 'isolation' | 'distance' | 'gravity' | 'environment'

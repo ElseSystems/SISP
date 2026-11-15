@@ -1,16 +1,11 @@
 import type { ReactNode } from 'react'
-import { SEVERITY_COLOR, SEVERITY_LABEL } from '../lib/knowledge'
+import { StatusBadge } from './StatusBadge'
 import type { Severity } from '../lib/knowledge'
-import { t, tr } from '../lib/i18n'
+import { t } from '../lib/i18n'
 
-export function Badge({ s, className = '' }: { s: Severity; className?: string }) {
-  return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${className}`}
-      style={{ background: SEVERITY_COLOR[s] + '26', color: SEVERITY_COLOR[s], border: `1px solid ${SEVERITY_COLOR[s]}66` }}>
-      <span className="h-2 w-2 rounded-full" style={{ background: SEVERITY_COLOR[s] }} />
-      {tr(SEVERITY_LABEL[s])}
-    </span>
-  )
+/** Back-compat wrapper: every status badge is now the shape + label StatusBadge. */
+export function Badge(p: { s: Severity; className?: string; size?: 'sm' | 'md' | 'lg'; showLevel?: boolean; solid?: boolean }) {
+  return <StatusBadge {...p} />
 }
 
 export function Card({ title, children, right, className = '' }: { title?: ReactNode; children: ReactNode; right?: ReactNode; className?: string }) {
