@@ -10,6 +10,8 @@ NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts o
 
 Português · [English](README.md)
 
+![C11](https://img.shields.io/badge/core-C11-A8B9CC?logo=c&logoColor=white)
+![WebAssembly](https://img.shields.io/badge/WebAssembly-libsisp-654FF0?logo=webassembly&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
@@ -50,6 +52,7 @@ Numa missão longa, a tripulação nem sempre pode esperar pelo solo. Com o SISP
 | 🛰️ **Dados reais da NASA** | Glicemia da tripulação Inspiration4 (OSDR OSD-575), clima espacial do DONKI com um treino baseado na tempestade solar real de maio de 2024, e taxas de dose publicadas do RAD. |
 | 🌐 **PT / EN** | Interface completa em português e inglês. O idioma é detectado pelo navegador e pode ser trocado a qualquer momento. |
 | 🎮 **Gamificação leve** | XP, níveis, sequências e medalhas por check-in, PVT, pulso pela câmera, abrigo e relatórios. |
+| ⚙️ **Núcleo portátil em C** | Toda a avaliação roda na **libsisp**, biblioteca C11 sem dependências e sem alocação dinâmica, compilada para WebAssembly no app (fallback TypeScript idêntico). Integrável em outros sistemas — veja [Núcleo portátil em C](#núcleo-portátil-em-c-libsisp). |
 | 📴 **Offline-first** | Roda inteiro no navegador e salva em `localStorage`. Sem backend e sem rastreamento. |
 
 <table>
@@ -103,7 +106,11 @@ npm run dev        # http://localhost:5173
 | `npm run build` | Checagem de tipos (`tsc -b`) + build estático em `dist/` |
 | `npm run preview` | Serve o build de produção |
 | `npm run lint` | Lint com oxlint |
-| `npm run check` | Lint + build (portão de CI) |
+| `npm run check` | Lint + paridade do núcleo C + build (portão de CI) |
+| `npm run build:core` | Compila `core/` para `public/core/sisp.wasm` (precisa do Emscripten) |
+| `npm run test:core` | Confere a referência TS e o `sisp.wasm` contra as fixtures compartilhadas |
+| `npm run fixtures:core` | Regenera `core/tests/fixtures/parity.txt` a partir da referência TS |
+| `npm run core:native` | Build CMake + ctest da biblioteca C nativa (precisa de CMake e compilador C) |
 | `npm run data` | Baixa de novo os dados da NASA para `public/data/` (só biblioteca padrão do Python) |
 
 **Deep links para demo:** `#dashboard`, `#checkin`, `#trends`, `#ground`, `#emergency`, `#nasa`, `#about`.
@@ -115,17 +122,53 @@ O Vite usa `base: './'`, então o `dist/` funciona em qualquer hospedagem estát
 - **Vercel**: `vercel.json` incluído.
 - **GitHub Pages**: workflow em `.github/workflows/pages.yml` (roda a cada push na `main`).
 
+## Núcleo portátil em C (libsisp)
+
+O motor de avaliação é uma **biblioteca C11 sem dependências** em [`core/`](core/), para que a lógica do SISP
+possa ser embutida em computadores de bordo, gateways de wearables ou ferramentas de solo — não só neste app web.
+
+- **O que está em C:** as faixas de referência dos 6 indicadores e a classificação N0–N3 (incluindo temperatura
+  relativa à base de voo e PHQ-2), a agregação geral e por região do corpo, a dose de radiação com o fator do
+  abrigo e o % do limite de carreira, a pontuação do PVT contra a base pessoal e a estimativa de pulso por PPG.
+- **Pronto para embarcados:** sem alocação dinâmica, sem globais, sem I/O, thread-safe; sem avisos no gcc e no clang
+  (`-Wall -Wextra -Wpedantic -Wconversion`); header utilizável em C++.
+- **Entregáveis:** biblioteca estática + compartilhada (CMake, `find_package(sisp)`), `sisp-cli`, testes unitários e
+  de paridade (ctest) e um build **WebAssembly** de 12 kB (`public/core/sisp.wasm`) usado pelo app web, com fallback TypeScript idêntico.
+- **Idêntico comprovado:** 321 fixtures compartilhadas rodam no C nativo, no WASM e no TS; a saída do app inteiro é
+  idêntica byte a byte nos dois motores. A CI compila e testa com gcc e clang (mais ASan/UBSan).
+
+```c
+#include "sisp.h"
+
+sisp_finding f[SISP_IND_COUNT];
+sisp_assess(dias, n_dias, n_dias - 1, f);             /* hoje vs limites absolutos + base pessoal */
+if (f[SISP_IND_TEMP].reasons & SISP_R_TEMP_DELTA_ALERT)
+  printf("febre espacial: %+.1f °C acima da base de voo\n", f[SISP_IND_TEMP].delta);
+```
+
+```bash
+cmake -S core -B core/build && cmake --build core/build && ctest --test-dir core/build
+core/build/sisp-cli assess < core/examples/checkins.csv
+```
+
+API completa, ABI plana para FFI (exemplos em Python/JS) e guia de integração: **[docs/core-api.pt.md](docs/core-api.pt.md)**.
+
 ## Arquitetura
 
 ```
+core/                   # libsisp — núcleo de avaliação portátil em C11 (veja docs/core-api.pt.md)
+├── include/            # sisp.h (API tipada), sisp_flat.h (ABI plana para FFI/WASM)
+├── src/ wasm/          # implementação, pontos de entrada WebAssembly
+└── tests/ examples/    # testes unitários + paridade (ctest), sisp-cli
 src/
+├── core/               # carregador WASM + referência TypeScript idêntica da libsisp
 ├── lib/
 │   ├── knowledge.ts    # faixas clínicas, fontes, hazards, regiões do corpo, ambientes
-│   ├── assessment.ts   # avaliação por diretriz + linha de base, radiação, osso
+│   ├── assessment.ts   # resultados do núcleo → achados bilíngues (diretriz + base, radiação, osso, PVT)
 │   ├── escalation.ts   # "quando chamar o solo" por severidade × atraso
 │   ├── emergency.ts    # manuais de emergência (passos + citações NASA/ILCOR/AHA)
 │   ├── spaceWeather.ts # DONKI (snapshot + API ao vivo), cenário de SEP, dose do evento
-│   ├── ppg.ts          # processamento do sinal PPG da câmera (reamostragem, filtro, autocorrelação)
+│   ├── ppg.ts          # PPG da câmera (reamostragem/filtro/autocorrelação rodam na libsisp)
 │   ├── schedule.ts     # timeline do dia de missão + estados das tarefas
 │   ├── report.ts       # relatório compacto ao flight surgeon (JSON + texto)
 │   ├── motion.ts       # variants compartilhadas do Framer Motion
@@ -137,9 +180,12 @@ src/
 │                       # SelfTests, PulseCam, Pvt, Emergency, NasaData, About, ui
 public/
 ├── models/             # modelos 3D otimizados (~1 MB cada)
-└── data/               # dados estáticos da NASA (JSON)
+├── data/               # dados estáticos da NASA (JSON)
+└── core/sisp.wasm      # libsisp compilada para WebAssembly (~12 kB)
 scripts/
-└── fetch_nasa_data.py  # OSDR OSD-575 + DONKI + referência de radiação → public/data
+├── fetch_nasa_data.py  # OSDR OSD-575 + DONKI + referência de radiação → public/data
+├── build-core-wasm.sh  # emcc → public/core/sisp.wasm
+└── core-parity.ts      # gerador de fixtures + checagem de paridade TS/WASM
 ```
 
 Todo número exibido no app tem origem rastreável. As faixas e ações estão em `knowledge.ts` e os passos de emergência em `emergency.ts`, cada um com link para a fonte na aba **Sobre**.

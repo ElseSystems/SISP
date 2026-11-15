@@ -10,6 +10,8 @@ NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts o
 
 [Português](README.pt.md) · English
 
+![C11](https://img.shields.io/badge/core-C11-A8B9CC?logo=c&logoColor=white)
+![WebAssembly](https://img.shields.io/badge/WebAssembly-libsisp-654FF0?logo=webassembly&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
@@ -50,6 +52,7 @@ On a long mission, the crew cannot always wait for the ground. SISP lets each as
 | 🛰️ **Real NASA data** | Inspiration4 crew glucose (OSDR OSD-575), DONKI space weather with a drill based on the real May 2024 solar storm, and published RAD dose rates. |
 | 🌐 **PT / EN** | Full Portuguese and English UI. The language is detected from the browser and can be switched at any time. |
 | 🎮 **Light gamification** | XP, levels, streaks and badges for check-ins, PVT, camera pulse, sheltering and reports. |
+| ⚙️ **Portable C core** | The whole assessment runs in **libsisp**, a dependency-free C11 library with no dynamic allocation, compiled to WebAssembly for the app (identical TypeScript fallback). Embeddable in other systems — see [Portable C core](#portable-c-core-libsisp). |
 | 📴 **Offline-first** | Runs entirely in the browser and is persisted in `localStorage`. No backend and no tracking. |
 
 <table>
@@ -103,7 +106,11 @@ npm run dev        # http://localhost:5173
 | `npm run build` | Type-check (`tsc -b`) and build a static bundle into `dist/` |
 | `npm run preview` | Serve the production build |
 | `npm run lint` | Lint with oxlint |
-| `npm run check` | Lint + build (CI gate) |
+| `npm run check` | Lint + C-core parity + build (CI gate) |
+| `npm run build:core` | Compile `core/` to `public/core/sisp.wasm` (needs Emscripten) |
+| `npm run test:core` | Check the TS reference and `sisp.wasm` against the shared fixtures |
+| `npm run fixtures:core` | Regenerate `core/tests/fixtures/parity.txt` from the TS reference |
+| `npm run core:native` | CMake build + ctest of the native C library (needs CMake and a C compiler) |
 | `npm run data` | Re-download NASA datasets into `public/data/` (Python standard library only) |
 
 **Demo deep links:** `#dashboard`, `#checkin`, `#trends`, `#ground`, `#emergency`, `#nasa`, `#about`.
@@ -115,17 +122,53 @@ Vite is configured with `base: './'`, so `dist/` works on any static host:
 - **Vercel**: `vercel.json` included.
 - **GitHub Pages**: workflow in `.github/workflows/pages.yml` (runs on push to `main`).
 
+## Portable C core (libsisp)
+
+The assessment engine is a **dependency-free C11 library** in [`core/`](core/), so SISP's logic can be
+embedded in onboard computers, wearable gateways or ground tools — not only in this web app.
+
+- **What's in C:** the 6 indicator reference ranges and N0–N3 classification (incl. temperature vs the
+  in-flight baseline and PHQ-2), overall/body-region aggregation, radiation dose with the storm-shelter
+  factor and % of the career limit, PVT scoring vs the personal baseline, and the camera-PPG heart-rate estimate.
+- **Embedded-friendly:** no dynamic allocation, no globals, no I/O, thread-safe; warning-free on gcc and clang
+  (`-Wall -Wextra -Wpedantic -Wconversion`); header usable from C++.
+- **Deliverables:** static + shared library (CMake, `find_package(sisp)`), `sisp-cli`, unit + parity tests (ctest),
+  and a 12 kB **WebAssembly** build (`public/core/sisp.wasm`) that the web app uses, with an identical TypeScript fallback.
+- **Proven identical:** 321 shared fixtures are replayed against native C, WASM and TS; the full app output is
+  byte-identical on both engines. CI builds and tests with gcc and clang (plus ASan/UBSan).
+
+```c
+#include "sisp.h"
+
+sisp_finding f[SISP_IND_COUNT];
+sisp_assess(days, n_days, n_days - 1, f);             /* today vs absolute limits + personal baseline */
+if (f[SISP_IND_TEMP].reasons & SISP_R_TEMP_DELTA_ALERT)
+  printf("space fever: %+.1f °C over the in-flight baseline\n", f[SISP_IND_TEMP].delta);
+```
+
+```bash
+cmake -S core -B core/build && cmake --build core/build && ctest --test-dir core/build
+core/build/sisp-cli assess < core/examples/checkins.csv
+```
+
+Full API, flat FFI ABI (Python/JS examples) and integration guide: **[docs/core-api.md](docs/core-api.md)**.
+
 ## Architecture
 
 ```
+core/                   # libsisp — portable C11 assessment core (see docs/core-api.md)
+├── include/            # sisp.h (typed API), sisp_flat.h (flat ABI for FFI/WASM)
+├── src/ wasm/          # implementation, WebAssembly entry points
+└── tests/ examples/    # ctest unit + parity tests, sisp-cli
 src/
+├── core/               # WASM loader + identical TypeScript reference of libsisp
 ├── lib/
 │   ├── knowledge.ts    # clinical ranges, sources, hazards, body regions, environments
-│   ├── assessment.ts   # guideline + personal-baseline evaluation, radiation, bone
+│   ├── assessment.ts   # core results → bilingual findings (guideline + baseline, radiation, bone, PVT)
 │   ├── escalation.ts   # "when to call the ground" by severity × comm delay
 │   ├── emergency.ts    # emergency manuals (steps + NASA/ILCOR/AHA citations)
 │   ├── spaceWeather.ts # DONKI loader (bundled + live API), SEP scenario, event dose
-│   ├── ppg.ts          # camera PPG signal processing (resample, filter, autocorrelation)
+│   ├── ppg.ts          # camera PPG (resample/filter/autocorrelation run in libsisp)
 │   ├── schedule.ts     # mission-day timeline + task states
 │   ├── report.ts       # compact flight-surgeon report (JSON + text)
 │   ├── motion.ts       # shared Framer Motion variants
@@ -137,9 +180,12 @@ src/
 │                       # SelfTests, PulseCam, Pvt, Emergency, NasaData, About, ui
 public/
 ├── models/             # optimized 3D models (~1 MB each)
-└── data/               # static NASA datasets (JSON)
+├── data/               # static NASA datasets (JSON)
+└── core/sisp.wasm      # libsisp compiled to WebAssembly (~12 kB)
 scripts/
-└── fetch_nasa_data.py  # OSDR OSD-575 + DONKI + radiation reference → public/data
+├── fetch_nasa_data.py  # OSDR OSD-575 + DONKI + radiation reference → public/data
+├── build-core-wasm.sh  # emcc → public/core/sisp.wasm
+└── core-parity.ts      # fixtures generator + TS/WASM parity check
 ```
 
 Every number shown in the app is traceable: clinical bands and actions live in `knowledge.ts`, emergency steps in `emergency.ts`, and each is linked to its source in the **About** tab.
