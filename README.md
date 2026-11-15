@@ -36,13 +36,18 @@ On a long mission, the crew cannot always wait for the ground. SISP lets each as
 | ✍️ **Daily check-in** | Blood pressure, heart rate, fasting glucose, body temperature, sleep, and mood (1–5 scale + PHQ-2), each with measurement instructions. |
 | 🧠 **Two-layer assessment** | (1) absolute limits from published guidelines; (2) deviation from the astronaut's **personal 14-day baseline** (z-score). Output: *Nominal / Caution / Warning / Critical*. |
 | 🌡️ **Relative fever** | Resting core temperature rises ~1 °C in flight (Stahn 2017), so SISP warns at +0.8 °C over *your* in-flight baseline, even below 38 °C. |
-| 📡 **Delay-aware escalation** | Guidance and a copy-ready report for the ground that adapt to the selected environment (ISS, lunar base, Mars transit, Mars base). |
+| 📡 **Delay-aware escalation** | Guidance that adapts to the selected environment (ISS, lunar base, Mars transit, Mars base), an animated Earth ⟷ destination signal diagram and an N0→N3 escalation ladder. |
+| 📝 **Flight surgeon report** | Compact report as **text or JSON** (short keys, a few hundred bytes): vitals, flags, radiation incl. solar event dose, bone, PVT, camera pulse, actions already taken and notes. Copy, download `.json`, or "transmit" (simulated) to see when it reaches the ground and the **earliest reply** (round-trip delay + ~30 min review). |
+| ☢️ **Real solar storm alert (DONKI)** | A real DONKI solar particle event (latest live SEP, or a replay of the real May 2024 GOES >100 MeV event after an X5.8 flare) fires a red **"go to shelter"** alert. Event dose climbs live on the radiation bar until the crew taps *I'm in the shelter*; the event lands on the mission-day timeline and in the report. |
+| 📷 **Camera pulse (PPG)** | Fingertip on the camera (torch on phones): live waveform, signal-quality meter and a BPM **estimate** via autocorrelation; compared with the check-in HR. A demo signal works without a camera. Video never leaves the device. |
+| ⚡ **PVT vigilance test** | PVT-B style reaction-time test (30 s demo, 1, 2 or 3 min; ISI 1–4 s; lapse ≥ 355 ms). Compared with the astronaut's **own PVT baseline** and cross-checked with the 3-night sleep average → fatigue status feeding the brain region and the overall status. |
+| 🗓️ **Mission-day timeline** | ISS-style day in station time (GMT): fasting check-in, camera pulse, ARED/CEVIS exercise, afternoon PVT, evening report, pre-sleep. Due/overdue states, auto-completion from data, in-app reminder toasts (+ optional system notifications) and a 7-day strip of real DONKI flares. |
 | 🚨 **Emergency manuals** | Step-by-step guides for **cardiac arrest (CPR/ACLS in microgravity)**, **muscle injuries** (strains/sprains) and **fractures/dislocations**, with illustrations, a 110/min CPR metronome and a citation on every step. |
-| 📈 **Trends** | Recharts with guideline bands, personal baseline and reference lines. |
+| 📈 **Trends** | Current value + delta vs baseline in each header, nominal band + dashed guideline limits, synchronized hover across all charts, BP and glucose full width. |
 | ☢️ **Radiation & bone** | Cumulative dose vs. the 600 mSv career limit (NASA-STD-3001) and estimated bone loss (1–1.5 %/month). |
 | 🛰️ **Real NASA data** | Inspiration4 crew glucose (OSDR OSD-575), DONKI space weather with a drill based on the real May 2024 solar storm, and published RAD dose rates. |
 | 🌐 **PT / EN** | Full Portuguese and English UI. The language is detected from the browser and can be switched at any time. |
-| 🎮 **Light gamification** | XP, levels, streaks and badges to encourage the daily check-in. |
+| 🎮 **Light gamification** | XP, levels, streaks and badges for check-ins, PVT, camera pulse, sheltering and reports. |
 | 📴 **Offline-first** | Runs entirely in the browser and is persisted in `localStorage`. No backend and no tracking. |
 
 <table>
@@ -54,10 +59,21 @@ On a long mission, the crew cannot always wait for the ground. SISP lets each as
 
 ### Guided demo & onboarding
 
-- **▶ Demo** (header button or `/#demo`): a ~70 s, one-click guided tour that drives the app by itself (ISS → relative fever → isolation trend → Mars transit → delay-aware escalation → emergency manuals → NASA data). Keys: `←`/`→` step, `space` pause, `Esc` exit. Your previous view is restored on exit.
+- **▶ Demo** (header button or `/#demo`): a ~90 s, one-click guided tour that drives the app by itself (ISS → relative fever → isolation trend → Mars transit → **real DONKI solar storm + shelter** → self-tests → delay-aware escalation → emergency manuals → NASA data). The demo leaves no trace (its solar event and dose are discarded on exit). Keys: `←`/`→` step, `space` pause, `Esc` exit. Your previous view is restored on exit.
 - **Mission briefing** (first launch, `❔` button or `/#intro`): a 3-card, 30-second onboarding explaining the problem, how SISP works, and why it matters.
 - **5 hazards on the body**: pick one of NASA HRP's five hazards and the 3D body lights up every organ it affects (sonar rings), with *what it does / what SISP watches / countermeasure* and its source.
 - **Mission Elapsed Time** clock and deep-space visual theme (pure CSS, works offline).
+
+### How to try each feature
+
+| Feature | Where | Try this |
+|---|---|---|
+| Solar storm alert | **🗓️ Mission day** → *Inject real SEP*, or **🛰️ NASA data** → *Fire crew alert* | Watch the red banner and the dose rise on the radiation bar; tap **I'm in the shelter** (dose rate ×0.25, "avoided" counter), then **Ground all-clear**. Switch to *Mars transit* first for a Critical event. |
+| Camera pulse | **⚡ Self-tests** | *Measure with camera* (phone: rear camera + torch; laptop: finger on webcam with a lamp behind) or *Demo signal*. 20 s → *Save estimate*. Needs `https` or `localhost`. |
+| PVT | **⚡ Self-tests** | Pick *30 s demo* or *3 min · PVT-B*, press **Space** / tap when the counter appears. Select Crew Member 2 to see fatigue linked to short sleep. |
+| Flight surgeon report | **📡 Act / Ground** | Tick the actions taken, add a note, switch TEXT/JSON, *Copy*, *⬇ .json*, *Transmit (simulated)*. Try ISS vs Mars transit. |
+| Mission-day timeline | **🗓️ Mission day** (also the *Today* strip on the Dashboard) | Due items glow and raise a reminder toast; check-in / PVT / pulse / report auto-complete. *Enable notifications* for system alerts. |
+| Language | `PT` / `EN` in the header | Every screen, the report and the demo captions switch. |
 
 ### Simulated crew
 
@@ -106,11 +122,17 @@ src/
 │   ├── assessment.ts   # guideline + personal-baseline evaluation, radiation, bone
 │   ├── escalation.ts   # "when to call the ground" by severity × comm delay
 │   ├── emergency.ts    # emergency manuals (steps + NASA/ILCOR/AHA citations)
-│   ├── crew.ts         # seeded simulated crew
+│   ├── spaceWeather.ts # DONKI loader (bundled + live API), SEP scenario, event dose
+│   ├── ppg.ts          # camera PPG signal processing (resample, filter, autocorrelation)
+│   ├── schedule.ts     # mission-day timeline + task states
+│   ├── report.ts       # compact flight-surgeon report (JSON + text)
+│   ├── motion.ts       # shared Framer Motion variants
+│   ├── crew.ts         # seeded simulated crew (vitals + PVT history)
 │   ├── store.ts        # Zustand store (persisted), XP / badges, language
 │   └── i18n.ts         # tiny PT/EN helper, no dependency
-├── components/         # Dashboard, Body3D, BodyMap, Checkin, Trends, Ground,
-│                       # Emergency, NasaData, About, ui
+├── components/         # Dashboard, Body3D, BodyMap, Checkin, Trends, Ground, CommLink,
+│                       # FlightSurgeonReport, SolarAlert, MissionTimeline, Reminders,
+│                       # SelfTests, PulseCam, Pvt, Emergency, NasaData, About, ui
 public/
 ├── models/             # optimized 3D models (~1 MB each)
 └── data/               # static NASA datasets (JSON)
@@ -149,7 +171,7 @@ The 2001 checklist uses outdated CPR values (80–100/min, 15:2, precordial thum
 | Dataset | Used for | Source |
 |---|---|---|
 | Inspiration4 metabolic panel (glucose, 4 crew, L-92 → R+194) | Real pre/post-flight chart | [NASA OSDR OSD-575](https://osdr.nasa.gov/bio/repo/data/studies/OSD-575) |
-| DONKI — SEP, flares, CMEs | Space-weather panel + solar-storm drill | [NASA CCMC DONKI](https://ccmc.gsfc.nasa.gov/tools/DONKI/) |
+| DONKI — SEP, flares, CMEs | Space-weather panel, live crew SEP alert ("go to shelter"), 7-day flare strip on the timeline. Bundled snapshot offline; refreshed from the CORS-enabled live API when online | [NASA CCMC DONKI](https://ccmc.gsfc.nasa.gov/tools/DONKI/) |
 | Dose rates: Curiosity RAD (Mars surface and cruise), ISS, Chang'e-4 (Moon) | Radiation meter per environment | Hassler 2014 · Zeitlin 2013 · PMC10919966 · Zhang 2020 |
 | 600 mSv career limit | Radiation meter target | [NASA-STD-3001](https://www.nasa.gov/reference/4-0-human-performance/) |
 | Five hazards, bone loss, communication delay | Educational content, escalation | [NASA HRP hazards](https://www.nasa.gov/hrp/hazards/) |
