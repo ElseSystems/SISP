@@ -5,6 +5,7 @@ import { StatusBadge } from './StatusBadge'
 import type { Severity } from '../lib/knowledge'
 import { card } from '../lib/motion'
 import { t } from '../lib/i18n'
+import { Icon, IconText } from './Icon'
 
 /** Back-compat wrapper: every status badge is now the shape + label StatusBadge. */
 export function Badge(p: { s: Severity; className?: string; size?: 'sm' | 'md' | 'lg'; showLevel?: boolean; solid?: boolean }) {
@@ -16,7 +17,7 @@ export function Card({ title, children, right, className = '', id }: { title?: R
     <motion.section id={id} variants={card} className={`glass rounded-2xl p-4 ${className}`}>
       {(title || right) && (
         <div className="mb-3 flex items-center justify-between gap-2">
-          {title && <h2 className="font-display text-body-sm font-semibold tracking-wide text-sky-200">{title}</h2>}
+          {title && <h2 className="font-display text-body font-semibold tracking-wide text-sky-200">{typeof title === 'string' ? <IconText text={title} iconClassName="mr-0.5 text-sky-300" /> : title}</h2>}
           {right}
         </div>
       )}
@@ -29,7 +30,7 @@ export function SourceLinks({ sources }: { sources: { label: string; url: string
   return (
     <ul className="mt-2 space-y-0.5 text-meta text-fg-2">
       {sources.map((s) => (
-        <li key={s.url}>📎 <a className="underline decoration-dotted hover:text-sky-300" href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>
+        <li key={s.url}><Icon e="📎" className="mr-1 text-fg-3" /><a className="underline decoration-dotted hover:text-sky-300" href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>
       ))}
     </ul>
   )
@@ -74,10 +75,10 @@ export function Disclaimer() {
   const [open, setOpen] = useState(false)
   return (
     <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-meta text-amber-100">
-      ⚠️ {t('SISP – protótipo educacional do NASA Space Apps. ', 'SISP – NASA Space Apps educational prototype. ')}
+      <Icon e="⚠️" className="mr-1 text-amber-300" />{t('SISP – protótipo educacional do NASA Space Apps. ', 'SISP – NASA Space Apps educational prototype. ')}
       <b>{t('Não é dispositivo médico', 'Not a medical device')}</b>
       {t(' nem protocolo da NASA.', ' nor a NASA protocol.')}{' '}
-      <button onClick={() => setOpen(!open)} className="underline decoration-dotted" aria-expanded={open}>{open ? t('menos', 'less') : 'ⓘ'}</button>
+      <button onClick={() => setOpen(!open)} className="underline decoration-dotted" aria-expanded={open} aria-label={open ? t('Mostrar menos', 'Show less') : t('Mais informações', 'More information')}>{open ? t('menos', 'less') : 'ⓘ'}</button>
       {open && <span> {t('Faixas de diretrizes clínicas terrestres + heurísticas do protótipo; dados da tripulação são simulados; pulso pela câmera e PVT são estimativas. Em emergência real, siga o CMO e o flight surgeon.',
         'Terrestrial clinical guideline ranges + prototype heuristics; crew data is simulated; camera pulse and PVT are estimates. In a real emergency, follow the CMO and the flight surgeon.')}</span>}
     </div>

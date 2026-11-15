@@ -29,6 +29,9 @@ import { StatusBadge } from './components/StatusBadge'
 import { STATUS } from './lib/status'
 import type { CrewMember } from './lib/types'
 import type { Severity } from './lib/knowledge'
+import { Icon, IconText } from './components/Icon'
+import { stripIcons } from './components/iconMap'
+import { CrewAvatar } from './components/CrewAvatar'
 
 const TAB_IDS: Tab[] = ['dashboard', 'today', 'checkin', 'tests', 'trends', 'ground', 'emergency', 'nasa', 'about']
 const tabLabel = (id: Tab) => ({
@@ -93,7 +96,7 @@ export default function App() {
       <header className="sticky top-0 z-20 border-b border-sky-500/10 bg-slate-950/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <div className="mr-auto">
-            <h1 className="text-lg font-black tracking-tight"><span className="text-glow">🛡️ SISP</span> <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
+            <h1 className="text-xl font-black tracking-tight"><span className="text-glow"><Icon e="🛡️" className="mr-1 text-sky-300" />SISP</span> <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
             <p className="text-meta text-slate-400">{t('Autoavaliação e prevenção de saúde para tripulações espaciais · NASA Space Apps', 'Health self-assessment and prevention for space crews · NASA Space Apps')}</p>
           </div>
           <div className="hidden items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-950/60 px-3 py-1 md:flex" title={t('Tempo decorrido de missão (MET) do tripulante selecionado', 'Mission Elapsed Time (MET) of the selected crew member')}>
@@ -103,11 +106,11 @@ export default function App() {
           </div>
           <button onClick={() => setDemo(!demo)}
             className={`rounded-lg px-3 py-1 text-xs font-bold transition ${demo ? 'bg-red-500 text-white' : 'bg-sky-400 text-slate-950 shadow-[0_0_16px_rgba(56,189,248,0.55)] hover:bg-sky-300'}`}>
-            {demo ? `■ ${t('Parar demo', 'Stop demo')}` : `▶ ${t('Demo', 'Demo')}`}
+            {demo ? `■ ${t('Parar demo', 'Stop demo')}` : <><Icon e="▶" size="1em" className="mr-1" />{t('Demo', 'Demo')}</>}
           </button>
-          <button onClick={() => setIntro(true)} aria-label={t('Briefing', 'Briefing')} title={t('Briefing da missão', 'Mission briefing')}
-            className="rounded-lg border border-slate-600 px-2 py-1 text-xs text-slate-300 hover:border-slate-400">❔</button>
-          <div className="flex overflow-hidden rounded-lg border border-slate-600 text-xs" role="group" aria-label="language">
+          <button onClick={() => setIntro(true)} aria-label={t('Briefing da missão', 'Mission briefing')} title={t('Briefing da missão', 'Mission briefing')}
+            className="rounded-lg border border-slate-600 px-2 py-1 text-xs text-slate-300 hover:border-slate-400"><Icon e="❔" size="1.1em" /></button>
+          <div className="flex overflow-hidden rounded-lg border border-slate-600 text-xs" role="group" aria-label={t('Idioma', 'Language')}>
             {(['pt', 'en'] as const).map((lg) => (
               <button key={lg} onClick={() => setLang(lg)} className={`px-2 py-1 ${lang === lg ? 'bg-sky-500 font-bold text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{lg.toUpperCase()}</button>
             ))}
@@ -115,13 +118,13 @@ export default function App() {
           <label className="text-xs text-slate-400">{t('Ambiente', 'Environment')}
             <select value={env} onChange={(e) => setEnv(e.target.value as EnvironmentId)}
               className="ml-2 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-100">
-              {(Object.keys(ENVIRONMENTS) as EnvironmentId[]).map((id) => <option key={id} value={id}>{ENVIRONMENTS[id].emoji} {tr(ENVIRONMENTS[id].name)}</option>)}
+              {(Object.keys(ENVIRONMENTS) as EnvironmentId[]).map((id) => <option key={id} value={id}>{tr(ENVIRONMENTS[id].name)}</option>)}
             </select>
           </label>
-          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1 text-xs" title={badges.map((b) => tr(BADGES[b])).join('\n') || t('Faça check-ins para ganhar medalhas', 'Check in to earn badges')}>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1 text-xs" title={badges.map((b) => stripIcons(tr(BADGES[b]))).join('\n') || t('Faça check-ins para ganhar medalhas', 'Check in to earn badges')}>
             <span className="font-bold text-amber-300">{t('Nv', 'Lv')} {level(xp)}</span>
             <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-700"><div className="h-full bg-amber-400" style={{ width: `${xp % 100}%` }} /></div>
-            <span>{xp} XP</span><span>🔥 {streak}</span><span>🏅 {badges.length}</span>
+            <span>{xp} XP</span><span className="inline-flex items-center gap-0.5" aria-label={`${t('Sequência', 'Streak')}: ${streak}`}><Icon e="🔥" className="text-orange-300" />{streak}</span><span className="inline-flex items-center gap-0.5" aria-label={`${t('Medalhas', 'Badges')}: ${badges.length}`}><Icon e="🏅" className="text-amber-300" />{badges.length}</span>
           </div>
         </div>
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-2">
@@ -130,7 +133,7 @@ export default function App() {
             return (
               <button key={m.id} onClick={() => select(m.id)}
                 className={`flex shrink-0 items-center gap-2 rounded-xl border px-3 py-1.5 text-left text-xs transition ${m.id === c.id ? 'border-sky-400 bg-sky-500/10' : 'border-slate-700 hover:border-slate-500'}`}>
-                <span className="text-xl">{m.avatar}</span>
+                <CrewAvatar c={m} size={30} decorative />
                 <span><span className="block font-semibold">{tr(m.name)}</span><span className="text-slate-400">{tr(m.role).split(' (')[0]}</span></span>
                 <span className="ml-1 h-3 w-3 rounded-full" style={{ background: SEVERITY_COLOR[s] }} title={tr(SEVERITY_LABEL[s])} />
               </button>
@@ -141,7 +144,7 @@ export default function App() {
           {TAB_IDS.map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`relative shrink-0 px-3 py-2 text-sm ${tab === id ? (id === 'emergency' ? 'text-red-300' : 'text-sky-300') : id === 'emergency' ? 'text-red-400/80 hover:text-red-300' : 'text-slate-400 hover:text-slate-200'}`}>
-              {tabLabel(id)}{id === 'checkin' && pending && <span className="ml-1 rounded-full bg-amber-400 px-1.5 text-meta font-bold text-slate-950">1</span>}
+              <IconText text={tabLabel(id)} iconClassName="mr-1" />{id === 'checkin' && pending && <span className="ml-1 rounded-full bg-amber-400 px-1.5 text-meta font-bold text-slate-950">1</span>}
               {tab === id && <motion.span layoutId="tab" className={`absolute inset-x-1 -bottom-px h-0.5 ${id === 'emergency' ? 'bg-red-400' : 'bg-sky-400'}`} />}
             </button>
           ))}
@@ -169,7 +172,7 @@ export default function App() {
         </AnimatePresence>
         <Disclaimer />
         <p className="mt-2 text-center text-meta text-slate-500" title={t('Mesmo resultado nos dois motores (npm run test:core)', 'Same results on both engines (npm run test:core)')}>
-          ⚙️ {t('Motor de avaliação', 'Assessment engine')}: <span className="mono text-slate-400">{coreBackend === 'wasm' ? 'libsisp (C11 → WebAssembly)' : t('referência TypeScript (fallback)', 'TypeScript reference (fallback)')}</span>
+          <Icon e="⚙️" className="mr-1" />{t('Motor de avaliação', 'Assessment engine')}: <span className="mono text-slate-400">{coreBackend === 'wasm' ? 'libsisp (C11 → WebAssembly)' : t('referência TypeScript (fallback)', 'TypeScript reference (fallback)')}</span>
         </p>
         <StorageFooter />
       </main>
@@ -197,14 +200,16 @@ function StatusHero({ c, index, s, days, env, pending, onCheckin, onAct }:
   const color = STATUS[s].color
   return (
     <section className="glass flex flex-wrap items-center gap-4 rounded-2xl px-5 py-4" aria-label={t('Status do tripulante', 'Crew member status')}>
-      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-[3px] bg-surface-2 font-display text-title font-bold text-fg-1"
-        style={{ borderColor: color, boxShadow: `0 0 18px color-mix(in oklab, ${color} 35%, transparent)` }} aria-hidden>
-        {t('T', 'C')}{index + 1}
+      <span className="relative shrink-0" aria-hidden>
+        <span className="block rounded-full" style={{ boxShadow: `0 0 18px color-mix(in oklab, ${color} 35%, transparent)` }}>
+          <CrewAvatar c={c} size={56} ring={color} decorative />
+        </span>
+        <span className="absolute -bottom-1 -right-1 rounded-full border border-line-strong bg-surface-1 px-1.5 font-display text-meta font-bold text-fg-1">{t('T', 'C')}{index + 1}</span>
       </span>
       <div className="mr-auto min-w-0">
         <h2 className="font-display text-display-sm font-bold text-fg-1">{tr(c.name)}</h2>
         <p className="text-body-sm text-fg-2">
-          {tr(c.role)} · {c.agency} · {t('dia', 'day')} {days} {t('de missão', 'of mission')} · {ENVIRONMENTS[env].emoji} {tr(ENVIRONMENTS[env].name)} ({t('atraso', 'delay')} {tr(ENVIRONMENTS[env].delayLabel)})
+          {tr(c.role)} · {c.agency} · {t('dia', 'day')} {days} {t('de missão', 'of mission')} · <Icon e={ENVIRONMENTS[env].emoji} className="text-sky-300" /> {tr(ENVIRONMENTS[env].name)} ({t('atraso', 'delay')} {tr(ENVIRONMENTS[env].delayLabel)})
         </p>
         <p className="text-meta text-fg-3">{t('Cenário simulado', 'Simulated scenario')}: {tr(c.scenario)}</p>
       </div>
@@ -214,7 +219,7 @@ function StatusHero({ c, index, s, days, env, pending, onCheckin, onAct }:
       <div className="flex flex-wrap gap-2">
         {pending && (
           <button onClick={onCheckin} className="rounded-lg border border-accent/60 px-3 py-2 text-body-sm font-semibold text-accent hover:bg-accent/10">
-            {t('⏰ Check-in de hoje pendente', '⏰ Today’s check-in due')} <span className="text-xp">+20 XP</span>
+            <IconText text={t('⏰ Check-in de hoje pendente', '⏰ Today’s check-in due')} /> <span className="text-xp">+20 XP</span>
           </button>
         )}
         {onAct && <button onClick={onAct} className="rounded-lg bg-accent px-4 py-2 text-body-sm font-bold text-accent-ink shadow-glow-accent hover:bg-accent-strong">

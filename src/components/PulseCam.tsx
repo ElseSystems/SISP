@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Card, SourceLinks } from './ui'
+import { Icon, IconText } from './Icon'
 import { useStore } from '../lib/store'
 import { isoDay } from '../lib/crew'
 import { SOURCES } from '../lib/knowledge'
@@ -146,8 +147,8 @@ export default function PulseCam() {
               ) : phase === 'result' && result ? (
                 <div><div className="font-mono text-display font-bold text-fg-1">{result.bpm}</div><div className="text-meta text-fg-2">bpm · {t('estimado', 'estimated')}</div></div>
               ) : phase === 'measuring' ? (
-                <div className="px-4 text-body-sm text-fg-1">{live.finger ? t('Calibrando…', 'Calibrating…') : t('☝️ Cubra a lente com a ponta do dedo', '☝️ Cover the lens with your fingertip')}</div>
-              ) : <div className="text-5xl" aria-hidden>☝️</div>}
+                <div className="px-4 text-body-sm text-fg-1"><IconText iconClassName="mr-1" text={live.finger ? t('Calibrando…', 'Calibrating…') : t('☝️ Cubra a lente com a ponta do dedo', '☝️ Cover the lens with your fingertip')} /></div>
+              ) : <div className="text-5xl text-fg-2" aria-hidden><Icon e="☝️" strokeWidth={1.5} /></div>}
             </div>
           </div>
           <canvas ref={canvas} width={32} height={24} className="hidden" />
@@ -159,7 +160,7 @@ export default function PulseCam() {
             <span className="text-fg-2">{t('Qualidade do sinal', 'Signal quality')}: <b style={{ color: qc }}>{ql}</b></span>
             {phase === 'measuring' && <span className="font-mono text-fg-2">{Math.floor(live.elapsed)} / {MEASURE_SEC} s</span>}
             {demo && <span className="rounded bg-surface-3 px-2 text-meta text-fg-2">{t('sinal de demonstração (sem câmera)', 'demo signal (no camera)')}</span>}
-            {torch && <span className="text-meta text-caution">🔦 {t('lanterna ligada', 'torch on')}</span>}
+            {torch && <span className="text-meta text-caution"><Icon e="🔦" className="mr-1" />{t('lanterna ligada', 'torch on')}</span>}
           </div>
           {phase === 'idle' || phase === 'error' ? (
             <>
@@ -168,9 +169,9 @@ export default function PulseCam() {
                 <li>{t('Pressão leve, mão apoiada e imóvel por 20 s (fixe-se no apoio de pés em microgravidade).', 'Light pressure, hand rested and still for 20 s (anchor in a foot restraint in microgravity).')}</li>
                 <li>{t('Compare com sua FC de repouso do check-in.', 'Compare with your resting HR from the check-in.')}</li>
               </ol>
-              {err && <p className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-2 text-body-sm text-warning">⚠️ {err} {t('Use o sinal de demonstração para ver o fluxo.', 'Use the demo signal to see the flow.')}</p>}
+              {err && <p className="mt-2 rounded-lg border border-warning/50 bg-warning/10 p-2 text-body-sm text-warning"><Icon e="⚠" className="mr-1" />{err} {t('Use o sinal de demonstração para ver o fluxo.', 'Use the demo signal to see the flow.')}</p>}
               <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => start(false)} className="rounded-lg bg-accent px-4 py-2 font-bold text-accent-ink hover:bg-accent-strong">▶ {t('Medir com a câmera', 'Measure with camera')}</button>
+                <button onClick={() => start(false)} className="rounded-lg bg-accent px-4 py-2 font-bold text-accent-ink hover:bg-accent-strong"><Icon e="▶" className="mr-1" />{t('Medir com a câmera', 'Measure with camera')}</button>
                 <button onClick={() => start(true)} className="rounded-lg border border-line-strong px-3 py-2 text-body-sm text-fg-1 hover:bg-surface-3">{t('Sinal de demonstração', 'Demo signal')}</button>
               </div>
             </>

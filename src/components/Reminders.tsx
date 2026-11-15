@@ -5,6 +5,7 @@ import { MISSION_DAY, fmtHm, nextTask, taskState } from '../lib/schedule'
 import type { MissionTask } from '../lib/schedule'
 import { useDoneToday, useGmtNow, useToday, KIND_STYLE } from '../lib/mission'
 import { t, tr } from '../lib/i18n'
+import { Icon } from './Icon'
 
 /** In-app (offline) reminder toasts when a timeline measurement becomes due; optional system notification. */
 export function ReminderToaster() {
@@ -40,9 +41,9 @@ export function ReminderToaster() {
           <motion.div key={x.id} layout initial={{ opacity: 0, x: 40 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 40 }}
             className="glass pointer-events-auto rounded-xl border-l-4 p-3" style={{ borderLeftColor: KIND_STYLE[x.kind].color }}>
             <div className="flex items-start gap-2">
-              <span className="text-xl" aria-hidden>{KIND_STYLE[x.kind].icon}</span>
+              <span className="text-xl" aria-hidden><Icon e={KIND_STYLE[x.kind].icon} /></span>
               <div className="mr-auto min-w-0">
-                <p className="font-mono text-meta text-accent">⏰ {fmtHm(x.start)} GMT · {t('agora', 'due now')}</p>
+                <p className="font-mono text-meta text-accent"><Icon e="⏰" className="mr-1" />{fmtHm(x.start)} GMT · {t('agora', 'due now')}</p>
                 <p className="text-body-sm font-semibold text-fg-1">{tr(x.title)}</p>
               </div>
               <button onClick={() => close(x.id)} className="text-fg-3 hover:text-fg-1" aria-label={t('Fechar', 'Close')}>✕</button>
@@ -65,7 +66,7 @@ export function NextUp() {
   const items = [...due, ...(nxt && !due.includes(nxt) ? [nxt] : [])].slice(0, 3)
   return (
     <button onClick={() => setTab('today')} className="glass flex w-full flex-wrap items-center gap-x-4 gap-y-1 rounded-2xl px-4 py-2.5 text-left hover:border-line-strong">
-      <span className="font-display text-body-sm font-semibold text-sky-200">🗓️ {t('Hoje', 'Today')} · <span className="font-mono">{fmtHm(now)} GMT</span></span>
+      <span className="font-display text-body font-semibold text-sky-200"><Icon e="🗓" className="mr-1" />{t('Hoje', 'Today')} · <span className="font-mono">{fmtHm(now)} GMT</span></span>
       {items.length === 0 && <span className="text-body-sm text-fg-2">{t('Tudo feito por hoje ✓', 'All done for today ✓')}</span>}
       {items.map((x) => {
         const st = taskState(x, now, false)
@@ -73,7 +74,7 @@ export function NextUp() {
         return (
           <span key={x.id} className={`flex items-center gap-1.5 text-body-sm ${st === 'due' ? 'text-fg-1' : 'text-fg-2'}`}>
             <span className={`h-2 w-2 rounded-full ${st === 'due' ? 'animate-pulse bg-accent' : 'bg-fg-3'}`} />
-            {KIND_STYLE[x.kind].icon} {tr(x.title).split(':')[0]}
+            <Icon e={KIND_STYLE[x.kind].icon} className="mr-1" />{tr(x.title).split(':')[0]}
             <span className="font-mono text-meta text-fg-3">{st === 'due' ? t('agora', 'now') : mins < 60 ? `${t('em', 'in')} ${mins} min` : fmtHm(x.start)}</span>
           </span>
         )

@@ -3,6 +3,7 @@ import { ENVIRONMENTS } from '../lib/knowledge'
 import type { EnvironmentId } from '../lib/knowledge'
 import { fmtDelay } from '../lib/escalation'
 import { t, tr } from '../lib/i18n'
+import { SvgIcon } from './Icon'
 
 /** Earth ⟷ destination diagram; signal pulse speed is the real delay compressed on a log scale. */
 export default function CommLink({ env, onSelect, sending }: { env: EnvironmentId; onSelect?: (e: EnvironmentId) => void; sending?: number }) {
@@ -31,7 +32,7 @@ export default function CommLink({ env, onSelect, sending }: { env: EnvironmentI
           return (
             <g key={id} onClick={() => onSelect?.(id)} style={{ cursor: onSelect ? 'pointer' : undefined }} opacity={on ? 1 : 0.55}>
               <circle cx={x(id)} cy="70" r={on ? 22 : 16} fill={on ? 'rgba(92,200,255,0.15)' : 'rgba(15,22,40,0.9)'} stroke={on ? '#5CC8FF' : 'rgba(148,163,184,0.35)'} strokeWidth={on ? 2 : 1} />
-              <text x={x(id)} y="77" textAnchor="middle" fontSize={on ? 20 : 15}>{ENVIRONMENTS[id].emoji}</text>
+              <SvgIcon e={ENVIRONMENTS[id].emoji} cx={x(id)} cy={70} size={on ? 20 : 15} color={on ? '#5CC8FF' : '#AAB6CB'} />
               <text x={x(id)} y={BELOW[id] ? 112 : 26} textAnchor="middle" fontSize="11.5" fill={on ? '#EAF0FA' : '#7F8BA3'} fontWeight={on ? 700 : 400}>{tr(ENVIRONMENTS[id].name)}</text>
               <text x={x(id)} y={BELOW[id] ? 127 : 41} textAnchor="middle" fontSize="11" fill={on ? '#5CC8FF' : '#7F8BA3'} fontFamily="JetBrains Mono, monospace">{fmtDelay(ENVIRONMENTS[id].delaySecOneWay)}</text>
             </g>

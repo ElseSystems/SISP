@@ -3,12 +3,13 @@ import { history, useStorageEngine } from '../storage'
 import { t } from '../lib/i18n'
 import { download } from '../lib/download'
 import { storageLabel } from '../lib/storageLabel'
+import { Icon } from './Icon'
 
 export function StorageFooter() {
   const engine = useStorageEngine()
   return (
     <p className="mt-1 text-center text-meta text-slate-500" title={t('Histórico salvo no dispositivo, offline', 'History stored on this device, offline')}>
-      🗄️ {t('Armazenamento do histórico', 'History storage')}: <span className="mono text-slate-400">{storageLabel(engine)}</span>
+      <Icon e="🗄" className="mr-1" />{t('Armazenamento do histórico', 'History storage')}: <span className="mono text-slate-400">{storageLabel(engine)}</span>
     </p>
   )
 }
@@ -33,17 +34,17 @@ export default function StorageInfo() {
             'This browser does not offer OPFS for SQLite; data stays saved in localStorage.')}</p>
       {sqlite && (
         <div className="mt-2 flex flex-wrap gap-2">
-          <button className={btn} disabled={busy} onClick={() => run(async () => download(`sisp-history-${stamp()}.json`, await history.exportJson(), 'application/json'))}>⬇ {t('Exportar histórico (JSON)', 'Export history (JSON)')}</button>
+          <button className={btn} disabled={busy} onClick={() => run(async () => download(`sisp-history-${stamp()}.json`, await history.exportJson(), 'application/json'))}><Icon e="⬇" className="mr-1" />{t('Exportar histórico (JSON)', 'Export history (JSON)')}</button>
           <button className={btn} disabled={busy} onClick={() => run(async () => {
             const bytes = await history.exportDb()
             const url = URL.createObjectURL(new Blob([bytes as BlobPart], { type: 'application/vnd.sqlite3' }))
             const a = document.createElement('a'); a.href = url; a.download = `sisp-history-${stamp()}.sqlite3`; a.click()
             setTimeout(() => URL.revokeObjectURL(url), 1000)
-          })}>⬇ {t('Baixar banco (.sqlite3)', 'Download database (.sqlite3)')}</button>
+          })}><Icon e="⬇" className="mr-1" />{t('Baixar banco (.sqlite3)', 'Download database (.sqlite3)')}</button>
           <button className={btn} disabled={busy} onClick={() => run(async () => {
             const s = await history.stats()
             setStats(`integrity_check: ${s.integrity} · ` + Object.entries(s.counts).map(([k, v]) => `${k} ${v}`).join(' · '))
-          })}>🩺 {t('Verificar banco', 'Check database')}</button>
+          })}><Icon e="🩺" className="mr-1" />{t('Verificar banco', 'Check database')}</button>
         </div>
       )}
       {stats && <p className="mono mt-2 text-meta text-slate-400" data-testid="storage-stats">{stats}</p>}

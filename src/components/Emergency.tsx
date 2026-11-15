@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { SourceLinks } from './ui'
+import { Icon, IconText, SvgIcon } from './Icon'
 import { useStore } from '../lib/store'
 import { MANUALS } from '../lib/emergency'
 import type { EmManual } from '../lib/emergency'
@@ -29,8 +30,8 @@ function Illustration({ id, color }: { id: EmManual['id']; color: string }) {
     <svg viewBox="0 0 220 120" className="h-28 w-full" aria-hidden>
       <path d="M70 10 C80 40 78 60 82 80 L84 104 L120 108 L118 96 L100 92 C98 70 100 40 104 10" {...stroke} />
       {[70, 78, 86].map((y, i) => <path key={y} d={`M80 ${y} L106 ${y + 8} M106 ${y} L80 ${y + 8}`} stroke={color} strokeWidth="3" opacity={0.9 - i * 0.15} />)}
-      <text x="150" y="40" fontSize="26">🧊</text>
-      <text x="150" y="90" fontSize="26">🩹</text>
+      <SvgIcon e="🧊" cx={163} cy={31} size={26} color="#7dd3fc" />
+      <SvgIcon e="🩹" cx={163} cy={81} size={26} color="#fda4af" />
       <text x="80" y="118" fontSize="8" fill="#94a3b8">{t('bandagem em oito', 'figure-eight wrap')}</text>
     </svg>
   )
@@ -78,7 +79,7 @@ function CprMetronome() {
       <div className="min-w-0 flex-1 space-y-3">
         <button onClick={() => { setOn(!on); setCount(0) }}
           className="rounded-xl bg-critical px-6 py-4 font-display text-title font-bold text-[#01030B] hover:brightness-110">
-          {on ? t('■ Parar metrônomo', '■ Stop metronome') : t('▶ Metrônomo RCP 110/min', '▶ CPR metronome 110/min')}
+          <IconText text={on ? t('■ Parar metrônomo', '■ Stop metronome') : t('▶ Metrônomo RCP 110/min', '▶ CPR metronome 110/min')} iconClassName="mr-1" />
         </button>
         <p className="text-body-sm text-fg-2">{t('Contagem 1–30 (30:2 sem via aérea avançada). Faixa AHA: 100–120/min.', 'Count 1–30 (30:2 without advanced airway). AHA range: 100–120/min.')}</p>
       </div>
@@ -153,7 +154,7 @@ export default function Emergency() {
 
       <header className="sticky top-0 z-10 border-b border-critical/30 bg-[#1A0609]/90 backdrop-blur">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-4 px-6 py-3">
-          <h1 className="font-display text-title font-bold text-critical">🚨 {t('Protocolo de emergência', 'Emergency protocol')}</h1>
+          <h1 className="font-display text-xl font-bold text-critical"><Icon e="🚨" className="mr-1" />{t('Protocolo de emergência', 'Emergency protocol')}</h1>
           <div role="tablist" aria-label={t('Manuais', 'Manuals')} className="flex flex-wrap gap-1">
             {MANUALS.map((x) => (
               <button key={x.id} role="tab" aria-selected={sel === x.id} onClick={() => pick(x.id)}
@@ -163,7 +164,7 @@ export default function Emergency() {
             ))}
           </div>
           <div className="ml-auto flex items-center gap-2 rounded-xl border border-line px-3 py-1" title={t('Tempo desde o início do protocolo', 'Time since protocol start')}>
-            <span className="text-meta uppercase tracking-widest text-fg-3">⏱</span>
+            <span className="text-meta uppercase tracking-widest text-fg-3"><Icon e="⏱" /></span>
             <span className="font-mono text-metric font-bold text-fg-1 tnum">{mmss(now - startedAt)}</span>
           </div>
           <div className="flex overflow-hidden rounded-lg border border-line text-meta font-semibold" role="group" aria-label="Language / Idioma">
@@ -219,12 +220,12 @@ export default function Emergency() {
                 initial={{ opacity: 0, x: 40 * dir }} animate={{ opacity: 1, x: 0, transition: { duration: 0.28, ease: EASE_OUT } }}
                 exit={{ opacity: 0, x: -40 * dir, transition: { duration: 0.18, ease: EASE_IN } }}>
                 <p className={`font-display text-display-sm font-bold lg:text-display ${done[step] ? 'text-fg-2 line-through decoration-nominal/70' : 'text-fg-1'}`}>
-                  <span className="mr-3">{cur.icon}</span>{tr(cur.text)}
+                  <span className="mr-3"><Icon e={cur.icon} className="text-accent" /></span>{tr(cur.text)}
                 </p>
-                {cur.warning && <p className="mt-3 inline-block rounded-lg border border-caution/60 px-3 py-1 text-body-sm font-semibold text-caution">⚠ {t('Só com o flight surgeon / CMO treinado', 'Only with the flight surgeon / trained CMO')}</p>}
+                {cur.warning && <p className="mt-3 inline-block rounded-lg border border-caution/60 px-3 py-1 text-body-sm font-semibold text-caution"><Icon e="⚠" className="mr-1" />{t('Só com o flight surgeon / CMO treinado', 'Only with the flight surgeon / trained CMO')}</p>}
                 {cur.src.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
-                    {cur.src.map((x) => <a key={x.url} href={x.url} target="_blank" rel="noreferrer" title={x.label} className="rounded-md bg-white/5 px-2 py-0.5 text-meta text-accent hover:bg-white/10">📎 {x.label.split(' – ')[0].slice(0, 48)}</a>)}
+                    {cur.src.map((x) => <a key={x.url} href={x.url} target="_blank" rel="noreferrer" title={x.label} className="rounded-md bg-white/5 px-2 py-0.5 text-meta text-accent hover:bg-white/10"><Icon e="📎" className="mr-1" />{x.label.split(' – ')[0].slice(0, 48)}</a>)}
                   </div>
                 )}
               </motion.div>
@@ -247,7 +248,7 @@ export default function Emergency() {
 
         <aside className="space-y-4 lg:col-span-4">
           <div className="rounded-2xl border border-line bg-black/20 p-4">
-            <h2 className="mb-2 text-meta font-semibold uppercase tracking-[0.18em] text-fg-3">{t('Trilha', 'Steps')}</h2>
+            <h2 className="mb-2 text-body-sm font-semibold uppercase tracking-[0.18em] text-fg-3">{t('Trilha', 'Steps')}</h2>
             <ol className="space-y-1">
               {m.steps.map((s, i) => (
                 <li key={i}>
@@ -261,11 +262,11 @@ export default function Emergency() {
             </ol>
           </div>
           <div className="rounded-2xl border border-line bg-black/20 p-4">
-            <h2 className="mb-2 text-meta font-semibold uppercase tracking-[0.18em] text-fg-3">{t('Reconhecer', 'Recognize')}</h2>
+            <h2 className="mb-2 text-body-sm font-semibold uppercase tracking-[0.18em] text-fg-3">{t('Reconhecer', 'Recognize')}</h2>
             <ul className="list-disc space-y-1 pl-4 text-body-sm text-fg-2">{m.recognize.map((r, i) => <li key={i}>{tr(r)}</li>)}</ul>
           </div>
           <div className="rounded-2xl border border-critical/40 bg-critical/10 p-4">
-            <h2 className="mb-2 text-meta font-semibold uppercase tracking-[0.18em] text-critical">{t('Quando chamar o solo', 'When to call the ground')}</h2>
+            <h2 className="mb-2 text-body-sm font-semibold uppercase tracking-[0.18em] text-critical">{t('Quando chamar o solo', 'When to call the ground')}</h2>
             <p className="text-body-sm text-fg-1">{tr(m.callGround)}</p>
           </div>
           <details className="rounded-2xl border border-line bg-black/20 p-4">

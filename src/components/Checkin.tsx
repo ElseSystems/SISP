@@ -7,6 +7,8 @@ import { isoDay } from '../lib/crew'
 import { assessReading } from '../lib/assessment'
 import type { Reading } from '../lib/types'
 import { t, tr } from '../lib/i18n'
+import { IconText } from './Icon'
+import { CrewAvatar } from './CrewAvatar'
 
 const field = 'w-full rounded-lg border border-slate-600 bg-slate-950 px-3 py-2 text-lg font-semibold outline-none focus:border-sky-400'
 
@@ -42,7 +44,7 @@ export default function Checkin() {
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setV({ ...v, [k]: e.target.value })
   const num = (k: keyof typeof v, label: string, help: string, step = '1', min?: number, max?: number, title?: string) => (
     <label className="block" title={title}>
-      <span className="text-xs text-slate-400">{label}</span>
+      <span className="text-xs text-slate-400"><IconText text={label} iconClassName="mr-1 text-sky-300" /></span>
       <input className={field} type="number" inputMode="decimal" step={step} min={min} max={max} required value={v[k] as string} onChange={set(k)} />
       <span className="text-meta text-fg-3">{help}</span>
     </label>
@@ -51,7 +53,7 @@ export default function Checkin() {
 
   return (
     <form onSubmit={submit} className="grid gap-4 lg:grid-cols-2">
-      <Card title={`${t('Check-in diário', 'Daily check-in')} · ${c.avatar} ${tr(c.name)}`} right={done ? <Badge s={0} /> : <span className="text-xs text-amber-300">{t('pendente hoje', 'due today')}</span>}>
+      <Card title={<span className="inline-flex items-center gap-2">{t('Check-in diário', 'Daily check-in')} · <CrewAvatar c={c} size={22} decorative /> {tr(c.name)}</span>} right={done ? <Badge s={0} /> : <span className="text-xs text-amber-300">{t('pendente hoje', 'due today')}</span>}>
         <p className="mb-3 text-xs text-slate-400">{t('Faça ao acordar, em jejum, após 5 min sentado/fixado.', 'Do it on waking, fasting, after 5 min seated/restrained.')}</p>
         <div className="grid grid-cols-2 gap-3">
           {num('sys', t('🫀 Sistólica (mmHg)', '🫀 Systolic (mmHg)'), t('AHA normal <120/80', 'AHA normal <120/80'), '1', 60, 260, tr(INDICATORS.bp.howToMeasure))}
@@ -68,7 +70,7 @@ export default function Checkin() {
         <span className="text-xs text-slate-400">{t('Como você se sente hoje?', 'How do you feel today?')}</span>
         <div className="mt-1 flex gap-2">
           {['😣', '🙁', '😐', '🙂', '😄'].map((emo, i) => (
-            <button type="button" key={i} onClick={() => setV({ ...v, mood: i + 1 })}
+            <button type="button" key={i} onClick={() => setV({ ...v, mood: i + 1 })} aria-pressed={v.mood === i + 1} aria-label={`${t('Humor', 'Mood')} ${i + 1}/5`}
               className={`flex-1 rounded-xl border py-2 text-2xl transition ${v.mood === i + 1 ? 'scale-105 border-sky-400 bg-sky-500/20' : 'border-slate-700'}`}>{emo}</button>
           ))}
         </div>
@@ -100,7 +102,7 @@ export default function Checkin() {
         <AnimatePresence>
           {toast && (
             <motion.div initial={{ opacity: 0, y: 10, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }}
-              className="mt-3 rounded-xl bg-emerald-500/20 p-3 text-center font-semibold text-emerald-200">🚀 {toast}</motion.div>
+              className="mt-3 rounded-xl bg-emerald-500/20 p-3 text-center font-semibold text-emerald-200"><IconText text={`🚀 ${toast}`} iconClassName="mr-1" /></motion.div>
           )}
         </AnimatePresence>
       </Card>

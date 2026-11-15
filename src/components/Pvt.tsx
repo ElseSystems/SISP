@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Card, SourceLinks, Badge } from './ui'
+import { Icon } from './Icon'
 import { useStore } from '../lib/store'
 import { isoDay } from '../lib/crew'
 import { fatigueStatus } from '../lib/assessment'
@@ -124,7 +125,7 @@ export default function Pvt() {
               </button>
             ))}
           </div>
-          <button onClick={begin} className="mt-3 w-full rounded-xl bg-accent py-3 font-display text-title font-bold text-accent-ink hover:bg-accent-strong">▶ {t('Iniciar teste', 'Start test')}</button>
+          <button onClick={begin} className="mt-3 w-full rounded-xl bg-accent py-3 font-display text-title font-bold text-accent-ink hover:bg-accent-strong"><Icon e="▶" className="mr-1" />{t('Iniciar teste', 'Start test')}</button>
           <FatigueSummary f={preview} hist={hist} />
         </>
       )}
@@ -198,7 +199,7 @@ function FatigueSummary({ f, hist }: { f: ReturnType<typeof fatigueStatus>; hist
       {f.reasons.length > 0 ? (
         <ul className="mt-2 list-disc pl-5 text-body-sm text-fg-1">{f.reasons.map((r) => <li key={r.en}>{t(r.pt, r.en)}</li>)}</ul>
       ) : <p className="mt-2 text-body-sm text-nominal">{t('Vigilância dentro do seu padrão.', 'Vigilance within your usual pattern.')}</p>}
-      <p className="mt-2 text-body-sm text-sky-200">👉 {f.severity >= 2
+      <p className="mt-2 text-body-sm text-sky-200"><Icon e="👉" className="mr-1" />{f.severity >= 2
         ? t('Fadiga provável: evite EVA/operações críticas hoje, cochilo de 20–30 min se o plano permitir, avise o CMO e priorize 7+ h de sono.', 'Likely fatigue: avoid EVA/critical ops today, 20–30 min nap if the plan allows, inform the CMO and prioritize 7+ h of sleep.')
         : f.severity === 1 ? t('Leve queda de vigilância: dupla checagem em tarefas críticas, luz azulada de dia, refaça amanhã.', 'Slight drop in vigilance: double-check critical tasks, blue-enriched light by day, repeat tomorrow.')
           : t('Repita a cada 1–2 dias para manter sua base atualizada.', 'Repeat every 1–2 days to keep your baseline current.')}</p>

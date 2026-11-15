@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { KIND_STYLE, useDoneToday, useGmtNow, useToday } from '../lib/mission'
 import { motion } from 'framer-motion'
 import { Card, SourceLinks } from './ui'
+import { Icon, IconText } from './Icon'
 import { useStore } from '../lib/store'
 import { isoDay } from '../lib/crew'
 import { MISSION_DAY, fmtHm, nowMinutesGmt, taskState } from '../lib/schedule'
@@ -67,7 +68,7 @@ export default function MissionTimeline() {
           {solar && (
             <motion.li variants={item} className="relative rounded-xl border-2 border-critical bg-[#1A0609] p-3">
               <span className="absolute -left-[29px] top-3 flex h-4 w-4 items-center justify-center rounded-full bg-critical ring-4 ring-critical/30" />
-              <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-body-sm text-critical">{fmtHm(nowMinutesGmt(new Date(solar.startedAt)))}</span><b className="text-fg-1">☢️ {t('Evento de partículas solares — abrigo', 'Solar particle event — shelter')}</b>
+              <div className="flex flex-wrap items-center gap-2"><span className="font-mono text-body-sm text-critical">{fmtHm(nowMinutesGmt(new Date(solar.startedAt)))}</span><b className="text-fg-1"><Icon e="☢" className="mr-1" />{t('Evento de partículas solares — abrigo', 'Solar particle event — shelter')}</b>
                 <span className="text-meta text-fg-2">{solar.sep.id}{solar.flare ? ` · ${solar.flare.classType}` : ''}</span></div>
               <p className="text-body-sm text-fg-2">{t('Tarefas pausadas até a liberação do solo. EVA cancelada.', 'Tasks on hold until ground all-clear. EVA cancelled.')}</p>
             </motion.li>
@@ -86,7 +87,7 @@ export default function MissionTimeline() {
         <Card title={t('🔔 Lembretes', '🔔 Reminders')}>
           <p className="text-body-sm text-fg-2">{t('O SISP avisa quando uma medição vence (no app, offline). Opcional: notificações do sistema.', 'SISP prompts you when a measurement is due (in-app, offline). Optional: system notifications.')}</p>
           <button onClick={notify ? () => setNotify(false) : enableNotify} className="mt-2 rounded-lg border border-line-strong px-3 py-1.5 text-body-sm text-fg-1 hover:bg-surface-3">
-            {notify ? t('🔕 Desativar notificações', '🔕 Disable notifications') : t('🔔 Ativar notificações', '🔔 Enable notifications')}
+            <IconText text={notify ? t('🔕 Desativar notificações', '🔕 Disable notifications') : t('🔔 Ativar notificações', '🔔 Enable notifications')} iconClassName="mr-1" />
           </button>
         </Card>
         <Card title={t('☀️ Clima espacial real · últimos 7 dias (DONKI)', '☀️ Real space weather · last 7 days (DONKI)')}>
@@ -103,17 +104,17 @@ export default function MissionTimeline() {
           <p className="mt-2 text-body-sm text-fg-2">{week.length} {t('erupções', 'flares')} · {week.filter((f) => f.classType.startsWith('M')).length} M · {week.filter((f) => f.classType.startsWith('X')).length} X · SEP {d?.summary.sepCount ?? 0} {t('na janela', 'in window')}{d?.live ? ` · ${t('ao vivo', 'live')}` : ` · ${t('snapshot offline', 'offline snapshot')}`}</p>
           {scenario && !solar && (
             <button onClick={() => trigger(scenario)} className="mt-3 w-full rounded-xl bg-critical/90 py-2 font-bold text-[#01030B] hover:bg-critical">
-              ☢️ {scenario.replay ? t('Injetar SEP real (maio/2024) na timeline', 'Inject real SEP (May 2024) into the timeline') : t('Injetar o SEP real mais recente', 'Inject the latest real SEP')}
+              <Icon e="☢" className="mr-1" />{scenario.replay ? t('Injetar SEP real (maio/2024) na timeline', 'Inject real SEP (May 2024) into the timeline') : t('Injetar o SEP real mais recente', 'Inject the latest real SEP')}
             </button>
           )}
           <SourceLinks sources={[SOURCES.donki, SOURCES.srag]} />
         </Card>
         <Card title={t('Por que essa rotina?', 'Why this routine?')}>
           <ul className="space-y-1.5 text-body-sm text-fg-2">
-            <li>🩺 {t('Mesma hora, mesma condição: só assim o desvio da SUA base tem significado.', 'Same time, same condition: only then is the deviation from YOUR baseline meaningful.')}</li>
-            <li>🏋️ {t('~2,5 h/dia de exercício é contramedida obrigatória na ISS.', '~2.5 h/day of exercise is a mandatory countermeasure on the ISS.')}</li>
-            <li>⚡ {t('O PVT à tarde captura a queda circadiana de vigilância.', 'The afternoon PVT captures the circadian dip in vigilance.')}</li>
-            <li>📡 {t('O relatório da noite chega ao solo mesmo com 20 min de atraso.', 'The evening report reaches the ground even with a 20-min delay.')}</li>
+            <li><Icon e="🩺" className="mr-1" />{t('Mesma hora, mesma condição: só assim o desvio da SUA base tem significado.', 'Same time, same condition: only then is the deviation from YOUR baseline meaningful.')}</li>
+            <li><Icon e="🏋" className="mr-1" />{t('~2,5 h/dia de exercício é contramedida obrigatória na ISS.', '~2.5 h/day of exercise is a mandatory countermeasure on the ISS.')}</li>
+            <li><Icon e="⚡" className="mr-1" />{t('O PVT à tarde captura a queda circadiana de vigilância.', 'The afternoon PVT captures the circadian dip in vigilance.')}</li>
+            <li><Icon e="📡" className="mr-1" />{t('O relatório da noite chega ao solo mesmo com 20 min de atraso.', 'The evening report reaches the ground even with a 20-min delay.')}</li>
           </ul>
           <p className="mt-2 text-meta text-fg-3">{t('Rotina ilustrativa inspirada no plano diário da ISS — não é uma timeline oficial da NASA.', 'Illustrative routine inspired by the ISS daily plan — not an official NASA timeline.')}</p>
           <SourceLinks sources={[SOURCES.standardMeasures, SOURCES.barger2014]} />
@@ -131,10 +132,10 @@ function TaskRow({ task, state, label, onToggle, onGo, paused }: { task: Mission
       <span className="absolute -left-[27px] top-3.5 h-3 w-3 rounded-full ring-4 ring-bg" style={{ background: state === 'done' ? 'var(--sisp-nominal)' : k.color }} />
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span className="font-mono text-body-sm text-fg-2">{fmtHm(task.start)}</span>
-        <span className="font-semibold text-fg-1">{k.icon} {tr(task.title)}</span>
-        {task.hazard && <span className="text-meta text-fg-3" title={tr(HAZARDS[task.hazard].name)}>{HAZARDS[task.hazard].icon}</span>}
+        <span className="font-semibold text-fg-1"><Icon e={k.icon} className="mr-1" />{tr(task.title)}</span>
+        {task.hazard && <span className="text-meta text-fg-3" title={tr(HAZARDS[task.hazard].name)}><Icon e={HAZARDS[task.hazard].icon} /></span>}
         <span className={`rounded-full px-2 text-meta ${state === 'due' ? 'bg-accent text-accent-ink' : state === 'missed' ? 'bg-warning/20 text-warning' : state === 'done' ? 'text-nominal' : 'text-fg-3'}`}>{state === 'done' ? '✓ ' : ''}{label[state]}</span>
-        {paused && state !== 'done' && <span className="text-meta text-critical">⏸ SEP</span>}
+        {paused && state !== 'done' && <span className="text-meta text-critical"><Icon e="⏸" className="mr-1" />SEP</span>}
         <span className="ml-auto flex gap-1.5">
           {onGo && state !== 'done' && <button onClick={onGo} className="rounded-lg bg-accent px-2.5 py-1 text-meta font-bold text-accent-ink hover:bg-accent-strong">{t('Fazer', 'Start')} →</button>}
           {!task.auto && <button onClick={onToggle} aria-pressed={state === 'done'} className="rounded-lg border border-line-strong px-2 py-1 text-meta text-fg-2 hover:text-fg-1">{state === 'done' ? t('desfazer', 'undo') : '✓'}</button>}

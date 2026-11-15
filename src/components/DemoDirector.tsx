@@ -6,6 +6,7 @@ import type { Tab } from '../lib/store'
 import type { EnvironmentId } from '../lib/knowledge'
 import { t, tr } from '../lib/i18n'
 import { loadDonki, pickScenario } from '../lib/spaceWeather'
+import { Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 
 /**
  * One-click scripted demo: drives tab / environment / crew / body focus from DEMO_STEPS and
@@ -78,9 +79,9 @@ export default function DemoDirector() {
             <p className="text-xs leading-snug text-slate-300">{tr(step.caption)}</p>
           </motion.div>
           <div className="flex shrink-0 gap-1 text-sm">
-            <button onClick={() => setI(Math.max(0, i - 1))} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label="previous">◀</button>
-            <button onClick={() => setPaused(!paused)} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label="pause">{paused ? '▶' : '❚❚'}</button>
-            <button onClick={() => setI(Math.min(DEMO_STEPS.length - 1, i + 1))} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label="next">▶▶</button>
+            <button onClick={() => setI(Math.max(0, i - 1))} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label={t('Etapa anterior', 'Previous step')}><SkipBack aria-hidden width="1em" height="1em" /></button>
+            <button onClick={() => setPaused(!paused)} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label={paused ? t('Continuar', 'Resume') : t('Pausar', 'Pause')} aria-pressed={paused}>{paused ? <Play aria-hidden width="1em" height="1em" /> : <Pause aria-hidden width="1em" height="1em" />}</button>
+            <button onClick={() => setI(Math.min(DEMO_STEPS.length - 1, i + 1))} className="rounded-lg border border-slate-600 px-2 py-1 hover:border-slate-400" aria-label={t('Próxima etapa', 'Next step')}><SkipForward aria-hidden width="1em" height="1em" /></button>
             <button onClick={exit} className="rounded-lg bg-slate-700 px-2 py-1 text-xs hover:bg-slate-600">{t('Sair', 'Exit')}</button>
           </div>
         </div>

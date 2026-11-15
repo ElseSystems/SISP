@@ -6,6 +6,7 @@ import HazardStrip from './HazardStrip'
 import { HAZARD_STORY } from '../lib/story'
 import type { ModelId } from './Body3D'
 import { Badge, Card, SourceLinks, Sparkline } from './ui'
+import { Icon, IconText } from './Icon'
 import { NextUp } from './Reminders'
 import { SOURCES, BODY_REGIONS, BONE, ENVIRONMENTS, HAZARDS, INDICATORS, RADIATION, SEVERITY_COLOR } from '../lib/knowledge'
 import type { BodyRegionId } from '../lib/knowledge'
@@ -58,7 +59,7 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
           <>
             <div className="mb-2 flex justify-center gap-1 text-meta">
               {([['muscular', t('💪 Músculos', '💪 Muscles')], ['skeleton', t('🦴 Esqueleto', '🦴 Skeleton')]] as [ModelId, string][]).map(([m, lbl]) => (
-                <button key={m} onClick={() => setModel(m)} className={`rounded-full border px-2 py-0.5 ${model === m ? 'border-sky-400 bg-sky-500/10 text-sky-200' : 'border-slate-600 text-slate-400'}`}>{lbl}</button>
+                <button key={m} onClick={() => setModel(m)} className={`rounded-full border px-2 py-0.5 ${model === m ? 'border-sky-400 bg-sky-500/10 text-sky-200' : 'border-slate-600 text-slate-400'}`} aria-pressed={model === m}><IconText text={lbl} iconClassName="mr-1" /></button>
               ))}
             </div>
             <Fallback3D fallback={map2d}>
@@ -89,7 +90,7 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
                 <p className="text-sm text-slate-300">{tr(info.fn)}</p>
                 <div className="mt-2 flex flex-wrap gap-1">
                   {info.hazards.map((h) => (
-                    <span key={h} title={tr(HAZARDS[h].summary)} className="rounded-md bg-slate-800 px-2 py-0.5 text-meta text-slate-300">{HAZARDS[h].icon} {tr(HAZARDS[h].name)}</span>
+                    <span key={h} title={tr(HAZARDS[h].summary)} className="rounded-md bg-slate-800 px-2 py-0.5 text-meta text-slate-300"><Icon e={HAZARDS[h].icon} className="mr-1 text-sky-300" />{tr(HAZARDS[h].name)}</span>
                   ))}
                 </div>
                 {info.extra && <p className="mt-2 text-xs text-slate-400">{tr(info.extra)}</p>}
@@ -102,9 +103,9 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
                         <div className="flex items-center justify-between"><span className="text-xs text-slate-400">{tr(ind.name)}</span><Badge s={f.severity} /></div>
                         <div className="mt-1 font-mono text-title font-semibold">{f.value}</div>
                         {f.delta && <div className="text-meta text-slate-400">{tr(f.delta)}</div>}
-                        <p className="mt-1 text-meta text-slate-400">🌌 {tr(ind.spaceEffect)}</p>
+                        <p className="mt-1 text-meta text-slate-400"><Icon e="🌌" className="mr-1" />{tr(ind.spaceEffect)}</p>
                         {f.reasons.length > 0 && <ul className="mt-1 list-disc pl-4 text-meta text-slate-300">{f.reasons.map((r) => <li key={r.en}>{tr(r)}</li>)}</ul>}
-                        <p className="mt-2 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100">👉 {tr(ind.actions[f.severity])}</p>
+                        <p className="mt-2 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100"><Icon e="👉" className="mr-1" />{tr(ind.actions[f.severity])}</p>
                       </div>
                     )
                   })}
@@ -114,7 +115,7 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
                       <div className="mt-1 text-xl font-bold">{a.bone.low.toFixed(1)}–{a.bone.high.toFixed(1)}%</div>
                       <div className="text-meta text-slate-400">{t(`${a.bone.days} dias em gravidade reduzida · adesão ao exercício ${(a.bone.adherence * 100).toFixed(0)}% (meta 120 min/dia)`, `${a.bone.days} days in reduced gravity · exercise adherence ${(a.bone.adherence * 100).toFixed(0)}% (target 120 min/day)`)}</div>
                       <p className="mt-1 text-meta text-slate-400">{tr(BONE.note)}</p>
-                      <p className="mt-2 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100">👉 {t('Exercício resistido (ARED) + aeróbico diário, cálcio e vitamina D conforme plano.', 'Resistive (ARED) + daily aerobic exercise, calcium and vitamin D per plan.')}</p>
+                      <p className="mt-2 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100"><Icon e="👉" className="mr-1" />{t('Exercício resistido (ARED) + aeróbico diário, cálcio e vitamina D conforme plano.', 'Resistive (ARED) + daily aerobic exercise, calcium and vitamin D per plan.')}</p>
                       <SourceLinks sources={[BONE.source, SOURCES.gravity]} />
                     </div>
                   )}
@@ -137,7 +138,7 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
                 <div className="flex items-center justify-between gap-1"><span className="text-meta text-fg-3">{tr(ind.name)}</span><Badge s={f.severity} /></div>
                 <div className="mt-1 whitespace-nowrap"><span className="font-mono text-metric font-bold text-fg-1">{val}</span> <span className="text-body-sm text-fg-3">{unit}</span></div>
                 <Sparkline values={c.readings.slice(-14).map((r) => Number(r[key]))} color={SEVERITY_COLOR[f.severity]} band={NOMINAL[f.indicator as keyof typeof NOMINAL]} />
-                <div className="mt-0.5 truncate text-meta text-fg-3">{f.delta ? tr(f.delta) : t('14 dias', '14 days')}{pulse ? ` · 📷 ${pulse.bpm}` : ''}</div>
+                <div className="mt-0.5 truncate text-meta text-fg-3">{f.delta ? tr(f.delta) : t('14 dias', '14 days')}{pulse ? <> · <Icon e="📷" size="1em" /> {pulse.bpm}</> : ''}</div>
               </button>
             )
           })}
@@ -176,7 +177,7 @@ export default function Dashboard({ a, c }: { a: CrewAssessment; c: CrewMember }
             <span>{t('Missão', 'Mission')}: <span className="font-mono">{a.radiation.mission.toFixed(0)}</span> mSv · {a.radiation.days} d · {a.radiation.rate} mSv/{t('dia', 'day')}</span>
             <span>{t('Margem', 'Margin')}: ~<span className="font-mono">{Math.round(a.radiation.daysLeft)}</span> {t('dias em', 'days in')} {tr(ENVIRONMENTS[env].name)}</span>
           </div>
-          {a.radiation.eventDose > 0 && <p className="mt-1 text-body-sm text-critical">☢️ {t('Eventos solares', 'Solar events')}: +<span className="font-mono">{a.radiation.eventDose.toFixed(2)}</span> mSv{a.radiation.solarActive ? ` · ${t('subindo agora', 'rising now')}` : ''}</p>}
+          {a.radiation.eventDose > 0 && <p className="mt-1 text-body-sm text-critical"><Icon e="☢" className="mr-1" />{t('Eventos solares', 'Solar events')}: +<span className="font-mono">{a.radiation.eventDose.toFixed(2)}</span> mSv{a.radiation.solarActive ? ` · ${t('subindo agora', 'rising now')}` : ''}</p>}
           <p className="mt-1 text-meta text-fg-2">{tr(ENVIRONMENTS[env].radiationNote)} {t('Marcadores 50/80/100% = heurística do protótipo.', '50/80/100% markers = prototype heuristic.')}</p>
           <SourceLinks sources={[RADIATION.source, SOURCES.donki]} />
         </Card>

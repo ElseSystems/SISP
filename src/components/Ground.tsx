@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Badge, Card, SourceLinks } from './ui'
+import { Icon } from './Icon'
 import CommLink from './CommLink'
 import FlightSurgeonReport from './FlightSurgeonReport'
 import { SOURCES, ENVIRONMENTS, INDICATORS, SEVERITY_COLOR } from '../lib/knowledge'
@@ -36,7 +37,7 @@ export default function Ground({ c, a, met }: { c: CrewMember; a: CrewAssessment
               <h2 className="mr-auto font-display text-display-sm font-bold" style={{ color }}>{plan.headline}</h2>
               <Badge s={a.overall} size="lg" showLevel />
             </div>
-            <p className="mt-1 text-body text-fg-1">📞 {plan.contact}</p>
+            <p className="mt-1 text-body text-fg-1"><Icon e="📞" className="mr-1" />{plan.contact}</p>
             <ol className="mt-3 space-y-2">
               {plan.steps.map((s, i) => (
                 <li key={s} className="flex gap-3 text-body text-fg-1">
@@ -44,7 +45,7 @@ export default function Ground({ c, a, met }: { c: CrewMember; a: CrewAssessment
                 </li>
               ))}
             </ol>
-            {a.overall === 3 && <button onClick={() => setTab('emergency')} className="mt-4 rounded-lg bg-critical px-4 py-2 font-bold text-[#01030B] shadow-glow-critical">🚨 {t('Abrir protocolo de emergência', 'Open emergency protocol')} →</button>}
+            {a.overall === 3 && <button onClick={() => setTab('emergency')} className="mt-4 rounded-lg bg-critical px-4 py-2 font-bold text-[#01030B] shadow-glow-critical"><Icon e="🚨" className="mr-1" />{t('Abrir protocolo de emergência', 'Open emergency protocol')} →</button>}
           </motion.div>
           <div className="mt-4 space-y-2">
             {issues.length === 0 && <p className="text-body-sm text-fg-2">{t('Nenhum indicador fora do padrão hoje. 🎉', 'No indicator out of range today. 🎉')}</p>}
@@ -52,7 +53,7 @@ export default function Ground({ c, a, met }: { c: CrewMember; a: CrewAssessment
               <div key={f.key} className="rounded-lg border border-line bg-surface-1 p-3" style={{ borderLeft: `3px solid ${SEVERITY_COLOR[f.s]}` }}>
                 <div className="flex items-center justify-between gap-2 text-body-sm font-semibold text-fg-1">{f.name}: <span className="mr-auto font-mono">{f.value}</span><Badge s={f.s} /></div>
                 <p className="text-meta text-fg-2">{f.reasons.join(' · ')}</p>
-                <p className="mt-1 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100">👉 {f.action}</p>
+                <p className="mt-1 border-l-2 border-accent bg-accent/5 px-2 py-1 text-body-sm text-sky-100"><Icon e="👉" className="mr-1" />{f.action}</p>
               </div>
             ))}
           </div>
@@ -80,7 +81,7 @@ export default function Ground({ c, a, met }: { c: CrewMember; a: CrewAssessment
                   style={on ? { borderColor: SEVERITY_COLOR[s], boxShadow: `0 0 18px color-mix(in oklab, ${SEVERITY_COLOR[s]} 35%, transparent)` } : undefined}>
                   <Badge s={s} showLevel />
                   <span className="text-body-sm text-fg-1">{escalationPlan(s, env).contact}</span>
-                  {on && <span className="ml-auto font-mono text-meta text-fg-2">◀ {t('agora', 'now')}</span>}
+                  {on && <span className="ml-auto font-mono text-meta text-fg-2"><Icon e="◀" size="1em" className="mr-0.5" />{t('agora', 'now')}</span>}
                 </li>
               )
             })}

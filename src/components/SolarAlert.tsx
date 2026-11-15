@@ -5,6 +5,7 @@ import { useSolarContext } from '../lib/useSolar'
 import { DEEP_SPACE, SEP_DOSE_UNSHELTERED, SHELTER_FACTOR, fmtUtc } from '../lib/spaceWeather'
 import { ENVIRONMENTS, SOURCES } from '../lib/knowledge'
 import { t, tr } from '../lib/i18n'
+import { Icon } from './Icon'
 
 const SHELTER_STEPS = {
   iss: () => [t('Vá para a área mais blindada (alojamentos / segmento russo, conforme o plano de voo).', 'Move to the most shielded area (crew quarters / Russian segment, per the flight plan).'), t('Suspenda EVA e trabalho perto de janelas.', 'Suspend EVA and work near windows.')],
@@ -34,7 +35,7 @@ export default function SolarAlert() {
       {!sheltered && !reduce && <motion.div aria-hidden className="pointer-events-none absolute inset-0" animate={{ opacity: [0.05, 0.28, 0.05] }} transition={{ duration: 1.6, repeat: Infinity }}
         style={{ background: 'radial-gradient(ellipse at top, rgba(255,107,107,0.55), transparent 65%)' }} />}
       <div className="relative flex flex-wrap items-start gap-4">
-        <div className="text-5xl" aria-hidden>{sheltered ? '🛡️' : '☢️'}</div>
+        <div className={`text-5xl ${sheltered ? 'text-nominal' : 'text-critical'}`} aria-hidden><Icon e={sheltered ? '🛡️' : '☢️'} strokeWidth={1.5} /></div>
         <div className="mr-auto min-w-0 max-w-2xl">
           <p className="font-mono text-meta tracking-widest text-critical">{t('ALERTA DE CLIMA ESPACIAL · NASA DONKI', 'SPACE WEATHER ALERT · NASA DONKI')} {solar.replay && <span className="ml-1 rounded bg-surface-3 px-1.5 text-fg-2">{t('REPLAY REAL', 'REAL REPLAY')}</span>}</p>
           <h2 className="font-display text-display-sm font-bold text-fg-1">
@@ -44,7 +45,7 @@ export default function SolarAlert() {
             <a href={solar.sep.link} target="_blank" rel="noreferrer" className="underline decoration-dotted">SEP {fmtUtc(solar.sep.time)}</a>
             {solar.sep.instruments?.[0] && <> · {solar.sep.instruments[0]}</>}
             {solar.flare && <> · {t('erupção', 'flare')} <a href={solar.flare.link} target="_blank" rel="noreferrer" className="font-semibold text-warning underline decoration-dotted">{solar.flare.classType}</a> {fmtUtc(solar.flare.peak)}</>}
-            {' · '}{ENVIRONMENTS[env].emoji} {tr(ENVIRONMENTS[env].name)} {deep ? t('(sem magnetosfera)', '(no magnetosphere)') : ''}
+            {' · '}<Icon e={ENVIRONMENTS[env].emoji} className="mr-1" />{tr(ENVIRONMENTS[env].name)} {deep ? t('(sem magnetosfera)', '(no magnetosphere)') : ''}
           </p>
           <ol className="mt-2 list-decimal space-y-0.5 pl-5 text-body-sm text-fg-1">
             {SHELTER_STEPS[env]().map((s) => <li key={s}>{s}</li>)}
@@ -64,7 +65,7 @@ export default function SolarAlert() {
             {sheltered && ctx.avoided > 0 && <> · <span className="text-nominal">{t('evitado', 'avoided')} {ctx.avoided.toFixed(2)} mSv</span></>}
           </div>
           <div className="mt-2 flex gap-2">
-            {!sheltered && <button onClick={shelter} className="flex-1 rounded-lg bg-critical px-4 py-2 font-bold text-[#01030B] shadow-glow-critical hover:brightness-110">🛡️ {t('Estou no abrigo', 'I’m in the shelter')}</button>}
+            {!sheltered && <button onClick={shelter} className="flex-1 rounded-lg bg-critical px-4 py-2 font-bold text-[#01030B] shadow-glow-critical hover:brightness-110"><Icon e="🛡" className="mr-1" />{t('Estou no abrigo', 'I’m in the shelter')}</button>}
             <button onClick={allClear} disabled={!ctx.done && !sheltered} title={t('Libera quando o evento passar (ou após abrigar-se, para encerrar o treino)', 'Enabled when the event passes (or once sheltered, to end the drill)')}
               className="flex-1 rounded-lg border border-line-strong px-3 py-2 text-body-sm font-semibold text-fg-1 enabled:hover:bg-surface-3 disabled:opacity-40">
               ✓ {t('Liberação do solo', 'Ground all-clear')}

@@ -1,4 +1,5 @@
 import { Card, Disclaimer } from './ui'
+import { Icon } from './Icon'
 import { HAZARDS, INDICATORS, PROTOTYPE_HEURISTICS as H, SOURCES } from '../lib/knowledge'
 import type { HazardId } from '../lib/knowledge'
 import { EM_SOURCES } from '../lib/emergency'
@@ -38,7 +39,7 @@ export default function About() {
       <Card title={t('Os 5 hazards (NASA HRP)', 'The 5 hazards (NASA HRP)')}>
         <ul className="space-y-2 text-sm">
           {(Object.keys(HAZARDS) as HazardId[]).map((h) => (
-            <li key={h}><b>{HAZARDS[h].icon} {tr(HAZARDS[h].name)}:</b> <span className="text-slate-300">{tr(HAZARDS[h].summary)}</span></li>
+            <li key={h}><b><Icon e={HAZARDS[h].icon} className="mr-1 text-sky-300" />{tr(HAZARDS[h].name)}:</b> <span className="text-slate-300">{tr(HAZARDS[h].summary)}</span></li>
           ))}
         </ul>
       </Card>
@@ -47,15 +48,15 @@ export default function About() {
           {Object.values(INDICATORS).map((i) => (
             <div key={i.id} className="rounded-lg border border-slate-700 p-3 text-xs">
               <div className="font-semibold text-slate-200">{tr(i.name)}</div>
-              <p className="mt-1 text-slate-300">📏 {tr(i.howToMeasure)}</p>
-              <p className="mt-1 text-slate-400">❓ {tr(i.whyItMatters)}</p>
+              <p className="mt-1 text-slate-300"><Icon e="📏" className="mr-1" />{tr(i.howToMeasure)}</p>
+              <p className="mt-1 text-slate-400"><Icon e="❓" className="mr-1" />{tr(i.whyItMatters)}</p>
             </div>
           ))}
         </div>
       </Card>
       <Card title={t('Fontes', 'Sources')} className="lg:col-span-2">
         <ul className="grid gap-1 text-xs md:grid-cols-2">
-          {sources.map((s) => <li key={s.url}>📎 <a className="text-sky-300 underline decoration-dotted" href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>)}
+          {sources.map((s) => <li key={s.url}><Icon e="📎" className="mr-1" /><a className="text-sky-300 underline decoration-dotted" href={s.url} target="_blank" rel="noreferrer">{s.label}</a></li>)}
         </ul>
       </Card>
     </div>

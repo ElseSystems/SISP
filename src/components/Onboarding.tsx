@@ -4,6 +4,8 @@ import { HAZARDS } from '../lib/knowledge'
 import { HAZARD_ORDER } from '../lib/story'
 import { useStore } from '../lib/store'
 import { t } from '../lib/i18n'
+import { Icon } from './Icon'
+import { CrewAvatar } from './CrewAvatar'
 
 /** 30-second mission briefing shown on first launch (and from the ❔ button). */
 export default function Onboarding() {
@@ -18,7 +20,7 @@ export default function Onboarding() {
       title: t('A Terra está a 20 minutos-luz.', 'Earth is 20 light-minutes away.'),
       body: t('Em Marte não há ambulância nem resposta imediata do médico. Os 5 hazards do voo espacial atacam o corpo todos os dias — a tripulação precisa se avaliar sozinha.',
         'On the way to Mars there is no ambulance and no instant answer from the doctor. The 5 hazards of spaceflight hit the body every day — the crew must assess itself.'),
-      art: <div className="flex justify-center gap-3 text-4xl">{HAZARD_ORDER.map((h, k) => <motion.span key={h} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 * k }} title={HAZARDS[h].name.en}>{HAZARDS[h].icon}</motion.span>)}</div>,
+      art: <div className="flex justify-center gap-3 text-4xl">{HAZARD_ORDER.map((h, k) => <motion.span key={h} initial={{ y: 12, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 * k }} title={HAZARDS[h].name.en} className="text-sky-300"><Icon e={HAZARDS[h].icon} /></motion.span>)}</div>,
     },
     {
       kicker: t('Como funciona · 2/3', 'How it works · 2/3'),
@@ -32,7 +34,7 @@ export default function Onboarding() {
       title: t('Age antes. Avisa o solo do jeito certo.', 'Act early. Tell the ground the right way.'),
       body: t('O protocolo se adapta ao atraso de comunicação (ISS, Lua, Marte), traz manuais de emergência offline e usa dados reais da NASA (Inspiration4 OSDR, DONKI, taxas de dose do Curiosity RAD).',
         'The protocol adapts to the communication delay (ISS, Moon, Mars), ships offline emergency manuals and uses real NASA data (Inspiration4 OSDR, DONKI, taxas de dose do Curiosity RAD).'),
-      art: <div className="flex items-center justify-center gap-3 text-3xl"><span>🧑‍🚀</span><motion.span className="h-0.5 w-24 bg-gradient-to-r from-sky-400 to-transparent" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 2 }} /><span>📡</span><span className="text-xs text-sky-300">⏱ 20 min</span><span>🌍</span></div>,
+      art: <div className="flex items-center justify-center gap-3 text-3xl"><span className="flex -space-x-2"><CrewAvatar c={{ id: 't1', sex: 'male', name: { pt: 'Tripulante 1', en: 'Crew Member 1' } }} size={40} decorative /><CrewAvatar c={{ id: 't2', sex: 'female', name: { pt: 'Tripulante 2', en: 'Crew Member 2' } }} size={40} decorative /></span><motion.span className="h-0.5 w-24 bg-gradient-to-r from-sky-400 to-transparent" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 2 }} /><span className="text-sky-300"><Icon e="📡" /></span><span className="text-xs text-sky-300"><Icon e="⏱" className="mr-1" />20 min</span><span className="text-sky-300"><Icon e="🌍" /></span></div>,
     },
   ]
   const s = slides[i]
@@ -46,7 +48,7 @@ export default function Onboarding() {
           <motion.div key={i} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.25 }}>
             <div className="mb-5 h-16">{s.art}</div>
             <p className="text-meta font-semibold uppercase tracking-[0.25em] text-sky-300">{s.kicker}</p>
-            <h2 className="mt-1 text-2xl font-black tracking-tight">{s.title}</h2>
+            <h2 className="mt-1 text-[1.75rem] leading-tight font-black tracking-tight">{s.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">{s.body}</p>
           </motion.div>
         </AnimatePresence>
@@ -54,8 +56,8 @@ export default function Onboarding() {
           <div className="mr-auto flex gap-1.5">{slides.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={`${k + 1}`} className={`h-1.5 rounded-full transition-all ${k === i ? 'w-6 bg-sky-400' : 'w-1.5 bg-slate-600'}`} />)}</div>
           {last ? (
             <>
-              <button onClick={() => { setIntro(false); setTab('checkin') }} className="rounded-xl border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:border-slate-400">✍️ {t('Fazer check-in', 'Do a check-in')}</button>
-              <button onClick={() => setDemo(true)} className="rounded-xl bg-sky-400 px-4 py-2 text-sm font-bold text-slate-950 shadow-[0_0_20px_rgba(56,189,248,0.6)] hover:bg-sky-300">▶ {t('Ver demo (70 s)', 'Watch demo (70 s)')}</button>
+              <button onClick={() => { setIntro(false); setTab('checkin') }} className="rounded-xl border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:border-slate-400"><Icon e="✍" className="mr-1" />{t('Fazer check-in', 'Do a check-in')}</button>
+              <button onClick={() => setDemo(true)} className="rounded-xl bg-sky-400 px-4 py-2 text-sm font-bold text-slate-950 shadow-[0_0_20px_rgba(56,189,248,0.6)] hover:bg-sky-300"><Icon e="▶" className="mr-1" />{t('Ver demo (70 s)', 'Watch demo (70 s)')}</button>
             </>
           ) : (
             <button onClick={() => setI(i + 1)} className="rounded-xl bg-sky-400 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-sky-300">{t('Próximo', 'Next')} →</button>
