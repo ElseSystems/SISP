@@ -25,12 +25,13 @@
     "preview": "vite preview",
     "lint": "oxlint",
     "typecheck": "tsc -b",
-    "check": "npm run lint && npm run test:core && npm run build",
+    "check": "npm run lint && npm run test:core && npm run test:storage && npm run build",
     "data": "python3 scripts/fetch_nasa_data.py",
     "build:core": "bash scripts/build-core-wasm.sh",
     "test:core": "node scripts/core-parity.ts",
     "fixtures:core": "node scripts/core-parity.ts --write",
-    "core:native": "cmake -S core -B core/build -DSISP_WERROR=ON && cmake --build core/build && ctest --test-dir core/build --output-on-failure"
+    "core:native": "cmake -S core -B core/build -DSISP_WERROR=ON && cmake --build core/build && ctest --test-dir core/build --output-on-failure",
+    "test:storage": "node scripts/storage-test.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
@@ -38,6 +39,7 @@
     "@fontsource/space-grotesk": "^5.3.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
     "framer-motion": "^14.14.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

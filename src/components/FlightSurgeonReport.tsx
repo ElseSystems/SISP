@@ -54,7 +54,7 @@ export default function FlightSurgeonReport({ c, a, met, onSend }: { c: CrewMemb
         <CopyButton primary text={rep.text} label={t('Copiar texto', 'Copy text')} />
         <CopyButton text={rep.jsonStr} label={t('Copiar JSON', 'Copy JSON')} />
         <button onClick={() => download(`sisp-medrep-${c.id}-${rep.json.utc.replace(/[:]/g, '')}.json`, JSON.stringify(rep.json, null, 2), 'application/json')} className="rounded-lg border border-line-strong px-3 py-1.5 text-body-sm text-fg-1 hover:bg-surface-3">⬇ .json</button>
-        <button onClick={() => { markSent(); onSend?.() }} className="ml-auto rounded-lg bg-surface-3 px-3 py-1.5 text-body-sm font-semibold text-fg-1 hover:brightness-125">📡 {t('Transmitir (simulado)', 'Transmit (simulated)')}</button>
+        <button onClick={() => { markSent({ format: fmt, body: fmt === 'json' ? rep.jsonStr : rep.text, delaySec: e.delaySecOneWay }); onSend?.() }} className="ml-auto rounded-lg bg-surface-3 px-3 py-1.5 text-body-sm font-semibold text-fg-1 hover:brightness-125">📡 {t('Transmitir (simulado)', 'Transmit (simulated)')}</button>
       </div>
       {sentAt && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="mt-3 grid gap-2 rounded-xl border border-line bg-surface-1 p-3 text-body-sm sm:grid-cols-3">

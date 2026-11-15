@@ -8,4 +8,8 @@ export default defineConfig({
   base: process.env.BASE_PATH || './',
   plugins: [react(), tailwindcss()],
   build: { chunkSizeWarningLimit: 1200 },
+  // SQLite history worker (src/storage/db.worker.ts): ES-module worker; sqlite-wasm resolves its
+  // sqlite3.wasm with new URL(…, import.meta.url), so it must not be pre-bundled in dev.
+  worker: { format: 'es' },
+  optimizeDeps: { exclude: ['@sqlite.org/sqlite-wasm'] },
 })

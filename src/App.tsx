@@ -5,7 +5,7 @@ import type { Tab } from './lib/store'
 import { ENVIRONMENTS, SEVERITY_COLOR, SEVERITY_LABEL } from './lib/knowledge'
 import type { EnvironmentId } from './lib/knowledge'
 import { assessCrew } from './lib/assessment'
-import { generateCrew, isoDay } from './lib/crew'
+import { isoDay } from './lib/crew'
 import { setCurrentLang, t, tr } from './lib/i18n'
 import Dashboard from './components/Dashboard'
 import Checkin from './components/Checkin'
@@ -24,6 +24,7 @@ import { screen } from './lib/motion'
 import Onboarding from './components/Onboarding'
 import DemoDirector from './components/DemoDirector'
 import { Disclaimer } from './components/ui'
+import { StorageFooter } from './components/StorageInfo'
 import { StatusBadge } from './components/StatusBadge'
 import { STATUS } from './lib/status'
 import type { CrewMember } from './lib/types'
@@ -54,7 +55,7 @@ export default function App() {
   // Simulated series follows the calendar: if only simulated data from another day, regenerate.
   useEffect(() => {
     const stale = crew.every((c) => c.readings.every((r) => r.source === 'sim') && c.readings.at(-1)?.date !== today)
-    if (stale) useStore.setState({ crew: generateCrew() })
+    if (stale) useStore.getState().refreshSimulated()
   }, [crew, today])
 
   // Hash deep-links (#nasa, #emergency…, #demo starts the guided tour, #intro the briefing).
@@ -170,6 +171,7 @@ export default function App() {
         <p className="mt-2 text-center text-meta text-slate-500" title={t('Mesmo resultado nos dois motores (npm run test:core)', 'Same results on both engines (npm run test:core)')}>
           ⚙️ {t('Motor de avaliação', 'Assessment engine')}: <span className="mono text-slate-400">{coreBackend === 'wasm' ? 'libsisp (C11 → WebAssembly)' : t('referência TypeScript (fallback)', 'TypeScript reference (fallback)')}</span>
         </p>
+        <StorageFooter />
       </main>
       <AnimatePresence>{showIntro && !demo && <Onboarding key="intro" />}</AnimatePresence>
       {demo && <DemoDirector />}

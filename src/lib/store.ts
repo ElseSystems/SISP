@@ -7,6 +7,8 @@ import type { ActiveSolar, SolarLogEntry, SolarScenario } from './spaceWeather'
 import { generateCrew, isoDay, addDays } from './crew'
 import { l, setCurrentLang } from './i18n'
 import type { L, Lang } from './i18n'
+import { history, sqliteActive, sqliteOwnsHistory } from '../storage'
+import { checkinStatus, snapshotOf, solarDoses } from './history'
 
 export type Tab = 'dashboard' | 'today' | 'checkin' | 'tests' | 'trends' | 'ground' | 'emergency' | 'nasa' | 'about'
 
@@ -64,7 +66,12 @@ interface State {
   shelter: () => void
   allClear: () => void
   toggleTask: (date: string, id: string, done?: boolean) => void
-  markReportSent: () => void
+  /** `report` (optional) is the transmitted message, kept in the SQLite history */
+  markReportSent: (report?: { format: 'text' | 'json'; body: string; delaySec?: number }) => void
+  /** replaces crew + solar log with the SQLite history (boot) */
+  hydrate: (h: { crew: CrewMember[]; solarLog: SolarLogEntry[] }) => void
+  /** the simulated series follows the calendar: regenerate it (SQLite swaps only source='sim' rows) */
+  refreshSimulated: () => void
   setNotify: (on: boolean) => void
   reset: () => void
 }
@@ -119,11 +126,17 @@ export const useStore = create<State>()(
         if (streak >= 7) award('streak7')
         if (r.sleep >= 7) award('sleep7')
         if (r.phq2 !== undefined) award('phq')
+        const me = crew.find((c) => c.id === s.selectedId)
+        if (me) {
+          const idx = me.readings.findIndex((x) => x.date === r.date)
+          history.checkin({ crewId: me.id, ts: Date.now(), reading: r, status: checkinStatus(me.readings, idx) })
+        }
         set({ crew, xp: s.xp + xpGained, streak, lastCheckin: r.date, badges: [...has], tasks: withTask(s.tasks, r.date, 'checkin') })
         return { xpGained, newBadges }
       },
       addPvt: (r) => {
         const s = get()
+        history.pvt({ crewId: s.selectedId, result: r })
         set({
           crew: s.crew.map((c) => (c.id === s.selectedId ? { ...c, pvt: [...(c.pvt ?? []), r] } : c)),
           xp: s.xp + 15,
@@ -133,6 +146,7 @@ export const useStore = create<State>()(
       },
       addPulse: (p) => {
         const s = get()
+        history.ppg({ crewId: s.selectedId, pulse: p })
         set({
           crew: s.crew.map((c) => (c.id === s.selectedId ? { ...c, pulse: [...(c.pulse ?? []), p].slice(-20) } : c)),
           xp: s.xp + 10,
@@ -151,6 +165,7 @@ export const useStore = create<State>()(
         if (!s.solar) return
         const { dose } = eventDose(s.solar, s.env)
         const entry: SolarLogEntry = { id: s.solar.sep.id, at: Date.now(), env: s.env, doseMSv: dose, sheltered: !!s.solar.shelteredAt, replay: s.solar.replay, flare: s.solar.flare?.classType }
+        history.solar(entry, solarDoses(s.crew, entry))
         set({ solar: null, solarLog: [...s.solarLog, entry], hazard: null })
       },
       toggleTask: (date, id, done) => {
@@ -160,19 +175,42 @@ export const useStore = create<State>()(
         if (on) cur.add(id); else cur.delete(id)
         set({ tasks: { ...s.tasks, [date]: [...cur] } })
       },
-      markReportSent: () => {
+      markReportSent: (report) => {
         const s = get()
+        if (report) history.report({ crewId: s.selectedId, ts: Date.now(), ...report })
         set({ reportSentAt: Date.now(), xp: s.xp + 10, badges: s.badges.includes('report') ? s.badges : [...s.badges, 'report'], tasks: withTask(s.tasks, isoDay(new Date()), 'report') })
       },
       setNotify: (notify) => set({ notify }),
-      reset: () => set({ crew: generateCrew(), xp: 0, streak: 0, lastCheckin: undefined, badges: [], selectedId: 't1', solar: null, solarLog: [], tasks: {}, reportSentAt: undefined }),
+      hydrate: ({ crew, solarLog }) => {
+        if (!crew.length) return
+        const s = get()
+        set({ crew, solarLog, selectedId: crew.some((c) => c.id === s.selectedId) ? s.selectedId : crew[0].id })
+      },
+      refreshSimulated: () => {
+        const crew = generateCrew()
+        set({ crew })
+        if (sqliteActive()) {
+          history.replaceSimulated(snapshotOf(crew, [])).then((h) => get().hydrate(h)).catch((err: unknown) => console.error('[sisp] SQLite refresh failed:', err))
+        }
+      },
+      reset: () => {
+        const crew = generateCrew()
+        history.reset(snapshotOf(crew, []))
+        set({ crew, xp: 0, streak: 0, lastCheckin: undefined, badges: [], selectedId: 't1', solar: null, solarLog: [], tasks: {}, reportSentAt: undefined })
+      },
     }),
     {
       name: 'sisp-v3',
       version: 4,
       // v4 adds PVT/pulse history on the crew + solar/timeline state: regenerate the simulated crew
       migrate: (old) => ({ ...(old as object), crew: generateCrew(), solar: null, solarLog: [], tasks: {} }) as unknown as State,
-      partialize: ({ region: _r, hazard: _h, demo: _d, showIntro: _s, ...rest }) => rest,
+      // With SQLite active, crew history and the solar log live in the database (src/storage);
+      // localStorage keeps only preferences and gamification. Without OPFS it keeps everything.
+      partialize: ({ region: _r, hazard: _h, demo: _d, showIntro: _s, ...rest }) => {
+        if (!sqliteOwnsHistory()) return rest
+        const { crew: _c, solarLog: _l, ...prefs } = rest
+        return prefs
+      },
       onRehydrateStorage: () => (state) => { if (state) setCurrentLang(state.lang) },
     },
   ),

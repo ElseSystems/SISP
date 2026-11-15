@@ -5,6 +5,7 @@ import { EM_SOURCES } from '../lib/emergency'
 import { useStore } from '../lib/store'
 import { t, tr } from '../lib/i18n'
 import { useCoreBackend } from '../lib/useCore'
+import StorageInfo from './StorageInfo'
 
 export default function About() {
   const reset = useStore((s) => s.reset)
@@ -27,10 +28,11 @@ export default function About() {
             'toda a avaliação (faixas, N0–N3, febre relativa, PHQ-2, dose de radiação com abrigo, PVT e pulso PPG) roda na libsisp — biblioteca C11 sem dependências e sem alocação dinâmica, integrável em sistemas de bordo; aqui compilada para WebAssembly, com fallback TypeScript idêntico.',
             'the whole assessment (ranges, N0–N3, relative fever, PHQ-2, radiation dose with shelter, PVT and PPG pulse) runs in libsisp — a dependency-free C11 library with no dynamic allocation that can be embedded in onboard systems; compiled to WebAssembly here, with an identical TypeScript fallback.')}{' '}
             <span className="mono text-meta text-sky-300">[{backend === 'wasm' ? 'libsisp · WebAssembly' : t('referência TypeScript', 'TypeScript reference')}]</span></li>
-          <li><b>Offline-first:</b> {t('tudo roda no navegador e fica salvo no dispositivo (localStorage) — distância da Terra é um dos 5 hazards.', 'everything runs in the browser and is stored on the device (localStorage) — distance from Earth is one of the 5 hazards.')}</li>
+          <li><b>Offline-first:</b> {t('tudo roda no navegador e fica salvo no dispositivo (SQLite no OPFS, ou localStorage se não houver OPFS) — distância da Terra é um dos 5 hazards.', 'everything runs in the browser and is stored on the device (SQLite on OPFS, or localStorage without OPFS) — distance from Earth is one of the 5 hazards.')}</li>
           <li><b>{t('Dados reais NASA:', 'Real NASA data:')}</b> {t('glicemia Inspiration4 (OSDR OSD-575), clima espacial (DONKI) e taxas de dose do Curiosity RAD.', 'Inspiration4 glucose (OSDR OSD-575), space weather (DONKI) and Curiosity RAD dose rates.')}</li>
         </ul>
-        <button onClick={() => { if (confirm(t('Recriar tripulação simulada e apagar check-ins/XP locais?', 'Regenerate the simulated crew and erase local check-ins/XP?'))) reset() }}
+        <StorageInfo />
+        <button onClick={() => { if (confirm(t('Recriar tripulação simulada e apagar check-ins/XP locais (inclusive o histórico SQLite)?', 'Regenerate the simulated crew and erase local check-ins/XP (including the SQLite history)?'))) reset() }}
           className="mt-4 rounded-lg border border-slate-600 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800">↺ {t('Recriar dados simulados', 'Regenerate simulated data')}</button>
       </Card>
       <Card title={t('Os 5 hazards (NASA HRP)', 'The 5 hazards (NASA HRP)')}>
