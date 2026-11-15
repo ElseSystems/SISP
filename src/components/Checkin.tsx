@@ -60,7 +60,7 @@ export default function Checkin() {
           {num('glucose', t('🩸 Glicemia jejum (mg/dL)', '🩸 Fasting glucose (mg/dL)'), t('ADA <100; hipo <70', 'ADA <100; hypo <70'), '1', 20, 600, tr(INDICATORS.glucose.howToMeasure))}
           {num('temp', t('🌡️ Temperatura (°C)', '🌡️ Temperature (°C)'), t('Comparada à SUA base de voo', 'Compared with YOUR in-flight baseline'), '0.1', 33, 43, tr(INDICATORS.temp.howToMeasure))}
           {num('sleep', t('😴 Sono última noite (h)', '😴 Sleep last night (h)'), t('Meta AASM ≥7 h', 'AASM target ≥7 h'), '0.1', 0, 16, tr(INDICATORS.sleep.howToMeasure))}
-          {num('exerciseMin', t('🏋️ Exercício ontem (min)', '🏋️ Exercise yesterday (min)'), t('Protege ossos/músculos', 'Protects bones/muscles'), '5', 0, 400)}
+          {num('exerciseMin', t('🏋️ Exercício ontem (min)', '🏋️ Exercise yesterday (min)'), t('Protege ossos/músculos', 'Protects bones/muscles'), '1', 0, 400)}
         </div>
       </Card>
 
