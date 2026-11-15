@@ -1,0 +1,51 @@
+{
+  "name": "sisp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SISP – Health & Prevention System: offline-first health self-assessment and emergency guidance for astronauts (NASA Space Apps Challenge).",
+  "license": "MIT",
+  "author": "Samuel Nogueira",
+  "keywords": [
+    "nasa",
+    "space-apps",
+    "astronaut",
+    "health-monitoring",
+    "react",
+    "three.js"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "oxlint",
+    "typecheck": "tsc -b",
+    "check": "npm run lint && npm run build",
+    "data": "python3 scripts/fetch_nasa_data.py"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "framer-motion": "^14.14.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "recharts": "^3.10.1",
+    "three": "^0.187.0",
+    "zustand": "^5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.187.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "oxlint": "^1.90.0",
+    "tailwindcss": "^4.3.5",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.6"
+  }
+}
