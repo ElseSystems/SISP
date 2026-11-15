@@ -15,10 +15,10 @@ export function Badge({ s, className = '' }: { s: Severity; className?: string }
 
 export function Card({ title, children, right, className = '' }: { title?: ReactNode; children: ReactNode; right?: ReactNode; className?: string }) {
   return (
-    <section className={`rounded-2xl border border-slate-700/60 bg-slate-900/70 p-4 shadow-lg backdrop-blur ${className}`}>
+    <section className={`glass rounded-2xl p-4 ${className}`}>
       {(title || right) && (
         <div className="mb-3 flex items-center justify-between gap-2">
-          {title && <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-300">{title}</h2>}
+          {title && <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/90">{title}</h2>}
           {right}
         </div>
       )}
