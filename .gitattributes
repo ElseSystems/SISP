@@ -1,0 +1,3 @@
+# libsisp
+*.wasm binary
+core/tests/fixtures/*.txt linguist-generated=true

@@ -11,6 +11,8 @@
     "astronaut",
     "health-monitoring",
     "react",
+    "c11",
+    "webassembly",
     "three.js"
   ],
   "type": "module",
@@ -23,8 +25,12 @@
     "preview": "vite preview",
     "lint": "oxlint",
     "typecheck": "tsc -b",
-    "check": "npm run lint && npm run build",
-    "data": "python3 scripts/fetch_nasa_data.py"
+    "check": "npm run lint && npm run test:core && npm run build",
+    "data": "python3 scripts/fetch_nasa_data.py",
+    "build:core": "bash scripts/build-core-wasm.sh",
+    "test:core": "node scripts/core-parity.ts",
+    "fixtures:core": "node scripts/core-parity.ts --write",
+    "core:native": "cmake -S core -B core/build -DSISP_WERROR=ON && cmake --build core/build && ctest --test-dir core/build --output-on-failure"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",
