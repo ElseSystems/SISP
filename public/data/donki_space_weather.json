@@ -1,0 +1,1088 @@
+{
+ "SEP": {
+  "window": [
+   "2026-09-17",
+   "2026-11-15"
+  ],
+  "historical": false,
+  "total": 0,
+  "events": []
+ },
+ "FLR": {
+  "window": [
+   "2026-09-17",
+   "2026-11-15"
+  ],
+  "historical": false,
+  "total": 26,
+  "events": [
+   {
+    "id": "2026-09-19T17:57:00-FLR-001",
+    "begin": "2026-09-19T17:57Z",
+    "peak": "2026-09-19T18:17Z",
+    "classType": "C3.3",
+    "source": "N14E90",
+    "activeRegion": 14535,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48733/-1"
+   },
+   {
+    "id": "2026-09-30T02:30:00-FLR-001",
+    "begin": "2026-09-30T02:30Z",
+    "peak": "2026-09-30T02:46Z",
+    "classType": "C8.6",
+    "source": "N11W48",
+    "activeRegion": 14535,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48900/-1"
+   },
+   {
+    "id": "2026-10-04T06:13:00-FLR-001",
+    "begin": "2026-10-04T06:13Z",
+    "peak": "2026-10-04T06:19Z",
+    "classType": "B3.2",
+    "source": "S20W62",
+    "activeRegion": 14546,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48956/-1"
+   },
+   {
+    "id": "2026-10-04T06:21:00-FLR-001",
+    "begin": "2026-10-04T06:21Z",
+    "peak": "2026-10-04T06:30Z",
+    "classType": "B9.3",
+    "source": "S19W62",
+    "activeRegion": 14546,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48957/-1"
+   },
+   {
+    "id": "2026-10-05T18:36:00-FLR-001",
+    "begin": "2026-10-05T18:36Z",
+    "peak": "2026-10-05T18:48Z",
+    "classType": "M1.0",
+    "source": "N20E10",
+    "activeRegion": 14545,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48985/-1"
+   },
+   {
+    "id": "2026-10-06T05:38:00-FLR-001",
+    "begin": "2026-10-06T05:38Z",
+    "peak": "2026-10-06T06:10Z",
+    "classType": "M1.4",
+    "source": "N10E12",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48986/-1"
+   },
+   {
+    "id": "2026-10-06T07:47:00-FLR-001",
+    "begin": "2026-10-06T07:47Z",
+    "peak": "2026-10-06T08:05Z",
+    "classType": "M1.8",
+    "source": "N08E07",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/48987/-1"
+   },
+   {
+    "id": "2026-10-07T12:49:00-FLR-001",
+    "begin": "2026-10-07T12:49Z",
+    "peak": "2026-10-07T13:17Z",
+    "classType": "C7.9",
+    "source": "N10W04",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49010/-1"
+   },
+   {
+    "id": "2026-10-08T15:29:00-FLR-001",
+    "begin": "2026-10-08T15:29Z",
+    "peak": "2026-10-08T15:48Z",
+    "classType": "M6.7",
+    "source": "N12W20",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49015/-1"
+   },
+   {
+    "id": "2026-10-09T13:55:00-FLR-001",
+    "begin": "2026-10-09T13:55Z",
+    "peak": "2026-10-09T14:09Z",
+    "classType": "M1.3",
+    "source": "N15W90",
+    "activeRegion": 14547,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49045/-1"
+   },
+   {
+    "id": "2026-10-10T13:56:00-FLR-001",
+    "begin": "2026-10-10T13:56Z",
+    "peak": "2026-10-10T14:12Z",
+    "classType": "M1.2",
+    "source": "N08W51",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49052/-1"
+   },
+   {
+    "id": "2026-10-10T14:58:00-FLR-001",
+    "begin": "2026-10-10T14:58Z",
+    "peak": "2026-10-10T15:10Z",
+    "classType": "M6.4",
+    "source": "N08W54",
+    "activeRegion": 14549,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49057/-1"
+   },
+   {
+    "id": "2026-10-16T15:38:00-FLR-001",
+    "begin": "2026-10-16T15:38Z",
+    "peak": "2026-10-16T15:42Z",
+    "classType": "M1.3",
+    "source": "S16W15",
+    "activeRegion": 14551,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49134/-1"
+   },
+   {
+    "id": "2026-10-19T08:54:00-FLR-001",
+    "begin": "2026-10-19T08:54Z",
+    "peak": "2026-10-19T09:03Z",
+    "classType": "M1.6",
+    "source": "S15W48",
+    "activeRegion": 14551,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49165/-1"
+   },
+   {
+    "id": "2026-10-23T03:43:00-FLR-001",
+    "begin": "2026-10-23T03:43Z",
+    "peak": "2026-10-23T03:55Z",
+    "classType": "C1.3",
+    "source": "N10W89",
+    "activeRegion": 14557,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49214/-1"
+   },
+   {
+    "id": "2026-10-26T08:21:00-FLR-001",
+    "begin": "2026-10-26T08:21Z",
+    "peak": "2026-10-26T08:38Z",
+    "classType": "C1.9",
+    "source": "S10W70",
+    "activeRegion": 14561,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49256/-1"
+   },
+   {
+    "id": "2026-10-26T18:17:00-FLR-001",
+    "begin": "2026-10-26T18:17Z",
+    "peak": "2026-10-26T18:40Z",
+    "classType": "C2.8",
+    "source": "S12W77",
+    "activeRegion": 14561,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49278/-1"
+   },
+   {
+    "id": "2026-11-05T18:21:00-FLR-001",
+    "begin": "2026-11-05T18:21Z",
+    "peak": "2026-11-05T18:33Z",
+    "classType": "M3.5",
+    "source": "S08E35",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49391/-1"
+   },
+   {
+    "id": "2026-11-07T12:26:00-FLR-001",
+    "begin": "2026-11-07T12:26Z",
+    "peak": "2026-11-07T12:43Z",
+    "classType": "M1.2",
+    "source": "S08E13",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49433/-1"
+   },
+   {
+    "id": "2026-11-07T17:11:00-FLR-001",
+    "begin": "2026-11-07T17:11Z",
+    "peak": "2026-11-07T17:17Z",
+    "classType": "M1.4",
+    "source": "S08E10",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49442/-1"
+   },
+   {
+    "id": "2026-11-07T18:21:00-FLR-001",
+    "begin": "2026-11-07T18:21Z",
+    "peak": "2026-11-07T18:42Z",
+    "classType": "M1.9",
+    "source": "S07E06",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49448/-1"
+   },
+   {
+    "id": "2026-11-08T07:33:00-FLR-001",
+    "begin": "2026-11-08T07:33Z",
+    "peak": "2026-11-08T07:46Z",
+    "classType": "M1.7",
+    "source": "S07W03",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49453/-1"
+   },
+   {
+    "id": "2026-11-08T15:29:00-FLR-001",
+    "begin": "2026-11-08T15:29Z",
+    "peak": "2026-11-08T15:37Z",
+    "classType": "M1.1",
+    "source": "S07W01",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49456/-1"
+   },
+   {
+    "id": "2026-11-08T18:15:00-FLR-001",
+    "begin": "2026-11-08T18:15Z",
+    "peak": "2026-11-08T18:27Z",
+    "classType": "M1.1",
+    "source": "S07W04",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49461/-1"
+   },
+   {
+    "id": "2026-11-11T21:06:00-FLR-001",
+    "begin": "2026-11-11T21:06Z",
+    "peak": "2026-11-11T21:21Z",
+    "classType": "M1.7",
+    "source": "S07W46",
+    "activeRegion": 14566,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49504/-1"
+   },
+   {
+    "id": "2026-11-14T21:16:00-FLR-001",
+    "begin": "2026-11-14T21:16Z",
+    "peak": "2026-11-14T21:27Z",
+    "classType": "C2.8",
+    "source": "N17E70",
+    "activeRegion": 14579,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49559/-1"
+   }
+  ]
+ },
+ "CME": {
+  "window": [
+   "2026-09-17",
+   "2026-11-15"
+  ],
+  "historical": false,
+  "total": 178,
+  "events": [
+   {
+    "id": "2026-10-31T05:00:00-CME-001",
+    "start": "2026-10-31T05:00Z",
+    "source": "S11W140",
+    "speedKmS": 345.0,
+    "type": "S",
+    "note": "CME first seen to the West by SOHO LASCO C2 beginning at 2026-10-31T05:00Z, as well as by SOHO LASCO C3 and GOES CCOR-1 in later frames. This CME is not clearly seen in STEREO A COR2, as it may be obscured by the pylon or too faint to view clearly. The source of this event is an ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49343/-1"
+   },
+   {
+    "id": "2026-11-01T00:00:00-CME-001",
+    "start": "2026-11-01T00:00Z",
+    "source": "S15E65",
+    "speedKmS": 894.0,
+    "type": "C",
+    "note": "Diffuse CME first seen to the SE by SOHO LASCO C2 beginning at 2026-11-01T00:00Z, as well as by SOHO LASCO C3, STEREO A COR2 and GOES CCOR-1 in later frames. The source of this event is a small filament eruption seen centered at approx. S15E65 beginning at approx. 2026-10-31T23:2",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49353/-1"
+   },
+   {
+    "id": "2026-11-01T19:00:00-CME-001",
+    "start": "2026-11-01T19:00Z",
+    "source": "N15W15",
+    "speedKmS": 357.0,
+    "type": "S",
+    "note": "CME first seen to the West in SOHO LASCO C2 beginning at 2026-11-01T19:00Z. The CME is also visible to the west in SOHO LASCO C3 and GOES CCOR-1. The CME may be faintly visible to the east in STEREO A COR2 imagery. The source of this event is a filament eruption seen centered at ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49358/-1"
+   },
+   {
+    "id": "2026-11-01T19:48:00-CME-001",
+    "start": "2026-11-01T19:48Z",
+    "source": "",
+    "speedKmS": 309.0,
+    "type": "S",
+    "note": "Slow developing CME first seen to the NE by SOHO LASCO C2, also observed in SOHO LASCO C3 and GOES CCOR-1, not observed in STEREO A COR due to a data gap in real-time starting at 2026-11-01T19:38Z. The source of this event is an eruption from beyond the NE limb seen in GOES SUVI ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49361/-1"
+   },
+   {
+    "id": "2026-11-03T09:36:00-CME-001",
+    "start": "2026-11-03T09:36Z",
+    "source": "",
+    "speedKmS": 347.0,
+    "type": "S",
+    "note": "Wide, slow CME observed to the E in SOHO LASCO C2/C3 and GOES CCOR-1, not in STEREO A COR2 due to a data gap beginning at 2026-11-03T18:36Z. This CME is very slow to erupt, speeding up well after its first observation in SOHO LASCO C2. The source is observed in GOES SUVI 171/195/",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49370/-1"
+   },
+   {
+    "id": "2026-11-04T02:48:00-CME-001",
+    "start": "2026-11-04T02:48Z",
+    "source": "",
+    "speedKmS": 497.0,
+    "type": "S",
+    "note": "Faint CME first seen to the NW by SOHO LASCO C2 beginning at 2026-11-04T02:48Z. This CME fades before exiting the field-of-view in SOHO LASCO C2, and is therefore not visible in GOES CCOR-1 or SOHO LASCO C3. This CME and source are also obscured by a data gap in STEREO A COR2 fro",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49382/-1"
+   },
+   {
+    "id": "2026-11-05T04:24:00-CME-001",
+    "start": "2026-11-05T04:24Z",
+    "source": "",
+    "speedKmS": 330.0,
+    "type": "S",
+    "note": "CME faintly visible to the NE in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2 imagery. The potential source is unclear, but may be a small eruption seen near the northeast limb in GOES SUVI 304 as an ejecta of material starting around 2026-11-05T03:24Z.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49386/-1"
+   },
+   {
+    "id": "2026-11-05T11:48:00-CME-001",
+    "start": "2026-11-05T11:48Z",
+    "source": "",
+    "speedKmS": 404.0,
+    "type": "S",
+    "note": "CME faintly visible to the east in SOHO LASCO C2/C3. The CME is not clearly visible in GOES CCOR-1 or STEREO A COR2 imagery. There is no clear source for this CME seen in available EUV imagery.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49389/-1"
+   },
+   {
+    "id": "2026-11-05T20:00:00-CME-001",
+    "start": "2026-11-05T20:00Z",
+    "source": "S08E35",
+    "speedKmS": 915.0,
+    "type": "C",
+    "note": "CME first seen in white light imagery to the E in GOES CCOR-1 starting at 2026-11-05T20:00Z. In real time, this CME is covered by data gaps in SOHO LASCO and STEREO A COR2. The source of this CME is like related to an M3.5 class flare from AR 14566 (S08E35) which peaked at 2026-1",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49394/-1"
+   },
+   {
+    "id": "2026-11-05T21:24:00-CME-001",
+    "start": "2026-11-05T21:24Z",
+    "source": "S15E75",
+    "speedKmS": 406.0,
+    "type": "S",
+    "note": "CME seen to the east in SOHO LASCO C2/C3 and GOES CCOR-1 imagery. The CME is also faintly visible to the east in STEREO A COR2 after a data gap from 2026-11-05T14:35Z to 2026-11-06T01:38Z. The potential source location may be a minor eruption seen near the SE limb in GOES SUVI 30",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49398/-1"
+   },
+   {
+    "id": "2026-11-06T01:26:00-CME-001",
+    "start": "2026-11-06T01:26Z",
+    "source": "S15E70",
+    "speedKmS": 264.0,
+    "type": "S",
+    "note": "Narrow CME visible to the NE in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2 imagery. The source may possibly be a minor eruption starting around 2026-11-06T00:22Z in as best seen in SDO AIA 193, with moving field lines seen around S15E70.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49403/-1"
+   },
+   {
+    "id": "2026-11-06T10:53:00-CME-001",
+    "start": "2026-11-06T10:53Z",
+    "source": "N20W150",
+    "speedKmS": 368.0,
+    "type": "S",
+    "note": "Narrow CME visible to the west in STEREO A COR2. The CME is not clearly visible in GOES CCOR-1 imagery. SOHO LASCO C2/C3 imagery is not available due to a downlink data gap. The potential source is an eruption seen near the west limb in STEREO A EUV 195/304 located around N20W160",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49405/-1"
+   },
+   {
+    "id": "2026-11-06T13:15:00-CME-001",
+    "start": "2026-11-06T13:15Z",
+    "source": "",
+    "speedKmS": 530.0,
+    "type": "C",
+    "note": "CME visible to the NE in GOES CCOR-1 imagery. The CME may also be faintly visible to the NNE in STEREO A COR2 imagery. The start of the CME may be faintly visible to the NE in SOHO LASCO C2  at the time of the analysis, but was not visible in SOHO LASCO C3 in real time due to a d",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49416/-1"
+   },
+   {
+    "id": "2026-11-06T16:15:00-CME-001",
+    "start": "2026-11-06T16:15Z",
+    "source": "N35W140",
+    "speedKmS": 476.0,
+    "type": "S",
+    "note": "Wide CME visible to the NW in GOES CCOR-1 and SOHO LASCO C2/C3 imagery. The CME is not visible in STEREO A COR2 imagery in real-time due to a data gap starting at 2026-11-06T13:38Z. The likely source is a filament eruption that starts to lift off in STEREO A EUV 304 imagery, arou",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49426/-1"
+   },
+   {
+    "id": "2026-11-06T20:24:00-CME-001",
+    "start": "2026-11-06T20:24Z",
+    "source": "",
+    "speedKmS": 319.0,
+    "type": "S",
+    "note": "A very minor CME see to the NW in LASCO C2/C3 and GOES CCOR-1. This CME is not seen STEREO A COR2 as there is a data gap. It is possible that this CME is an outflow following the 2026-11-06T16:15Z CME. No clear source for this CME has been found.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49431/-1"
+   },
+   {
+    "id": "2026-11-07T06:24:00-CME-001",
+    "start": "2026-11-07T06:24Z",
+    "source": "",
+    "speedKmS": 245.0,
+    "type": "S",
+    "note": "Faint CME observed to the NE in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2. The source is likely field line movement on/near the high latitude NE limb, observed starting around 2026-11-07T03:55Z in SDO AIA 171.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49445/-1"
+   },
+   {
+    "id": "2026-11-07T09:36:00-CME-001",
+    "start": "2026-11-07T09:36Z",
+    "source": "",
+    "speedKmS": 507.0,
+    "type": "C",
+    "note": "First in a pair of far-sided CMEs from a filament eruption, followed by slower CME 2026-11-07T10:24Z.  This leading edge is more faint and observed to the NW in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2. The source for both is a far-sided filament eruption, observed well i",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49434/-1"
+   },
+   {
+    "id": "2026-11-07T10:24:00-CME-001",
+    "start": "2026-11-07T10:24Z",
+    "source": "",
+    "speedKmS": 330.0,
+    "type": "S",
+    "note": "Second in a pair of far-sided CMEs from a filament eruption, following faster CME 2026-11-07T09:36Z.  This leading edge is brighter and observed to the NNE in SOHO LASCO C2/C3 and GOES CCOR-1 and to the NW in STEREO A COR2. The source for both is a far-sided filament eruption, ob",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49437/-1"
+   },
+   {
+    "id": "2026-11-07T18:30:00-CME-001",
+    "start": "2026-11-07T18:30Z",
+    "source": "",
+    "speedKmS": 423.0,
+    "type": "S",
+    "note": "CME visible to the NW in GOES CCOR-1 imagery. The CME may also be faintly visible in SOHO LASCO C2 imagery prior to a data gap starting at 2026-11-07T21:12Z. The CME is not clearly visible in STEREO A COR2 imagery. The potential source may be a filament eruption seen beyond the N",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49451/-1"
+   },
+   {
+    "id": "2026-11-08T00:48:00-CME-001",
+    "start": "2026-11-08T00:48Z",
+    "source": "",
+    "speedKmS": 591.0,
+    "type": "C",
+    "note": "Faint CME observed to the NW in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2. No source is observed in EUV imagery and is likely far-sided.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49454/-1"
+   },
+   {
+    "id": "2026-11-08T08:48:00-CME-001",
+    "start": "2026-11-08T08:48Z",
+    "source": "",
+    "speedKmS": 367.0,
+    "type": "S",
+    "note": "Faint CME observed to the NW in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2. The source may be further far-sided or observed as field line movement on the W limb in GOES SUVI 195/284 starting around 2026-11-08T05:00Z.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49459/-1"
+   },
+   {
+    "id": "2026-11-09T09:12:00-CME-001",
+    "start": "2026-11-09T09:12Z",
+    "source": "",
+    "speedKmS": 338.0,
+    "type": "S",
+    "note": "Faint CME observed to the NE in SOHO LASCO C2, and faintly in SOHO LASCO C3 and GOES CCOR-1, not observed in STEREO A COR2. The source may be faint field line movement on or slightly beyond the NE limb in GOES SUVI 171 around 2026-11-09T07:06Z. This front is followed by a faint, ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49466/-1"
+   },
+   {
+    "id": "2026-11-09T10:53:00-CME-001",
+    "start": "2026-11-09T10:53Z",
+    "source": "",
+    "speedKmS": 299.0,
+    "type": "S",
+    "note": "Faint CME observed to the W only in STEREO A COR2 before a data gap begins at 2026-11-09T11:38Z, or in SOHO LASCO C2/C3 and GOES CCOR-1 at all. No source is observed for this CME in available imagery.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49470/-1"
+   },
+   {
+    "id": "2026-11-09T18:15:00-CME-001",
+    "start": "2026-11-09T18:15Z",
+    "source": "S14W65",
+    "speedKmS": 726.0,
+    "type": "C",
+    "note": "Faint, narrow CME observed to the W only in GOES CCOR-1, due to a real-time data gap in SOHO LASCO C2/C3 and STEREO A COR2. The source is likely an eruption from AR 14571 starting around 2026-11-09T15:57Z, observed as dimming and brightening in SDO AIA 193 and field line movement",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49468/-1"
+   },
+   {
+    "id": "2026-11-10T02:00:00-CME-001",
+    "start": "2026-11-10T02:00Z",
+    "source": "",
+    "speedKmS": 803.0,
+    "type": "C",
+    "note": "Thin, faint CME observed to the NE in SOHO LASCO C3 and GOES CCOR-1, very faint in LASCO C2 and not observed in available STEREO A COR2 imagery. No distinct source is observed for this front.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49484/-1"
+   },
+   {
+    "id": "2026-11-10T02:12:00-CME-001",
+    "start": "2026-11-10T02:12Z",
+    "source": "",
+    "speedKmS": 346.0,
+    "type": "S",
+    "note": "Wide, diffuse CME observed to the SE in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2. No distinct source observation or timing is observed beyond broad, slow, near-background movement of field lines in the SE quadrant of GOES SUVI 284 starting as early as 2026-11-10T17:00Z we",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49475/-1"
+   },
+   {
+    "id": "2026-11-10T05:30:00-CME-001",
+    "start": "2026-11-10T05:30Z",
+    "source": "S17W72",
+    "speedKmS": 974.0,
+    "type": "C",
+    "note": "Thin, faint CME observed to the W in GOES CCOR-1 (partially obscured by earthshine) and STEREO A COR2, also in SOHO LASCO C2/C3 after a data gap spanning approx. 2026-11-10T03:00Z - 2026-11-10T07:24Z. The source is AR 14571, with field line movement, brightening, and some small f",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49479/-1"
+   },
+   {
+    "id": "2026-11-11T23:24:00-CME-001",
+    "start": "2026-11-11T23:24Z",
+    "source": "N14W86",
+    "speedKmS": 367.0,
+    "type": "S",
+    "note": "CME first seen to the NW by SOHO LASCO C2 beginning at 2026-11-11T23:24Z, as well as by SOHO LASCO C3 and GOES CCOR-1 in later frames. This CME is not visible in STEREO A COR2 due to a data gap which began at 2026-11-11T12:23Z. The source of this event is field line opening seen ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49505/-1"
+   },
+   {
+    "id": "2026-11-12T01:53:00-CME-001",
+    "start": "2026-11-12T01:53Z",
+    "source": "",
+    "speedKmS": 327.0,
+    "type": "S",
+    "note": "CME first seen to the W part way into the FOV of STEREO A COR2 following a real-time data gap that ended at 2026-11-12T01:53Z. The source may be related to some \"flickering\" seen beyond the WSW limb in STA EUVI after a real-time data gap ending at 2026-11-12T01:55Z.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49508/-1"
+   },
+   {
+    "id": "2026-11-12T21:12:00-CME-001",
+    "start": "2026-11-12T21:12Z",
+    "source": "",
+    "speedKmS": 247.0,
+    "type": "S",
+    "note": "Faint CME seen to NNW in early SOHO LASCO C2 coronagraph imagery and very faintly in early timestamps of GOES CCOR-1 but completely covered by an evening data gap in STEREO A COR2 coronagraph. Its source is most likely a faint prominence seen erupting on/behind the NNW limb start",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49523/-1"
+   },
+   {
+    "id": "2026-11-13T01:26:00-CME-001",
+    "start": "2026-11-13T01:26Z",
+    "source": "",
+    "speedKmS": 308.0,
+    "type": "S",
+    "note": "CME visible to the SW in SOHO LASCO C2/C3 and GOES CCOR-1 imagery and to the SSE in STEREO A COR2 imagery. The potential source is not clear, but some faint dimming and moving field lines are seen to the far south in SDO AIA 171/193 imagery starting around 2026-11-12T17:30Z.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49525/-1"
+   },
+   {
+    "id": "2026-11-13T03:24:00-CME-001",
+    "start": "2026-11-13T03:24Z",
+    "source": "S09E50",
+    "speedKmS": 525.0,
+    "type": "C",
+    "note": "This CME is faintly visible to the NE in STEREO A COR2 and SOHO LASCO C2/C3. The CME is not seen in GOES CCOR-1 due to Earthshine starting 2026-11-13T03:45Z. The potential source may be an eruption with a small region of dimming and post-eruption arcades starting at 2026-11-13T00",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49529/-1"
+   },
+   {
+    "id": "2026-11-13T09:24:00-CME-001",
+    "start": "2026-11-13T09:24Z",
+    "source": "",
+    "speedKmS": 302.0,
+    "type": "S",
+    "note": "CME faintly visible to the southwest in SOHO LASCO C2/C3, GOES CCOR-1, and STEREO A COR2 imagery. The source is not clear, but may be some faint field line movement seen to the west in STEREO A COR2 EUV 195 imagery around 2026-11-13T08:00Z. Dimming is also seen to the south of th",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49537/-1"
+   },
+   {
+    "id": "2026-11-13T16:24:00-CME-001",
+    "start": "2026-11-13T16:24Z",
+    "source": "",
+    "speedKmS": null,
+    "type": null,
+    "note": "A faint messy front seen to the SSW in SOHO LASCO C2 and later in C3 and GOES CCOR-1 as a messy fuzzy half-loop. There is also a much fainter loop seen in STEREO A COR2 coronagraph to the SW, but this loop in STEREO A COR2 seems to be starting much earlier (first seen ~13Z), so i",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49546/-1"
+   },
+   {
+    "id": "2026-11-13T21:24:00-CME-001",
+    "start": "2026-11-13T21:24Z",
+    "source": "",
+    "speedKmS": 474.0,
+    "type": "S",
+    "note": "A very small CME seen to the SSW in SOHO LASCO C2 and to the SE in STEREO A COR2 coronagraphs, and in early timestamps of C3. The front is not clear in GOES CCOR-1. No source has been found for this CME.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49547/-1"
+   },
+   {
+    "id": "2026-11-14T01:48:00-CME-001",
+    "start": "2026-11-14T01:48Z",
+    "source": "",
+    "speedKmS": 399.0,
+    "type": "S",
+    "note": "This CME is visible to the south/southwest in SOHO LASCO C2/C3 and to the southeast in STEREO A COR2 imagery. There are no clear sources observed on the Earth-facing disk around the time of this event.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49549/-1"
+   },
+   {
+    "id": "2026-11-14T04:00:00-CME-001",
+    "start": "2026-11-14T04:00Z",
+    "source": "S45W25",
+    "speedKmS": 345.0,
+    "type": "S",
+    "note": "This CME is visible to the south/southwest in SOHO LASCO C2/C3 and to the southeast in STEREO A COR2 imagery. The source may be related to a small filament eruption centered near S45W25 as seen in SDO AIA 304 imagery which begins to lift off around 2026-11-14T03:00Z.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49551/-1"
+   },
+   {
+    "id": "2026-11-14T14:00:00-CME-001",
+    "start": "2026-11-14T14:00Z",
+    "source": "",
+    "speedKmS": 397.0,
+    "type": "S",
+    "note": "This CME is visible to the east in SOHO LASCO C2/C3 and GOES CCOR-1 imagery. This event is not seen in STEREO A COR2 imagery due to a data gap starting at 2026-11-14T13:23Z. The source is likely far-sided as there are no corresponding source signatures on the Earth-facing disk ar",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49554/-1"
+   },
+   {
+    "id": "2026-11-14T16:12:00-CME-001",
+    "start": "2026-11-14T16:12Z",
+    "source": "",
+    "speedKmS": 453.0,
+    "type": "S",
+    "note": "A loop CME seen to the E in SOHO LASCO C2/C3 and GOES CCOR-1 and not seen in STEREO A COR2 coronagraph. It overlaps with the 2026-11-14T14:00Z CME and seems faster than it, so it possibly catches up with it. No clear source has been found for this CME, so it is likely far-sided.",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49565/-1"
+   },
+   {
+    "id": "2026-11-14T22:15:00-CME-001",
+    "start": "2026-11-14T22:15Z",
+    "source": "N17E70",
+    "speedKmS": 624.0,
+    "type": "C",
+    "note": "Bright CME with a narrower brighter bulk and a wider fainter shock seen to the NE in CCOR-1. Its source is an elongated, fast developing filament eruption from close to the NE limb ~(N17E70) starting at 2026-11-14T21:17Z and seemingly deflecting northward. There is an associated ",
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/CME/49557/-1"
+   }
+  ]
+ },
+ "historicalExample": {
+  "window": [
+   "2024-05-01",
+   "2024-06-28"
+  ],
+  "label": "May 2024 solar storm (real historical example)",
+  "SEP": [
+   {
+    "id": "2024-05-09T13:59:00-SEP-001",
+    "time": "2024-05-09T13:59Z",
+    "instruments": [
+     "MODEL: REleASE:ACE/EPAM 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30609/-1"
+   },
+   {
+    "id": "2024-05-09T14:25:00-SEP-001",
+    "time": "2024-05-09T14:25Z",
+    "instruments": [
+     "MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30610/-1"
+   },
+   {
+    "id": "2024-05-10T12:59:00-SEP-001",
+    "time": "2024-05-10T12:59Z",
+    "instruments": [
+     "SOHO: COSTEP 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30675/-1"
+   },
+   {
+    "id": "2024-05-10T13:02:00-SEP-001",
+    "time": "2024-05-10T13:02Z",
+    "instruments": [
+     "SOHO: COSTEP 28.2-50.1 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30676/-1"
+   },
+   {
+    "id": "2024-05-10T13:35:00-SEP-001",
+    "time": "2024-05-10T13:35Z",
+    "instruments": [
+     "GOES-P: SEISS >10 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30677/-1"
+   },
+   {
+    "id": "2024-05-10T14:50:00-SEP-001",
+    "time": "2024-05-10T14:50Z",
+    "instruments": [
+     "STEREO A: IMPACT 13-100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30684/-1"
+   },
+   {
+    "id": "2024-05-11T02:10:00-SEP-001",
+    "time": "2024-05-11T02:10Z",
+    "instruments": [
+     "GOES-P: SEISS >100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30714/-1"
+   },
+   {
+    "id": "2024-05-11T04:07:00-SEP-001",
+    "time": "2024-05-11T04:07Z",
+    "instruments": [
+     "STEREO A: IMPACT 13-100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30717/-1"
+   },
+   {
+    "id": "2024-05-13T12:44:00-SEP-001",
+    "time": "2024-05-13T12:44Z",
+    "instruments": [
+     "STEREO A: IMPACT 13-100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30811/-1"
+   },
+   {
+    "id": "2024-05-13T13:10:00-SEP-001",
+    "time": "2024-05-13T13:10Z",
+    "instruments": [
+     "MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30807/-1"
+   },
+   {
+    "id": "2024-05-13T14:00:00-SEP-001",
+    "time": "2024-05-13T14:00Z",
+    "instruments": [
+     "GOES-P: SEISS >10 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30817/-1"
+   },
+   {
+    "id": "2024-05-13T16:19:00-SEP-001",
+    "time": "2024-05-13T16:19Z",
+    "instruments": [
+     "MODEL: REleASE:ACE/EPAM 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30820/-1"
+   },
+   {
+    "id": "2024-05-13T18:07:00-SEP-002",
+    "time": "2024-05-13T18:07Z",
+    "instruments": [
+     "SOHO: COSTEP 28.2-50.1 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30825/-1"
+   },
+   {
+    "id": "2024-05-13T18:07:00-SEP-001",
+    "time": "2024-05-13T18:07Z",
+    "instruments": [
+     "SOHO: COSTEP 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30824/-1"
+   },
+   {
+    "id": "2024-06-08T02:25:00-SEP-001",
+    "time": "2024-06-08T02:25Z",
+    "instruments": [
+     "GOES-P: SEISS >100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31338/-1"
+   },
+   {
+    "id": "2024-06-08T02:55:00-SEP-001",
+    "time": "2024-06-08T02:55Z",
+    "instruments": [
+     "GOES-P: SEISS >10 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31343/-1"
+   },
+   {
+    "id": "2024-06-08T03:09:00-SEP-001",
+    "time": "2024-06-08T03:09Z",
+    "instruments": [
+     "MODEL: REleASE:ACE/EPAM 28.2-50.1 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31359/-1"
+   },
+   {
+    "id": "2024-06-08T03:34:00-SEP-001",
+    "time": "2024-06-08T03:34Z",
+    "instruments": [
+     "SOHO: COSTEP 28.2-50.1 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31348/-1"
+   },
+   {
+    "id": "2024-06-08T03:36:00-SEP-001",
+    "time": "2024-06-08T03:36Z",
+    "instruments": [
+     "SOHO: COSTEP 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31349/-1"
+   },
+   {
+    "id": "2024-06-08T04:14:00-SEP-001",
+    "time": "2024-06-08T04:14Z",
+    "instruments": [
+     "STEREO A: IMPACT 13-100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31351/-1"
+   },
+   {
+    "id": "2024-06-08T04:14:00-SEP-002",
+    "time": "2024-06-08T04:14Z",
+    "instruments": [
+     "MODEL: REleASE:ACE/EPAM 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31360/-1"
+   },
+   {
+    "id": "2024-06-08T04:20:00-SEP-001",
+    "time": "2024-06-08T04:20Z",
+    "instruments": [
+     "MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31357/-1"
+   },
+   {
+    "id": "2024-06-08T04:48:00-SEP-001",
+    "time": "2024-06-08T04:48Z",
+    "instruments": [
+     "MODEL: REleASE:SOHO/EPHIN 28.2-50.1 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31358/-1"
+   },
+   {
+    "id": "2024-06-12T00:21:00-SEP-001",
+    "time": "2024-06-12T00:21Z",
+    "instruments": [
+     "STEREO A: IMPACT 13-100 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31435/-1"
+   },
+   {
+    "id": "2024-06-12T00:30:00-SEP-001",
+    "time": "2024-06-12T00:30Z",
+    "instruments": [
+     "MODEL: REleASE:ACE/EPAM 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31437/-1"
+   },
+   {
+    "id": "2024-06-12T02:58:00-SEP-001",
+    "time": "2024-06-12T02:58Z",
+    "instruments": [
+     "SOHO: COSTEP 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31441/-1"
+   },
+   {
+    "id": "2024-06-12T04:03:00-SEP-001",
+    "time": "2024-06-12T04:03Z",
+    "instruments": [
+     "MODEL: REleASE:SOHO/EPHIN 15.8-39.8 MeV"
+    ],
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/31452/-1"
+   }
+  ],
+  "FLR_X": [
+   {
+    "id": "2024-05-03T02:11:00-FLR-001",
+    "begin": "2024-05-03T02:11Z",
+    "peak": "2024-05-03T02:22Z",
+    "classType": "X1.6",
+    "source": "N26E05",
+    "activeRegion": 13663,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30403/-1"
+   },
+   {
+    "id": "2024-05-05T05:47:00-FLR-001",
+    "begin": "2024-05-05T05:47Z",
+    "peak": "2024-05-05T06:01Z",
+    "classType": "X1.3",
+    "source": "N26W20",
+    "activeRegion": 13663,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30457/-1"
+   },
+   {
+    "id": "2024-05-05T11:41:00-FLR-001",
+    "begin": "2024-05-05T11:41Z",
+    "peak": "2024-05-05T11:54Z",
+    "classType": "X1.2",
+    "source": "N26W23",
+    "activeRegion": 13663,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30461/-1"
+   },
+   {
+    "id": "2024-05-06T05:38:00-FLR-001",
+    "begin": "2024-05-06T05:38Z",
+    "peak": "2024-05-06T06:35Z",
+    "classType": "X4.5",
+    "source": "N26W35",
+    "activeRegion": 13663,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30484/-1"
+   },
+   {
+    "id": "2024-05-08T01:33:00-FLR-001",
+    "begin": "2024-05-08T01:33Z",
+    "peak": "2024-05-08T01:41Z",
+    "classType": "X1.0",
+    "source": "N25W60",
+    "activeRegion": 13663,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30548/-1"
+   },
+   {
+    "id": "2024-05-08T04:37:00-FLR-001",
+    "begin": "2024-05-08T04:37Z",
+    "peak": "2024-05-08T05:09Z",
+    "classType": "X1.0",
+    "source": "S22W10",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30551/-1"
+   },
+   {
+    "id": "2024-05-08T21:08:00-FLR-001",
+    "begin": "2024-05-08T21:08Z",
+    "peak": "2024-05-08T21:40Z",
+    "classType": "X1.0",
+    "source": "S20W17",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30601/-1"
+   },
+   {
+    "id": "2024-05-09T08:45:00-FLR-001",
+    "begin": "2024-05-09T08:45Z",
+    "peak": "2024-05-09T09:13Z",
+    "classType": "X2.2",
+    "source": "S20W25",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30605/-1"
+   },
+   {
+    "id": "2024-05-09T17:23:00-FLR-001",
+    "begin": "2024-05-09T17:23Z",
+    "peak": "2024-05-09T17:44Z",
+    "classType": "X1.1",
+    "source": "S18W29",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30634/-1"
+   },
+   {
+    "id": "2024-05-10T06:27:00-FLR-001",
+    "begin": "2024-05-10T06:27Z",
+    "peak": "2024-05-10T06:54Z",
+    "classType": "X3.9",
+    "source": "S18W37",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30666/-1"
+   },
+   {
+    "id": "2024-05-11T01:10:00-FLR-001",
+    "begin": "2024-05-11T01:10Z",
+    "peak": "2024-05-11T01:23Z",
+    "classType": "X5.8",
+    "source": "S17W47",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30711/-1"
+   },
+   {
+    "id": "2024-05-11T11:15:00-FLR-001",
+    "begin": "2024-05-11T11:15Z",
+    "peak": "2024-05-11T11:44Z",
+    "classType": "X1.5",
+    "source": "S19W60",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30722/-1"
+   },
+   {
+    "id": "2024-05-12T16:11:00-FLR-001",
+    "begin": "2024-05-12T16:11Z",
+    "peak": "2024-05-12T16:26Z",
+    "classType": "X1.0",
+    "source": "S21W75",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30760/-1"
+   },
+   {
+    "id": "2024-05-14T02:03:00-FLR-001",
+    "begin": "2024-05-14T02:03Z",
+    "peak": "2024-05-14T02:09Z",
+    "classType": "X1.7",
+    "source": "S19W89",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30832/-1"
+   },
+   {
+    "id": "2024-05-14T12:40:00-FLR-001",
+    "begin": "2024-05-14T12:40Z",
+    "peak": "2024-05-14T12:55Z",
+    "classType": "X1.2",
+    "source": "S19W90",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30837/-1"
+   },
+   {
+    "id": "2024-05-14T16:46:00-FLR-001",
+    "begin": "2024-05-14T16:46Z",
+    "peak": "2024-05-14T16:51Z",
+    "classType": "X8.7",
+    "source": "S19W90",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30849/-1"
+   },
+   {
+    "id": "2024-05-15T08:18:00-FLR-001",
+    "begin": "2024-05-15T08:18Z",
+    "peak": "2024-05-15T08:37Z",
+    "classType": "X3.4",
+    "source": "S20W90",
+    "activeRegion": 13664,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30879/-1"
+   },
+   {
+    "id": "2024-05-15T14:20:00-FLR-001",
+    "begin": "2024-05-15T14:20Z",
+    "peak": "2024-05-15T14:38Z",
+    "classType": "X2.9",
+    "source": "S12E90",
+    "activeRegion": 13685,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/30900/-1"
+   },
+   {
+    "id": "2024-05-27T06:49:00-FLR-001",
+    "begin": "2024-05-27T06:49Z",
+    "peak": "2024-05-27T07:08Z",
+    "classType": "X2.8",
+    "source": "S21E95",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31158/-1"
+   },
+   {
+    "id": "2024-05-29T14:11:00-FLR-001",
+    "begin": "2024-05-29T14:11Z",
+    "peak": "2024-05-29T14:37Z",
+    "classType": "X1.4",
+    "source": "S23E70",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31185/-1"
+   },
+   {
+    "id": "2024-05-31T21:52:00-FLR-001",
+    "begin": "2024-05-31T21:52Z",
+    "peak": "2024-05-31T22:03Z",
+    "classType": "X1.1",
+    "source": "S17E34",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31248/-1"
+   },
+   {
+    "id": "2024-06-01T08:26:00-FLR-001",
+    "begin": "2024-06-01T08:26Z",
+    "peak": "2024-06-01T08:48Z",
+    "classType": "X1.4",
+    "source": "S20E27",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31251/-1"
+   },
+   {
+    "id": "2024-06-01T18:24:00-FLR-001",
+    "begin": "2024-06-01T18:24Z",
+    "peak": "2024-06-01T18:36Z",
+    "classType": "X1.0",
+    "source": "S20E22",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31254/-1"
+   },
+   {
+    "id": "2024-06-10T11:03:00-FLR-001",
+    "begin": "2024-06-10T11:03Z",
+    "peak": "2024-06-10T11:08Z",
+    "classType": "X1.5",
+    "source": "S18W92",
+    "activeRegion": 13697,
+    "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/31397/-1"
+   }
+  ]
+ },
+ "summary": {
+  "sepCount": 0,
+  "flrCount": 26,
+  "xClassCount": 0,
+  "mClassCount": 17,
+  "cmeCount": 178,
+  "strongestFlare": {
+   "id": "2026-10-08T15:29:00-FLR-001",
+   "begin": "2026-10-08T15:29Z",
+   "peak": "2026-10-08T15:48Z",
+   "classType": "M6.7",
+   "source": "N12W20",
+   "activeRegion": 14549,
+   "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/FLR/49015/-1"
+  }
+ },
+ "source": "NASA CCMC DONKI - Space Weather Database Of Notifications, Knowledge, Information",
+ "url": "https://ccmc.gsfc.nasa.gov/tools/DONKI/",
+ "api": "https://ccmc.gsfc.nasa.gov/DONKI-API/get",
+ "fetchedAt": "2026-11-15T04:47:32+00:00"
+}

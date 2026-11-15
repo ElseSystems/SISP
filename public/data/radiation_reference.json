@@ -1,0 +1,32 @@
+{
+ "careerLimitMSv": 600,
+ "careerLimitSource": "NASA-STD-3001 Vol. 1 – 600 mSv career effective dose limit",
+ "careerLimitUrl": "https://www.nasa.gov/reference/4-0-human-performance/",
+ "rawDataNote": "Raw MSL/Curiosity RAD data: PDS PPI Node (https://pds-ppi.igpp.ucla.edu/). Not converted in this MVP; published peer-reviewed dose rates are used instead.",
+ "environments": {
+  "iss": {
+   "mSvPerDay": 0.35,
+   "range": [
+    0.2,
+    0.5
+   ],
+   "source": "Space agency-specific standards for crew dose and risk assessment of ionising radiation exposures for the ISS (PMC10919966): ~0.2 to ~0.5 mSv/day (midpoint used)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10919966/"
+  },
+  "marsTransit": {
+   "mSvPerDay": 1.84,
+   "source": "Zeitlin et al. 2013, Science 340:1080 – MSL RAD during Earth–Mars cruise",
+   "url": "https://www.science.org/doi/10.1126/science.1235989"
+  },
+  "marsBase": {
+   "mSvPerDay": 0.64,
+   "source": "Hassler et al. 2014, Science 343:1244797 – Curiosity RAD on the Martian surface (Gale crater)",
+   "url": "https://www.science.org/doi/10.1126/science.1244797"
+  },
+  "moonBase": {
+   "mSvPerDay": 1.369,
+   "source": "Zhang et al. 2020, Science Advances 6:eaaz1334 – Chang'e-4 LND, lunar surface",
+   "url": "https://www.science.org/doi/10.1126/sciadv.aaz1334"
+  }
+ }
+}
