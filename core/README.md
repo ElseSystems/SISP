@@ -9,6 +9,10 @@ cmake --build build && ctest --test-dir build --output-on-failure
 ./build/sisp-cli assess < examples/checkins.csv
 ```
 
+Optional **`sisp_store`** ([store/](store/)): SQLite history (check-ins, PVT, pulse, doses, solar events,
+reports) with versioned migrations in `store/schema.sql`, shared with the web app. It uses the vendored
+SQLite amalgamation (public domain); libsisp itself does not depend on it (`-DSISP_BUILD_STORE=OFF`).
+
 API and integration guide: [../docs/core-api.md](../docs/core-api.md) · [Português](../docs/core-api.pt.md)
 
 > Prototype heuristics — not a medical device and not a NASA protocol.

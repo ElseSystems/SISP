@@ -1,0 +1,16 @@
+# Embeds schema.sql and export.sql into a generated C header as byte arrays (no string-literal
+# length limits on MSVC). Run at configure time; CMAKE_CONFIGURE_DEPENDS re-runs it on edits.
+function(sisp_store_embed_sql out_header)
+  set(body "/* Generated from core/store/schema.sql and export.sql by embed_sql.cmake. Do not edit. */\n#pragma once\n")
+  foreach(pair "schema;sisp_store_schema_sql" "export;sisp_store_export_sql")
+    list(GET pair 0 file)
+    list(GET pair 1 name)
+    set(src ${CMAKE_CURRENT_SOURCE_DIR}/${file}.sql)
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${src})
+    file(READ ${src} hex HEX)
+    string(REGEX REPLACE "([0-9a-f][0-9a-f])" "0x\\1," hex "${hex}")
+    string(REGEX REPLACE "(0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,0x..,)" "\\1\n  " hex "${hex}")
+    string(APPEND body "static const unsigned char ${name}_bytes[] = {\n  ${hex}0x00\n};\n#define ${name} ((const char *)${name}_bytes)\n")
+  endforeach()
+  file(CONFIGURE OUTPUT ${out_header} CONTENT "${body}" @ONLY)
+endfunction()

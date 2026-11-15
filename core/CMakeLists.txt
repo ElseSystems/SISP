@@ -1,10 +1,12 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 project(libsisp VERSION 1.0.0 DESCRIPTION "SISP assessment core (portable C11)" LANGUAGES C)
+include(GNUInstallDirs)
 
 option(SISP_BUILD_SHARED "Build the shared library" ON)
 option(SISP_BUILD_TESTS "Build unit and parity tests" ON)
 option(SISP_BUILD_EXAMPLES "Build the sisp-cli example" ON)
 option(SISP_WERROR "Treat warnings as errors" OFF)
+option(SISP_BUILD_STORE "Build sisp_store, the optional SQLite history store (vendored SQLite)" ON)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -71,7 +73,10 @@ if(SISP_BUILD_TESTS)
   endif()
 endif()
 
-include(GNUInstallDirs)
+if(SISP_BUILD_STORE)
+  add_subdirectory(store)
+endif()
+
 install(TARGETS sisp_static EXPORT sispTargets ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 if(SISP_BUILD_SHARED)
   install(TARGETS sisp_shared EXPORT sispTargets LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

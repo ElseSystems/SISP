@@ -5,3 +5,5 @@ core/tests/fixtures/*.txt linguist-generated=true
 # Language stats
 core/**/*.h linguist-language=C
 core/**/*.c linguist-language=C
+# third-party SQLite amalgamation (public domain): not counted as project code
+core/store/vendor/** linguist-vendored
