@@ -1,0 +1,64 @@
+name: C core (libsisp)
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+concurrency: { group: core-${{ github.ref }}, cancel-in-progress: true }
+
+jobs:
+  native:
+    name: ${{ matrix.cc }}${{ matrix.sanitize && ' + ASan/UBSan' || '' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { cc: gcc, build: Release }
+          - { cc: clang, build: Release }
+          - { cc: gcc, build: Debug, sanitize: true }
+          - { cc: clang, build: Debug, sanitize: true }
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: >
+          cmake -S core -B core/build -DCMAKE_C_COMPILER=${{ matrix.cc }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build }} -DSISP_WERROR=ON
+          ${{ matrix.sanitize && '-DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer"' || '' }}
+      - name: Build (static + shared + CLI)
+        run: cmake --build core/build --parallel
+      - name: Test (unit + parity with the TypeScript reference)
+        run: ctest --test-dir core/build --output-on-failure
+      - name: Header compiles as C++
+        run: printf '#include "sisp.h"\n#include "sisp_flat.h"\nint main() { return 0; }\n' | ${{ matrix.cc == 'gcc' && 'g++' || 'clang++' }} -std=c++17 -Wall -Wextra -Werror -Icore/include -x c++ -fsyntax-only -
+      - name: CLI smoke test
+        run: |
+          core/build/sisp-cli version
+          core/build/sisp-cli assess < core/examples/checkins.csv || test $? -eq 3
+          core/build/sisp-cli radiation mars-transit 180 120
+
+  wasm:
+    name: WebAssembly + web parity
+    runs-on: ubuntu-latest
+    env: { EMSDK_VERSION: 7.0.0 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm } # runs the .ts parity harness natively
+      - name: Install Emscripten ${{ env.EMSDK_VERSION }}
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install "$EMSDK_VERSION"
+          "$RUNNER_TEMP/emsdk/emsdk" activate "$EMSDK_VERSION"
+      - run: npm ci
+      - name: Parity — committed sisp.wasm vs TS reference
+        run: npm run test:core
+      - name: Rebuild sisp.wasm from source
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          npm run build:core
+          git diff --quiet -- public/core/sisp.wasm || echo "::warning file=public/core/sisp.wasm::Rebuilt sisp.wasm differs from the committed binary — run npm run build:core and commit it."
+      - name: Parity — rebuilt sisp.wasm vs TS reference
+        run: npm run test:core
+        env: { CI: 'true' }
