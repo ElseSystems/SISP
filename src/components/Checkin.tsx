@@ -44,7 +44,7 @@ export default function Checkin() {
     <label className="block" title={title}>
       <span className="text-xs text-slate-400">{label}</span>
       <input className={field} type="number" inputMode="decimal" step={step} min={min} max={max} required value={v[k] as string} onChange={set(k)} />
-      <span className="text-[11px] text-slate-500">{help}</span>
+      <span className="text-meta text-fg-3">{help}</span>
     </label>
   )
   const PHQ = [t('Nenhuma vez', 'Not at all'), t('Vários dias', 'Several days'), t('Mais da metade dos dias', 'More than half the days'), t('Quase todos os dias', 'Nearly every day')]

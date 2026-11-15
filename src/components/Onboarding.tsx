@@ -45,7 +45,7 @@ export default function Onboarding() {
         <AnimatePresence mode="wait">
           <motion.div key={i} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.25 }}>
             <div className="mb-5 h-16">{s.art}</div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-sky-300">{s.kicker}</p>
+            <p className="text-meta font-semibold uppercase tracking-[0.25em] text-sky-300">{s.kicker}</p>
             <h2 className="mt-1 text-2xl font-black tracking-tight">{s.title}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">{s.body}</p>
           </motion.div>

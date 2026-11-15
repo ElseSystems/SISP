@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, MotionConfig } from 'framer-motion'
 import { useStore, level, BADGES } from './lib/store'
 import type { Tab } from './lib/store'
 import { ENVIRONMENTS, SEVERITY_COLOR, SEVERITY_LABEL } from './lib/knowledge'
@@ -14,6 +14,12 @@ import Ground from './components/Ground'
 import Emergency from './components/Emergency'
 import NasaData from './components/NasaData'
 import About from './components/About'
+import MissionTimeline from './components/MissionTimeline'
+import SelfTests from './components/SelfTests'
+import SolarAlert from './components/SolarAlert'
+import { ReminderToaster } from './components/Reminders'
+import { useSolarContext } from './lib/useSolar'
+import { screen } from './lib/motion'
 import Onboarding from './components/Onboarding'
 import DemoDirector from './components/DemoDirector'
 import { Disclaimer } from './components/ui'
@@ -22,10 +28,12 @@ import { STATUS } from './lib/status'
 import type { CrewMember } from './lib/types'
 import type { Severity } from './lib/knowledge'
 
-const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'emergency', 'nasa', 'about']
+const TAB_IDS: Tab[] = ['dashboard', 'today', 'checkin', 'tests', 'trends', 'ground', 'emergency', 'nasa', 'about']
 const tabLabel = (id: Tab) => ({
   dashboard: t('🧍 Painel', '🧍 Dashboard'),
+  today: t('🗓️ Dia de missão', '🗓️ Mission day'),
   checkin: '✍️ Check-in',
+  tests: t('⚡ Autotestes', '⚡ Self-tests'),
   trends: t('📈 Tendências', '📈 Trends'),
   ground: t('📡 Agir / Solo', '📡 Act / Ground'),
   emergency: t('🚨 Emergência', '🚨 Emergency'),
@@ -56,25 +64,38 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => { history.replaceState(null, '', `#${tab}`) }, [tab])
+  useEffect(() => {
+    const onHash = () => {
+      const h = window.location.hash.slice(1)
+      if (TAB_IDS.includes(h as Tab)) setTab(h as Tab)
+      else if (h === 'demo') setDemo(true)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [setTab, setDemo])
 
   const c = crew.find((x) => x.id === selectedId) ?? crew[0]
-  const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env)])), [crew, env])
+  const solarCtx = useSolarContext()
+  const solarKey = `${solarCtx.active}-${solarCtx.sheltered}-${solarCtx.liveDoseMSv.toFixed(2)}-${solarCtx.loggedDoseMSv.toFixed(2)}`
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env, solarCtx)])), [crew, env, solarKey])
   const a = assessments[c.id]
   const pending = lastCheckin !== today
   const fleetWorst = Math.max(...crew.map((m) => assessments[m.id]?.overall ?? 0)) as 0 | 1 | 2 | 3
   const met = useMissionClock(c.missionStart)
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className={`space-bg min-h-screen text-slate-100 ${demo ? 'pb-28' : ''} ${tab === 'emergency' ? 'paused' : ''}`}>
       <header className="sticky top-0 z-20 border-b border-sky-500/10 bg-slate-950/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
           <div className="mr-auto">
             <h1 className="text-lg font-black tracking-tight"><span className="text-glow">🛡️ SISP</span> <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
-            <p className="text-[11px] text-slate-400">{t('Autoavaliação e prevenção de saúde para tripulações espaciais · NASA Space Apps', 'Health self-assessment and prevention for space crews · NASA Space Apps')}</p>
+            <p className="text-meta text-slate-400">{t('Autoavaliação e prevenção de saúde para tripulações espaciais · NASA Space Apps', 'Health self-assessment and prevention for space crews · NASA Space Apps')}</p>
           </div>
           <div className="hidden items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-950/60 px-3 py-1 md:flex" title={t('Tempo decorrido de missão (MET) do tripulante selecionado', 'Mission Elapsed Time (MET) of the selected crew member')}>
             <span className="h-2 w-2 animate-pulse rounded-full" style={{ background: SEVERITY_COLOR[fleetWorst] }} />
-            <span className="text-[10px] uppercase tracking-widest text-slate-400">MET</span>
+            <span className="text-meta uppercase tracking-widest text-slate-400">MET</span>
             <span className="mono text-xs text-sky-200">{met}</span>
           </div>
           <button onClick={() => setDemo(!demo)}
@@ -117,7 +138,7 @@ export default function App() {
           {TAB_IDS.map((id) => (
             <button key={id} onClick={() => setTab(id)}
               className={`relative shrink-0 px-3 py-2 text-sm ${tab === id ? (id === 'emergency' ? 'text-red-300' : 'text-sky-300') : id === 'emergency' ? 'text-red-400/80 hover:text-red-300' : 'text-slate-400 hover:text-slate-200'}`}>
-              {tabLabel(id)}{id === 'checkin' && pending && <span className="ml-1 rounded-full bg-amber-400 px-1.5 text-[10px] font-bold text-slate-950">1</span>}
+              {tabLabel(id)}{id === 'checkin' && pending && <span className="ml-1 rounded-full bg-amber-400 px-1.5 text-meta font-bold text-slate-950">1</span>}
               {tab === id && <motion.span layoutId="tab" className={`absolute inset-x-1 -bottom-px h-0.5 ${id === 'emergency' ? 'bg-red-400' : 'bg-sky-400'}`} />}
             </button>
           ))}
@@ -125,16 +146,19 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4">
+        {tab !== 'emergency' && <SolarAlert />}
         {a && tab !== 'emergency' && (
           <StatusHero c={c} index={crew.indexOf(c)} s={a.overall} days={a.radiation.days} env={env}
             pending={pending && tab !== 'checkin'} onCheckin={() => setTab('checkin')} onAct={tab === 'ground' ? undefined : () => setTab('ground')} />
         )}
         <AnimatePresence mode="wait">
-          <motion.div key={tab + c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
-            {tab === 'dashboard' && a && <Dashboard a={a} />}
+          <motion.div key={tab + c.id} variants={screen} initial="initial" animate="enter" exit="exit">
+            {tab === 'dashboard' && a && <Dashboard a={a} c={c} />}
+            {tab === 'today' && <MissionTimeline />}
             {tab === 'checkin' && <Checkin key={c.id} />}
+            {tab === 'tests' && <SelfTests key={c.id} />}
             {tab === 'trends' && <Trends c={c} />}
-            {tab === 'ground' && a && <Ground c={c} a={a} />}
+            {tab === 'ground' && a && <Ground c={c} a={a} met={met} />}
             {tab === 'emergency' && <Emergency />}
             {tab === 'nasa' && <NasaData />}
             {tab === 'about' && <About />}
@@ -144,7 +168,9 @@ export default function App() {
       </main>
       <AnimatePresence>{showIntro && !demo && <Onboarding key="intro" />}</AnimatePresence>
       {demo && <DemoDirector />}
+      <ReminderToaster />
     </div>
+    </MotionConfig>
   )
 }
 

@@ -18,8 +18,8 @@ export default function HazardStrip({ regions }: { regions: Record<BodyRegionId,
   return (
     <section className="glass rounded-2xl p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/90">{t('Os 5 hazards do voo espacial · NASA HRP', 'The 5 hazards of spaceflight · NASA HRP')}</h2>
-        {hazard && <button onClick={() => setHazard(null)} className="text-[11px] text-slate-400 hover:text-slate-200">✕ {t('limpar', 'clear')}</button>}
+        <h2 className="font-display text-body-sm font-semibold tracking-wide text-sky-200">{t('Os 5 hazards do voo espacial · NASA HRP', 'The 5 hazards of spaceflight · NASA HRP')}</h2>
+        {hazard && <button onClick={() => setHazard(null)} className="text-meta text-slate-400 hover:text-slate-200">✕ {t('limpar', 'clear')}</button>}
       </div>
       <div className="grid grid-cols-5 gap-1.5">
         {HAZARD_ORDER.map((h) => {
@@ -30,7 +30,7 @@ export default function HazardStrip({ regions }: { regions: Record<BodyRegionId,
               aria-pressed={on}
               className={`group relative flex flex-col items-center gap-0.5 rounded-xl border px-1 py-2 text-center transition ${on ? 'border-sky-400 bg-sky-500/15 shadow-[0_0_18px_rgba(56,189,248,0.35)]' : 'border-slate-700/70 bg-slate-950/40 hover:border-slate-500'}`}>
               <span className="text-xl transition group-hover:scale-110">{HAZARDS[h].icon}</span>
-              <span className="text-[10px] leading-tight text-slate-300">{tr(HAZARDS[h].name)}</span>
+              <span className="text-meta leading-tight text-slate-300">{tr(HAZARDS[h].name)}</span>
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full" style={{ background: SEVERITY_COLOR[sev], boxShadow: `0 0 8px ${SEVERITY_COLOR[sev]}` }} />
             </button>
           )
@@ -45,9 +45,9 @@ export default function HazardStrip({ regions }: { regions: Record<BodyRegionId,
               <div className="rounded-xl bg-emerald-500/10 p-2.5 ring-1 ring-emerald-400/20"><div className="mb-1 font-semibold text-emerald-200">🛡️ {t('Contramedida', 'Countermeasure')}</div><p className="text-slate-300">{tr(story.countermeasure)}</p></div>
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] text-slate-400">{t('Órgãos afetados:', 'Affected organs:')}</span>
+              <span className="text-meta text-slate-400">{t('Órgãos afetados:', 'Affected organs:')}</span>
               {story.regions.map((r) => (
-                <button key={r} onClick={() => setRegion(r)} className="flex items-center gap-1 rounded-full border border-slate-600 px-2 py-0.5 text-[11px] text-slate-200 hover:border-sky-400">
+                <button key={r} onClick={() => setRegion(r)} className="flex items-center gap-1 rounded-full border border-slate-600 px-2 py-0.5 text-meta text-slate-200 hover:border-sky-400">
                   <span className="h-2 w-2 rounded-full" style={{ background: SEVERITY_COLOR[regions[r]] }} />{tr(BODY_REGIONS[r].short)}
                 </button>
               ))}
