@@ -1,0 +1,130 @@
+import { useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useStore, level, BADGES } from './lib/store'
+import type { Tab } from './lib/store'
+import { ENVIRONMENTS, SEVERITY_COLOR, SEVERITY_LABEL } from './lib/knowledge'
+import type { EnvironmentId } from './lib/knowledge'
+import { assessCrew } from './lib/assessment'
+import { generateCrew, isoDay } from './lib/crew'
+import { setCurrentLang, t, tr } from './lib/i18n'
+import Dashboard from './components/Dashboard'
+import Checkin from './components/Checkin'
+import Trends from './components/Trends'
+import Ground from './components/Ground'
+import NasaData from './components/NasaData'
+import About from './components/About'
+import { Badge, Disclaimer } from './components/ui'
+
+const TAB_IDS: Tab[] = ['dashboard', 'checkin', 'trends', 'ground', 'nasa', 'about']
+const tabLabel = (id: Tab) => ({
+  dashboard: t('🧍 Painel', '🧍 Dashboard'),
+  checkin: '✍️ Check-in',
+  trends: t('📈 Tendências', '📈 Trends'),
+  ground: t('📡 Agir / Solo', '📡 Act / Ground'),
+  emergency: '',
+  nasa: t('🛰️ Dados NASA', '🛰️ NASA data'),
+  about: t('ℹ️ Sobre', 'ℹ️ About'),
+})[id]
+
+const INITIAL_HASH = window.location.hash.slice(1)
+
+export default function App() {
+  const { lang, env, crew, selectedId, tab, xp, streak, badges, lastCheckin, setLang, setEnv, select, setTab } = useStore()
+  setCurrentLang(lang)
+  const today = isoDay(new Date())
+
+  useEffect(() => { document.documentElement.lang = lang === 'en' ? 'en' : 'pt-BR' }, [lang])
+
+  // Simulated series follows the calendar: if only simulated data from another day, regenerate.
+  useEffect(() => {
+    const stale = crew.every((c) => c.readings.every((r) => r.source === 'sim') && c.readings.at(-1)?.date !== today)
+    if (stale) useStore.setState({ crew: generateCrew() })
+  }, [crew, today])
+
+  // Hash deep-links (#nasa, #emergency…) for demos.
+  useEffect(() => {
+    if (TAB_IDS.includes(INITIAL_HASH as Tab)) setTab(INITIAL_HASH as Tab)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useEffect(() => { history.replaceState(null, '', `#${tab}`) }, [tab])
+
+  const c = crew.find((x) => x.id === selectedId) ?? crew[0]
+  const assessments = useMemo(() => Object.fromEntries(crew.map((m) => [m.id, assessCrew(m, env)])), [crew, env])
+  const a = assessments[c.id]
+  const pending = lastCheckin !== today
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,#0c1a3a,#020617_60%)] text-slate-100">
+      <header className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3">
+          <div className="mr-auto">
+            <h1 className="text-lg font-black tracking-tight">🛡️ SISP <span className="text-sky-400">· {t('Sistema de Saúde e Prevenção', 'Health & Prevention System')}</span></h1>
+            <p className="text-[11px] text-slate-400">{t('Autoavaliação e prevenção de saúde para tripulações espaciais · NASA Space Apps', 'Health self-assessment and prevention for space crews · NASA Space Apps')}</p>
+          </div>
+          <div className="flex overflow-hidden rounded-lg border border-slate-600 text-xs" role="group" aria-label="language">
+            {(['pt', 'en'] as const).map((lg) => (
+              <button key={lg} onClick={() => setLang(lg)} className={`px-2 py-1 ${lang === lg ? 'bg-sky-500 font-bold text-slate-950' : 'text-slate-300 hover:bg-slate-800'}`}>{lg.toUpperCase()}</button>
+            ))}
+          </div>
+          <label className="text-xs text-slate-400">{t('Ambiente', 'Environment')}
+            <select value={env} onChange={(e) => setEnv(e.target.value as EnvironmentId)}
+              className="ml-2 rounded-lg border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-100">
+              {(Object.keys(ENVIRONMENTS) as EnvironmentId[]).map((id) => <option key={id} value={id}>{ENVIRONMENTS[id].emoji} {tr(ENVIRONMENTS[id].name)}</option>)}
+            </select>
+          </label>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1 text-xs" title={badges.map((b) => tr(BADGES[b])).join('\n') || t('Faça check-ins para ganhar medalhas', 'Check in to earn badges')}>
+            <span className="font-bold text-amber-300">{t('Nv', 'Lv')} {level(xp)}</span>
+            <div className="h-2 w-16 overflow-hidden rounded-full bg-slate-700"><div className="h-full bg-amber-400" style={{ width: `${xp % 100}%` }} /></div>
+            <span>{xp} XP</span><span>🔥 {streak}</span><span>🏅 {badges.length}</span>
+          </div>
+        </div>
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 pb-2">
+          {crew.map((m) => {
+            const s = assessments[m.id]?.overall ?? 0
+            return (
+              <button key={m.id} onClick={() => select(m.id)}
+                className={`flex shrink-0 items-center gap-2 rounded-xl border px-3 py-1.5 text-left text-xs transition ${m.id === c.id ? 'border-sky-400 bg-sky-500/10' : 'border-slate-700 hover:border-slate-500'}`}>
+                <span className="text-xl">{m.avatar}</span>
+                <span><span className="block font-semibold">{tr(m.name)}</span><span className="text-slate-400">{tr(m.role).split(' (')[0]}</span></span>
+                <span className="ml-1 h-3 w-3 rounded-full" style={{ background: SEVERITY_COLOR[s] }} title={tr(SEVERITY_LABEL[s])} />
+              </button>
+            )
+          })}
+        </div>
+        <nav className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4">
+          {TAB_IDS.map((id) => (
+            <button key={id} onClick={() => setTab(id)}
+              className={`relative shrink-0 px-3 py-2 text-sm ${tab === id ? (id === 'emergency' ? 'text-red-300' : 'text-sky-300') : id === 'emergency' ? 'text-red-400/80 hover:text-red-300' : 'text-slate-400 hover:text-slate-200'}`}>
+              {tabLabel(id)}{id === 'checkin' && pending && <span className="ml-1 rounded-full bg-amber-400 px-1.5 text-[10px] font-bold text-slate-950">1</span>}
+              {tab === id && <motion.span layoutId="tab" className={`absolute inset-x-1 -bottom-px h-0.5 ${id === 'emergency' ? 'bg-red-400' : 'bg-sky-400'}`} />}
+            </button>
+          ))}
+        </nav>
+      </header>
+
+      <main className="mx-auto max-w-7xl space-y-4 px-4 py-4">
+        {a && tab !== 'emergency' && (
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="text-slate-300">{c.avatar} <b>{tr(c.name)}</b> · {c.agency} · {t('dia', 'day')} {a.radiation.days} {t('de missão', 'of mission')} · {ENVIRONMENTS[env].emoji} {tr(ENVIRONMENTS[env].name)} ({t('atraso', 'delay')} {tr(ENVIRONMENTS[env].delayLabel)})</span>
+            <Badge s={a.overall} />
+            <span className="text-[11px] text-slate-500">{t('Cenário simulado', 'Simulated scenario')}: {tr(c.scenario)}</span>
+            {pending && tab !== 'checkin' && (
+              <button onClick={() => setTab('checkin')} className="ml-auto rounded-lg bg-amber-400/90 px-3 py-1 text-xs font-bold text-slate-950">{t('⏰ Check-in de hoje pendente (+20 XP)', '⏰ Today’s check-in due (+20 XP)')}</button>
+            )}
+          </div>
+        )}
+        <AnimatePresence mode="wait">
+          <motion.div key={tab + c.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+            {tab === 'dashboard' && a && <Dashboard a={a} />}
+            {tab === 'checkin' && <Checkin key={c.id} />}
+            {tab === 'trends' && <Trends c={c} />}
+            {tab === 'ground' && a && <Ground c={c} a={a} />}
+            {tab === 'nasa' && <NasaData />}
+            {tab === 'about' && <About />}
+          </motion.div>
+        </AnimatePresence>
+        <Disclaimer />
+      </main>
+    </div>
+  )
+}
