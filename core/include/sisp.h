@@ -9,7 +9,7 @@
  * terrestrial guidelines (AHA, NHLBI, ADA, CDC, AASM, PHQ-2) and public NASA
  * material; baseline-deviation thresholds are prototype design parameters.
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #ifndef SISP_H
 #define SISP_H

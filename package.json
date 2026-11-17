@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "SISP – Health & Prevention System: offline-first health self-assessment and emergency guidance for astronauts (NASA Space Apps Challenge).",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "author": "Samuel Nogueira",
   "keywords": [
     "nasa",

@@ -16,7 +16,7 @@ NASA Space Apps Challenge · *Create Health Monitoring Software for Astronauts o
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 ![three.js](https://img.shields.io/badge/three.js-R3F-000000?logo=three.js&logoColor=white)
-![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
+![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)
 
 </div>
 
@@ -301,4 +301,8 @@ All data stays on the device (SQLite in the browser's private file system, or `l
 
 ## License
 
-[MIT](LICENSE) © 2026 Samuel Nogueira. The NASA data and documents referenced here are public and remain subject to their original terms.
+Copyright © 2026 Samuel Else, Else Systems, and Equipe Syntra (NASA Space Apps Challenge Goiânia 2026). All rights reserved. See [LICENSE](LICENSE) ([português](LICENSE.pt.md)).
+
+This repository is a public portfolio and showcase only. Viewing it on GitHub or at the [live demo](https://elsesystems.github.io/SISP/) is allowed. Any other use, copying, modification, distribution, or commercial use requires prior written permission. Contact: [contato@elsesystems.com](mailto:contato@elsesystems.com).
+
+Third-party components keep their own licenses: the vendored SQLite amalgamation is public domain; npm dependencies remain under their respective licenses. The NASA data and documents referenced here are public and remain subject to their original terms.

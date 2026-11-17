@@ -3,7 +3,7 @@
  * Mirrors src/core/reference.ts line by line; both are checked against
  * core/tests/fixtures/parity.txt so the C, WASM and TypeScript builds agree.
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #include "sisp.h"
 

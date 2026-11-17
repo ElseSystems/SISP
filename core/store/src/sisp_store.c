@@ -1,6 +1,6 @@
 /*
  * sisp_store — SQLite history store for libsisp. See include/sisp_store.h.
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #include "sisp_store.h"
 

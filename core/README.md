@@ -1,7 +1,7 @@
 # libsisp
 
 Portable C11 assessment core of **SISP — Health & Prevention System** (NASA Space Apps).
-No dependencies, no dynamic allocation, thread-safe. MIT licensed.
+No dependencies, no dynamic allocation, thread-safe. Proprietary (see [LICENSE](../LICENSE)).
 
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release

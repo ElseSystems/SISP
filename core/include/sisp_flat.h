@@ -6,7 +6,7 @@
  * and writes a packed array of doubles; the layouts are documented in
  * docs/core-api.md and are the same ones used by core/tests/fixtures/parity.txt.
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #ifndef SISP_FLAT_H
 #define SISP_FLAT_H

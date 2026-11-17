@@ -1,4 +1,4 @@
-/* libsisp flat ABI. See include/sisp_flat.h. SPDX-License-Identifier: MIT */
+/* libsisp flat ABI. See include/sisp_flat.h. SPDX-License-Identifier: LicenseRef-Proprietary */
 #include "sisp_flat.h"
 
 #include <math.h>

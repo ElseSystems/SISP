@@ -16,7 +16,7 @@ Português · [English](README.md)
 ![TypeScript](https://img.shields.io/badge/TypeScript-7-3178c6?logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?logo=vite&logoColor=white)
 ![three.js](https://img.shields.io/badge/three.js-R3F-000000?logo=three.js&logoColor=white)
-![Licença: MIT](https://img.shields.io/badge/Licen%C3%A7a-MIT-green.svg)
+![Licença: Proprietária](https://img.shields.io/badge/Licen%C3%A7a-Propriet%C3%A1ria-red.svg)
 
 </div>
 
@@ -299,4 +299,8 @@ Todos os dados ficam no dispositivo (SQLite no sistema de arquivos privado do na
 
 ## Licença
 
-[MIT](LICENSE) © 2026 Samuel Nogueira. Os dados e documentos da NASA citados são públicos e seguem os termos originais.
+Copyright © 2026 Samuel Else, Else Systems e Equipe Syntra (NASA Space Apps Challenge Goiânia 2026). Todos os direitos reservados. Veja a [LICENSE](LICENSE) ([português](LICENSE.pt.md)).
+
+Este repositório é apenas um portfólio e vitrine pública. É permitido visualizá-lo no GitHub ou na [demo ao vivo](https://elsesystems.github.io/SISP/). Qualquer outro uso, cópia, modificação, distribuição ou uso comercial exige autorização prévia por escrito. Contato: [contato@elsesystems.com](mailto:contato@elsesystems.com).
+
+Componentes de terceiros mantêm as respectivas licenças: a amalgamação do SQLite vendored é de domínio público; as dependências npm seguem as próprias licenças. Os dados e documentos da NASA citados são públicos e seguem os termos originais.

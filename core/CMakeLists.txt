@@ -1,3 +1,4 @@
+# Copyright (c) 2026 Samuel Else, Else Systems, and Equipe Syntra. Proprietary. See ../LICENSE.
 cmake_minimum_required(VERSION 3.18)
 project(libsisp VERSION 1.0.0 DESCRIPTION "SISP assessment core (portable C11)" LANGUAGES C)
 include(GNUInstallDirs)

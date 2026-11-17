@@ -9,7 +9,7 @@
  * Durability: WAL journal, synchronous=FULL, foreign keys ON, every write is a prepared
  * statement; batch writes with sisp_store_begin/commit. One sisp_store per thread.
  *
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #ifndef SISP_STORE_H
 #define SISP_STORE_H

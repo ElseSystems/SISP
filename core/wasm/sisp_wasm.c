@@ -2,7 +2,7 @@
  * WebAssembly entry points for libsisp (built by scripts/build-core-wasm.sh).
  * Static I/O buffers: the host writes doubles at sisp_wasm_in(), calls
  * sisp_wasm_call(op, n_in) and reads the result at sisp_wasm_out(). No malloc.
- * SPDX-License-Identifier: MIT
+ * SPDX-License-Identifier: LicenseRef-Proprietary
  */
 #include "sisp_flat.h"
 
